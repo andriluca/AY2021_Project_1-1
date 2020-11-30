@@ -10,6 +10,7 @@
  * ========================================
 */
 #include "project.h"
+#include "I2c.h"
 
 int main(void)
 {
