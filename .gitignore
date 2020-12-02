@@ -21,6 +21,8 @@
 */*.svd
 */*.log
 */.*DS_Store
+*/Project01/Backup
+
 
 # Python
 */*/__pycache__
