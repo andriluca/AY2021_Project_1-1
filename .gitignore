@@ -5,22 +5,23 @@
 */*.cywrk.*
 */*.cyprj.*
 */*.cydsn/*.cyprj.*
+*/*.cydsn/CortexM3
 
 # Generated Assets and Resources
-*/Debug/
-*/Docs/
-*/Release/
-*/Export/
+Project01/Project01-1.cydsn/Debug/
+Project01/Project01-1.cydsn/Docs/
+Project01/Project01-1.cydsn/Release/
+Project01/Project01-1.cydsn/Export/
 */*/codegentemp
 */*/Generated_Source
 */*_datasheet.pdf
-*/*_timing.html
-*/*.cycdx
-*/*.cyfit
-*/*.rpt
-*/*.svd
-*/*.log
-*/.*DS_Store
+Project01/Project01-1.cydsn/*_timing.html
+Project01/Project01-1.cydsn/*.cycdx
+Project01/Project01-1.cydsn/*.cyfit
+Project01/Project01-1.cydsn/*.rpt
+Project01/Project01-1.cydsn/*.svd
+Project01/Project01-1.cydsn/*.log
+Project01/Project01-1.cydsn/*.DS_Store
 */Project01/Backup
 
 

@@ -3,7 +3,7 @@
  * ========================================
 */
 
-#include "I2c.h"
+#include "i2c.h"
 
 
 ErrorCode I2C_Peripheral_Start()
