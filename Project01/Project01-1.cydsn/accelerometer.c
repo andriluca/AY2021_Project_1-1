@@ -45,43 +45,35 @@ ErrorCode I2C_LIS3DH_Start()
     return NO_ERROR;
 }
 
-ErrorCode I2C_LIS3DH_Manage_Data(int16_t* array)
+ErrorCode I2C_LIS3DH_Manage_Data(int16 * array, uint8 sensitivity)
 {
     // Initializing the data buffer
-    uint8_t out[BYTE_TO_TRANSFER];
-    out[0] = 0xA0;                      // --> HEADER
-    out[BYTE_TO_TRANSFER - 1] = 0xC0;   // --> TAIL
+    uint8_t out[BYTE_TO_EEPROM];
+    uint32_t concatenated_Data = 0;
     
     // Array dedicated to save accelerometer data in digit.
-    int16_t sensorData[3];
+    int16 converted_acc[3];
     
     // Data acquisition
-    I2C_LIS3DH_Get_Raw_Data(sensorData);
+    //I2C_LIS3DH_Get_Raw_Data(sensorData);
     
     // Data conversion
     for(uint8_t i = 0; i < LIS3DH_OUT_AXES; i++)  
-	    array[i] = (int16_t)(sensorData[i] * sensitivity * CONVERSION); // populating the array's float data.
+	    converted_acc[i] = (int16_t)(array[i] * sensitivity * CONVERSION); //make conversion using array raw values
     
     // Counters
     uint8_t arrayIndex=0,    	// arrayIndex is used to browse the array cells. 
 			shiftIndex=0;   	// shiftIndex is used in order to perform the right shift operation on the data.
         
-    uint32_t reconstructedData = 0;
     
-    for(uint8_t count = 1; count < BYTE_TO_TRANSFER - 1; count++){
-        reconstructedData = array[arrayIndex+2] | array[arrayIndex + 1] << 10 | array[arrayIndex] << 20;
-    }
+    concatenated_Data = converted_acc[A_Z] | converted_acc[A_Y] << 10 | converted_acc[A_X] << 20;
     
-    for(uint8_t count = 1; count < BYTE_TO_TRANSFER - 1; count++) 
-    {
-        
-        out[count] = array[arrayIndex] >> 8 * shiftIndex & 0xff;        // populating the buffer with binary translated float properly masked.
-        shiftIndex = (shiftIndex+1) % BYTES_PER_AXIS;                 	// updating the shift index.
-        if(!(count % BYTES_PER_AXIS)) arrayIndex++;                 	// updating the array index, once all the data related to one axis are gathered.
-    }
+    out[0] = concatenated_Data & 0xFF;
+    out[1] = (concatenated_Data >> 8) & 0xFF;
+    out[2] = (concatenated_Data >> 16) & 0xFF;
+    out[3] = (concatenated_Data >> 24) & 0xFF;
     
-    // Sending data buffer
-    UART_PutArray(out, BYTE_TO_TRANSFER);
+    
     
     return NO_ERROR;
 }

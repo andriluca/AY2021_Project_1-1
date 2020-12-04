@@ -99,11 +99,15 @@
     #define WTM_HIGH                    1
     #define BYTE_TO_READ_PER_LEVEL      6
     #define LEVEL_TO_READ               31
+    #define BYTE_TO_EEPROM              4
     #define X_LSB   0
     #define X_MSB   1
     #define Y_LSB   2
     #define Y_MSB   3
     #define Z_LSB   4
     #define Z_MSB   5
+    #define A_Z     2
+    #define A_Y     1
+    #define A_X     0
 
 #endif

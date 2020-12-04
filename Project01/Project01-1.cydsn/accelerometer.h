@@ -46,6 +46,6 @@
  *     Gathers LIS3DH data and sends them through UART
 \*****************************************************************************/
     
-    ErrorCode I2C_LIS3DH_Manage_Data(int16_t* array);
+    ErrorCode I2C_LIS3DH_Manage_Data(int16_t* array, uint8 sensitivity);
     
 #endif
