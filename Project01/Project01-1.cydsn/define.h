@@ -27,6 +27,7 @@
     /* === End changeable values === */
     
     // addresses
+    #define EXT_EEPROM_DEVICE_ADDRESS   0x50 
     #define LIS3DH_DEVICE_ADDRESS       0x18                                    // Accelerometer's slave address (SAD).
     #define LIS3DH_CTRL_REG1            0x20                                    // Register 1 --> setup Hi Res Mode (ODRs' selection happens in interrupt).
     #define LIS3DH_CTRL_REG4            0x23                                    // Register 4 --> setup FS[1:0] + LIS3DH_SENSITIVITY (use masks below).
@@ -44,10 +45,17 @@
     #define LIS3DH_ZYXDA_STATUS_REG     0x08    // New available data incoming from the register.
     #define LIS3DH_WM_CTRL_REG3         0x04
     #define LIS3DH_NR_CTRL_REG4         0x80    // Partial mask: the rest is modified by the if defined.
-    #define LIS3DH_FIFO_CTRL_REG5       0x40
-    #define LIS3DH_FIFO_MODE_FIFO_CTRL_REG  0x40
-    #define LIS3DH_STF_MODE_FIFO_CTRL_REG  0xc0
+    #define LIS3DH_FIFO_EN_CTRL_REG5       0x40    // Enable the FIFO register
+    //#define LIS3DH_FIFO_MODE_FIFO_CTRL_REG      0x40
+    #define LIS3DH_STREAM_MODE_FIFO_CTRL_REG    0x80
+    //#define LIS3DH_STF_MODE_FIFO_CTRL_REG       0xc0
+    #define LIS3DH_FTH_WTM_FIFO_CTRL_REG        0x1f // Set Watermark at 31st FIFO level !!!!!!!!da definire
+    #define LIS3DH_INT1_WTM_CTRL_REG3           0x04 // Enable Watermark on INT1
+    //#define LIS3DH_CTRL_REG3          0x02 // Enable Overrun on INT1
     
+    //--------------------------------------------//
+    //        NORMAL MODE IS SET BY DEFAULT       //
+    //--------------------------------------------//
     
     #define LIS3DH_NORMAL_CTRL_REG4_FS0 0x00    // FS = [-2, +2]g   --> So =  4     CHOSEN
     #define LIS3DH_NORMAL_CTRL_REG4_FS1 0x10    // FS = [-4, +4]g   --> So =  8
@@ -85,5 +93,17 @@
     #define EEPROM_ODR_100              0x05                                            // 100Hz
     #define EEPROM_ODR_200              0x06                                            // 200Hz    
     #define EEPROM_ODR_400              0x07                                            // 400Hz
+    
+    // Status
+    #define WTM_LOW                     0
+    #define WTM_HIGH                    1
+    #define BYTE_TO_READ_PER_LEVEL      6
+    #define LEVEL_TO_READ               31
+    #define X_LSB   0
+    #define X_MSB   1
+    #define Y_LSB   2
+    #define Y_MSB   3
+    #define Z_LSB   4
+    #define Z_MSB   5
 
 #endif

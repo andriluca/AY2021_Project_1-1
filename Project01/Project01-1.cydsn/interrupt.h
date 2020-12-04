@@ -15,6 +15,10 @@
     volatile uint8_t onButtonPressed;               // keeps track of button states.
     uint8_t zyxda;                                  // keeps track of the zyxda bit of status register.
     
+    volatile uint8_t wtm;
+    
     CY_ISR_PROTO(SW_ISR);
+    
+    CY_ISR_PROTO(WTM_ISR);
     
 #endif

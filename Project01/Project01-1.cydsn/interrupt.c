@@ -12,3 +12,9 @@ CY_ISR_PROTO(SW_ISR)
     // setting flag to 1.
     onButtonPressed = 1;
 }
+
+CY_ISR(WTM_ISR)
+{
+    wtm = WTM_HIGH; //vedere se funziona
+}
+    
