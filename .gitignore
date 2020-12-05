@@ -1,0 +1,31 @@
+# Created by https://www.gitignore.io/api/psoccreator
+
+### PSoCCreator ###
+# Project Settings
+*/*.cywrk.*
+*/*.cyprj.*
+*/*.cydsn/*.cyprj.*
+*/*.cydsn/CortexM3
+
+# Generated Assets and Resources
+Project01/Project01-1.cydsn/Debug
+Project01/Project01-1.cydsn/Docs
+Project01/Project01-1.cydsn/Release
+Project01/Project01-1.cydsn/Export
+*/*/codegentemp
+*/*/Generated_Source
+*/*_datasheet.pdf
+Project01/Project01-1.cydsn/*_timing.html
+Project01/Project01-1.cydsn/*.cycdx
+Project01/Project01-1.cydsn/*.cyfit
+Project01/Project01-1.cydsn/*.rpt
+Project01/Project01-1.cydsn/*.svd
+Project01/Project01-1.cydsn/*.log
+Project01/Project01-1.cydsn/*.DS_Store
+*/Project01/Backup
+
+
+# Python
+*/*/__pycache__
+
+# End of https://www.gitignore.io/api/psoccreator
