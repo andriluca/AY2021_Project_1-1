@@ -15,6 +15,7 @@ Il psoc dovrà "impacchettare" i dati in 4 byte, a cui dobbiamo aggiungere però
 ## EEPROM (esterna)
 
 Controlla se stessa se è piena o no e manda un'interrupt al psoc.
+Tra multiwrite e (multi)read dobbiamo inserire un delay di 5 ms.
 
 ## EEPROM (interna)
 

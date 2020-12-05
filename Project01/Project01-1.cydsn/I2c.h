@@ -80,5 +80,26 @@
                                             uint8_t register_address,
                                             uint8_t data);
     
+    ErrorCode I2C_EXT_EEPROM_ReadRegister(uint8_t device_address, 
+                                            uint8_t register_address_high,
+                                            uint8_t register_address_low,
+                                            uint8_t* data);
+    
+    ErrorCode I2C_EXT_EEPROM_WriteRegister(uint8_t device_address,
+                                        uint8_t register_address_high,
+                                        uint8_t register_address_low,
+                                        uint8_t data);
+    
+    ErrorCode I2C_EXT_EEPROM_WriteRegisterMulti(uint8_t device_address,
+                                        uint8_t register_address_high,
+                                        uint8_t register_address_low,
+                                        uint8_t register_count,
+                                        uint8_t* data);
+    ErrorCode I2C_EXT_EEPROM_ReadRegisterMulti(uint8_t device_address, 
+                                        uint8_t register_address_high,
+                                        uint8_t register_address_low,
+                                        uint8_t register_count,
+                                        uint8_t* data);
+
     
 #endif
