@@ -39,18 +39,19 @@
     #define LIS3DH_OUT_Z_H              0x2d                                    // Last output register.
     #define LIS3DH_OUT_N                (LIS3DH_OUT_Z_H - LIS3DH_OUT_X_L + 1)   // Number of output registers.
     #define LIS3DH_OUT_AXES             (uint8_t)(LIS3DH_OUT_N / 2)             // Accelerometer's number of axes.
-    #define EXT_EEPROM_DEVICE_ADDRESS   0x50
     
     // register masks
     #define LIS3DH_NORMAL_CTRL_REG1     0x07    // Partial mask: the rest is initialized and modified by the interrupt.
     #define LIS3DH_ZYXDA_STATUS_REG     0x08    // New available data incoming from the register.
-    #define LIS3DH_WM_CTRL_REG3         0x04
-    #define LIS3DH_NR_CTRL_REG4         0x80    // Partial mask: the rest is modified by the if defined.
+    #define LIS3DH_WM_CTRL_REG3         0b00000100
+    #define LIS3DH_OVR_CTRL_REG3        0b00000010
+    #define LIS3DH_NR_CTRL_REG4         0x00    // Partial mask: the rest is modified by the if defined.
     #define LIS3DH_FIFO_EN_CTRL_REG5       0x40    // Enable the FIFO register
     //#define LIS3DH_FIFO_MODE_FIFO_CTRL_REG      0x40
-    #define LIS3DH_STREAM_MODE_FIFO_CTRL_REG    0x80
+    #define LIS3DH_STREAM_MODE_FIFO_CTRL_REG    0b10000000
+    #define LIS3DH_FIFO_MODE_FIFO_CTRL_REG      0b01000000
     //#define LIS3DH_STF_MODE_FIFO_CTRL_REG       0xc0
-    #define LIS3DH_FTH_WTM_FIFO_CTRL_REG        0x1f // Set Watermark at 31st FIFO level !!!!!!!!da definire
+    #define LIS3DH_FTH_WTM_FIFO_CTRL_REG        0b00011101 // Set Watermark at 20th FIFO level !!!!!!!!da definire
     #define LIS3DH_INT1_WTM_CTRL_REG3           0x04 // Enable Watermark on INT1
     //#define LIS3DH_CTRL_REG3          0x02 // Enable Overrun on INT1
     
@@ -99,7 +100,7 @@
     #define WTM_LOW                     0
     #define WTM_HIGH                    1
     #define BYTE_TO_READ_PER_LEVEL      6
-    #define LEVEL_TO_READ               31
+    #define LEVEL_TO_READ               28
     #define BYTE_TO_EEPROM              4
     #define X_LSB   0
     #define X_MSB   1
