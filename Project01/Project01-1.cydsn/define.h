@@ -39,6 +39,7 @@
     #define LIS3DH_OUT_Z_H              0x2d                                    // Last output register.
     #define LIS3DH_OUT_N                (LIS3DH_OUT_Z_H - LIS3DH_OUT_X_L + 1)   // Number of output registers.
     #define LIS3DH_OUT_AXES             (uint8_t)(LIS3DH_OUT_N / 2)             // Accelerometer's number of axes.
+    #define EXT_EEPROM_DEVICE_ADDRESS   0x50
     
     // register masks
     #define LIS3DH_NORMAL_CTRL_REG1     0x07    // Partial mask: the rest is initialized and modified by the interrupt.
@@ -67,10 +68,10 @@
     #define LIS3DH_SENSITIVITY_2        16      // mg/digit
     #define LIS3DH_SENSITIVITY_3        48      // mg/digit
 
-    #define LIS3DH_NORMAL_CTRL_REG4_0     LIS3DH_NORMAL_CTRL_REG4_FS0 | LIS3DH_HR_CTRL_REG4
-    #define LIS3DH_NORMAL_CTRL_REG4_1     LIS3DH_NORMAL_CTRL_REG4_FS1 | LIS3DH_HR_CTRL_REG4
-    #define LIS3DH_NORMAL_CTRL_REG4_2     LIS3DH_NORMAL_CTRL_REG4_FS2 | LIS3DH_HR_CTRL_REG4
-    #define LIS3DH_NORMAL_CTRL_REG4_3     LIS3DH_NORMAL_CTRL_REG4_FS3 | LIS3DH_HR_CTRL_REG4
+    #define LIS3DH_NORMAL_CTRL_REG4_0     LIS3DH_NORMAL_CTRL_REG4_FS0 | LIS3DH_NR_CTRL_REG4
+    #define LIS3DH_NORMAL_CTRL_REG4_1     LIS3DH_NORMAL_CTRL_REG4_FS1 | LIS3DH_NR_CTRL_REG4
+    #define LIS3DH_NORMAL_CTRL_REG4_2     LIS3DH_NORMAL_CTRL_REG4_FS2 | LIS3DH_NR_CTRL_REG4
+    #define LIS3DH_NORMAL_CTRL_REG4_3     LIS3DH_NORMAL_CTRL_REG4_FS3 | LIS3DH_NR_CTRL_REG4
     
     // Data buffer
     #define LIS3DH_RESOLUTION            4                                          // Hi Res in bits.

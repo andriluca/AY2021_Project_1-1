@@ -73,8 +73,6 @@ ErrorCode I2C_LIS3DH_Manage_Data(int16 * array, uint8 sensitivity)
     out[2] = (concatenated_Data >> 16) & 0xFF;
     out[3] = (concatenated_Data >> 24) & 0xFF;
     
-    
-    
     return NO_ERROR;
 }
 
