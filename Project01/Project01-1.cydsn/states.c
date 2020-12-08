@@ -10,11 +10,15 @@
  * ========================================
 */
 #include "states.h"
+#include "accelerometer.h"
+#include "I2c.h"
 
 void init()
 {
     UART_Start();
-    I2C_Master_Start();
+    I2C_Peripheral_Start();
+    I2C_LIS3DH_Start();
+    ISR_ACC_StartEx(WTM_ISR);
     CyDelay(5);
 }
 

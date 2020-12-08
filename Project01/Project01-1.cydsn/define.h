@@ -30,53 +30,89 @@
     #define EXT_EEPROM_DEVICE_ADDRESS   0x50 
     #define LIS3DH_DEVICE_ADDRESS       0x18                                    // Accelerometer's slave address (SAD).
     #define LIS3DH_CTRL_REG1            0x20                                    // Register 1 --> setup Hi Res Mode (ODRs' selection happens in interrupt).
+    #define LIS3DH_CTRL_REG3            0x22
     #define LIS3DH_CTRL_REG4            0x23                                    // Register 4 --> setup FS[1:0] + LIS3DH_SENSITIVITY (use masks below).
     #define LIS3DH_CTRL_REG5            0x24
-    #define LIS3DH_CTRL_REG3            0x22
     #define LIS3DH_FIFO_CTRL_REG        0x2e
     #define LIS3DH_STATUS_REG           0x27                                    // Status Register.
     #define LIS3DH_OUT_X_L              0x28                                    // First output register.
     #define LIS3DH_OUT_Z_H              0x2d                                    // Last output register.
-    #define LIS3DH_OUT_N                (LIS3DH_OUT_Z_H - LIS3DH_OUT_X_L + 1)   // Number of output registers.
-    #define LIS3DH_OUT_AXES             (uint8_t)(LIS3DH_OUT_N / 2)             // Accelerometer's number of axes.
+    #define LIS3DH_OUT_N                (LIS3DH_OUT_Z_H - LIS3DH_OUT_X_L + 1)   // Number of output registers (6).
+    #define LIS3DH_OUT_AXES             (uint8_t)(LIS3DH_OUT_N / 2)             // Accelerometer's number of axes (3).
     
-    // register masks
-    #define LIS3DH_NORMAL_CTRL_REG1     0x07    // Partial mask: the rest is initialized and modified by the interrupt.
+    // === REGISTER MASKS ===
+
+    // Status Register
     #define LIS3DH_ZYXDA_STATUS_REG     0x08    // New available data incoming from the register.
-    #define LIS3DH_WM_CTRL_REG3         0b00000100
-    #define LIS3DH_OVR_CTRL_REG3        0b00000010
+
+    // Control Register 1
+    #define LIS3DH_ENABLE_CTRL_REG1     0x07    // Partial mask: enabling the 3 axes.
+    // GUI encode ODRs in 2 bits, so it's needed to add '+ 1' to the data coming from it.
+    #define LIS3DH_ODR_01               0x01    //   1Hz
+    #define LIS3DH_ODR_10               0x02    //  10Hz
+    #define LIS3DH_ODR_25               0x03    //  25Hz
+    #define LIS3DH_ODR_50               0x04    //  50Hz
+    // Use these masks in order to setup Control Register 1.
+
+    // Control Register 3
+    #define LIS3DH_WM_CTRL_REG3         0x04
+    #define LIS3DH_OVR_CTRL_REG3        0x02
+
+    // Control Register 4
     #define LIS3DH_NR_CTRL_REG4         0x00    // Partial mask: the rest is modified by the if defined.
+    // Normal mode Full Scales
+    #define LIS3DH_FS0                  0x00    // FS = [-2, +2]g   --> So =  4
+    #define LIS3DH_FS1                  0x01    // FS = [-4, +4]g   --> So =  8
+    #define LIS3DH_FS2                  0x02    // FS = [-8, +8]g   --> So = 16   
+    #define LIS3DH_FS3                  0x03    // FS = [-16, +16]g --> So = 48
+    // Use these masks to setup the Control Register 4
+    
+    // Control Register 5
     #define LIS3DH_FIFO_EN_CTRL_REG5       0x40    // Enable the FIFO register
-    //#define LIS3DH_FIFO_MODE_FIFO_CTRL_REG      0x40
-    #define LIS3DH_STREAM_MODE_FIFO_CTRL_REG    0b10000000
-    #define LIS3DH_FIFO_MODE_FIFO_CTRL_REG      0b01000000
-    //#define LIS3DH_STF_MODE_FIFO_CTRL_REG       0xc0
-    #define LIS3DH_FTH_WTM_FIFO_CTRL_REG        0b00011101 // Set Watermark at 20th FIFO level !!!!!!!!da definire
-    #define LIS3DH_INT1_WTM_CTRL_REG3           0x04 // Enable Watermark on INT1
-    //#define LIS3DH_CTRL_REG3          0x02 // Enable Overrun on INT1
+
+    // FIFO Control Register
+	// Modes
+    #define LIS3DH_STREAM_MODE_FIFO_CTRL_REG    0x80
+    #define LIS3DH_FIFO_MODE_FIFO_CTRL_REG      0x40
+    #define LIS3DH_STF_MODE_FIFO_CTRL_REG       0xc0
+    #define LIS3DH_BYPASS_FIFO_CTRL_REG         0x00
+    
+    // Number of levels
+    #define LIS3DH_FTH_WTM_FIFO_CTRL_REG        30
+    
+    // ===== SETUP MASKS =====
+    #define LIS3DH_SETUP_01_CTRL_REG1	(LIS3DH_ODR_01 << 4) | LIS3DH_ENABLE_CTRL_REG1  // Setup mask varying with odr
+    #define LIS3DH_SETUP_10_CTRL_REG1	(LIS3DH_ODR_10 << 4) | LIS3DH_ENABLE_CTRL_REG1
+    #define LIS3DH_SETUP_25_CTRL_REG1	(LIS3DH_ODR_25 << 4) | LIS3DH_ENABLE_CTRL_REG1
+    #define LIS3DH_SETUP_50_CTRL_REG1	(LIS3DH_ODR_50 << 4) | LIS3DH_ENABLE_CTRL_REG1
+
+    #define LIS3DH_SETUP_CTRL_REG3		LIS3DH_WM_CTRL_REG3                             // Choose between WM and OVR
+    
+    #define LIS3DH_SETUP_0_CTRL_REG4   (LIS3DH_FS0 << 4) | LIS3DH_NR_CTRL_REG4          // Setup mask varying with fs
+    #define LIS3DH_SETUP_1_CTRL_REG4   (LIS3DH_FS1 << 4) | LIS3DH_NR_CTRL_REG4
+    #define LIS3DH_SETUP_2_CTRL_REG4   (LIS3DH_FS2 << 4) | LIS3DH_NR_CTRL_REG4
+    #define LIS3DH_SETUP_3_CTRL_REG4   (LIS3DH_FS3 << 4) | LIS3DH_NR_CTRL_REG4
+
+    #define LIS3DH_SETUP_CTRL_REG5      LIS3DH_FIFO_EN_CTRL_REG5
+    #define LIS3DH_RESET_FIFO_CTRL_REG  LIS3DH_BYPASS_FIFO_CTRL_REG
+    #define LIS3DH_MODE_FIFO_CTRL_REG   LIS3DH_STREAM_MODE_FIFO_CTRL_REG                // Choose between Stream and FIFO mode
+    #define LIS3DH_SETUP_FIFO_CTRL_REG  LIS3DH_MODE_FIFO_CTRL_REG | LIS3DH_FTH_WTM_FIFO_CTRL_REG 
     
     //--------------------------------------------//
     //        NORMAL MODE IS SET BY DEFAULT       //
     //--------------------------------------------//
     
-    #define LIS3DH_NORMAL_CTRL_REG4_FS0 0x00    // FS = [-2, +2]g   --> So =  4     CHOSEN
-    #define LIS3DH_NORMAL_CTRL_REG4_FS1 0x10    // FS = [-4, +4]g   --> So =  8
-    #define LIS3DH_NORMAL_CTRL_REG4_FS2 0x20    // FS = [-8, +8]g   --> So = 16   
-    #define LIS3DH_NORMAL_CTRL_REG4_FS3 0x30    // FS = [-16, +16]g --> So = 48
-    // Normal mode
-    #define LIS3DH_SENSITIVITY_0        4       // mg/digit                         CHOSEN
+
+    // Normal mode sensitivities
+    #define LIS3DH_SENSITIVITY_0        4       // mg/digit
     #define LIS3DH_SENSITIVITY_1        8       // mg/digit
     #define LIS3DH_SENSITIVITY_2        16      // mg/digit
     #define LIS3DH_SENSITIVITY_3        48      // mg/digit
 
-    #define LIS3DH_NORMAL_CTRL_REG4_0     LIS3DH_NORMAL_CTRL_REG4_FS0 | LIS3DH_NR_CTRL_REG4
-    #define LIS3DH_NORMAL_CTRL_REG4_1     LIS3DH_NORMAL_CTRL_REG4_FS1 | LIS3DH_NR_CTRL_REG4
-    #define LIS3DH_NORMAL_CTRL_REG4_2     LIS3DH_NORMAL_CTRL_REG4_FS2 | LIS3DH_NR_CTRL_REG4
-    #define LIS3DH_NORMAL_CTRL_REG4_3     LIS3DH_NORMAL_CTRL_REG4_FS3 | LIS3DH_NR_CTRL_REG4
     
     // Data buffer
     #define LIS3DH_RESOLUTION            4                                          // Hi Res in bits.
-    #define LIS3DH_TOTAL_BITS           30                                          // Bits to memorize data (in digit).
+    #define LIS3DH_TOTAL_BITS           10                                          // Bits to memorize data (in digit).
     #define LIS3DH_RIGHT_SHIFT          (LIS3DH_TOTAL_BITS - LIS3DH_RESOLUTION)     // to perform right shift.
     #define BYTES_PER_AXIS              (uint8_t)(LIS3DH_RESOLUTION/LIS3DH_OUT_AXES)
     #define BYTE_TO_TRANSFER            1 + LIS3DH_RESOLUTION + 1
@@ -100,7 +136,7 @@
     #define WTM_LOW                     0
     #define WTM_HIGH                    1
     #define BYTE_TO_READ_PER_LEVEL      6
-    #define LEVEL_TO_READ               28
+    #define LEVEL_TO_READ               LIS3DH_FTH_WTM_FIFO_CTRL_REG
     #define BYTE_TO_EEPROM              4
     #define X_LSB   0
     #define X_MSB   1

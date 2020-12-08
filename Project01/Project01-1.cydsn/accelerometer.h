@@ -38,6 +38,19 @@
    
     ErrorCode I2C_LIS3DH_Start();
     
+    
+/*****************************************************************************\
+ * Function:    I2C_LIS3DH_Get_Raw_Data
+ * Input:       int16_t data
+ * Returns:     ErrorCode
+ * Description: 
+ *     Populates an int16_t array with right-aligned sensor data
+\*****************************************************************************/
+
+
+ErrorCode I2C_LIS3DH_Get_Raw_Data(int16_t* data);
+
+    
 /*****************************************************************************\
  * Function:    I2C_LIS3DH_Manage_Data
  * Input:       outtype* array
