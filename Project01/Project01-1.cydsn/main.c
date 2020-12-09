@@ -22,8 +22,10 @@ int16_t raw_data_16bit[3];
 int16_t converted_acc[3];
 uint32_t concatenated_Data = 0;
 uint8_t out[BYTE_TO_EEPROM*LEVEL_TO_READ];
+uint8_t outEEPROM[BYTE_TO_EEPROM*LEVEL_TO_READ];
 uint8_t j = 0;
 uint8_t offset = 0;
+uint8_t fifo_read = 0;
 
 
 
@@ -61,7 +63,7 @@ int main(void)
     
     for(;;)
     {
-        if(wtm){
+        if(wtm && fifo_read == 0){
             for (int level = 0; level < 30; level++){
                 I2C_LIS3DH_Get_Raw_Data(raw_data_16bit);
                 for (uint8_t i = 0; i < LIS3DH_OUT_AXES; i++)
@@ -95,9 +97,28 @@ int main(void)
 //                sprintf(message, "raw_data_16: %u \n", (unsigned int) (raw_data_16bit[i]));
 //                UART_PutString(message);
 //            }
-            
+            fifo_read = 1;
             wtm = 0;
         }
+        if (wtm ==0 && fifo_read)
+        {
+            I2C_EXT_EEPROM_WriteRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
+                                        0x00,
+                                        0x00,
+                                        120,
+                                        out);
+            CyDelay(5);
+            I2C_EXT_EEPROM_ReadRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
+                                        0x00,
+                                        0x00,
+                                        120,
+                                        outEEPROM);
+            fifo_read = 0;
+        }
+        
+        
+        
+        
         
         
         
