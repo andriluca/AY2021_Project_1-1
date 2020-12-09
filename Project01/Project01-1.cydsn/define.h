@@ -61,10 +61,10 @@
     // Control Register 4
     #define LIS3DH_NR_CTRL_REG4         0x00    // Partial mask: the rest is modified by the if defined.
     // Normal mode Full Scales
-    #define LIS3DH_FS0                  0x00    // FS = [-2, +2]g   --> So =  4
-    #define LIS3DH_FS1                  0x01    // FS = [-4, +4]g   --> So =  8
-    #define LIS3DH_FS2                  0x02    // FS = [-8, +8]g   --> So = 16   
-    #define LIS3DH_FS3                  0x03    // FS = [-16, +16]g --> So = 48
+    #define LIS3DH_FS_02                  0x00    // FS = [-2, +2]g   --> So =  4
+    #define LIS3DH_FS_04                  0x01    // FS = [-4, +4]g   --> So =  8
+    #define LIS3DH_FS_08                  0x02    // FS = [-8, +8]g   --> So = 16   
+    #define LIS3DH_FS_16                  0x03    // FS = [-16, +16]g --> So = 48
     // Use these masks to setup the Control Register 4
     
     // Control Register 5
@@ -88,12 +88,13 @@
 
     #define LIS3DH_SETUP_CTRL_REG3		LIS3DH_WM_CTRL_REG3                             // Choose between WM and OVR
     
-    #define LIS3DH_SETUP_0_CTRL_REG4   (LIS3DH_FS0 << 4) | LIS3DH_NR_CTRL_REG4          // Setup mask varying with fs
-    #define LIS3DH_SETUP_1_CTRL_REG4   (LIS3DH_FS1 << 4) | LIS3DH_NR_CTRL_REG4
-    #define LIS3DH_SETUP_2_CTRL_REG4   (LIS3DH_FS2 << 4) | LIS3DH_NR_CTRL_REG4
-    #define LIS3DH_SETUP_3_CTRL_REG4   (LIS3DH_FS3 << 4) | LIS3DH_NR_CTRL_REG4
+    #define LIS3DH_SETUP_02_CTRL_REG4   (LIS3DH_FS_02 << 4) | LIS3DH_NR_CTRL_REG4       // Setup mask varying with fs
+    #define LIS3DH_SETUP_04_CTRL_REG4   (LIS3DH_FS_04 << 4) | LIS3DH_NR_CTRL_REG4
+    #define LIS3DH_SETUP_08_CTRL_REG4   (LIS3DH_FS_08 << 4) | LIS3DH_NR_CTRL_REG4
+    #define LIS3DH_SETUP_16_CTRL_REG4   (LIS3DH_FS_16 << 4) | LIS3DH_NR_CTRL_REG4
 
     #define LIS3DH_SETUP_CTRL_REG5      LIS3DH_FIFO_EN_CTRL_REG5
+    
     #define LIS3DH_RESET_FIFO_CTRL_REG  LIS3DH_BYPASS_FIFO_CTRL_REG
     #define LIS3DH_MODE_FIFO_CTRL_REG   LIS3DH_STREAM_MODE_FIFO_CTRL_REG                // Choose between Stream and FIFO mode
     #define LIS3DH_SETUP_FIFO_CTRL_REG  LIS3DH_MODE_FIFO_CTRL_REG | LIS3DH_FTH_WTM_FIFO_CTRL_REG 
@@ -112,7 +113,7 @@
     
     // Data buffer
     #define LIS3DH_RESOLUTION            4                                          // Hi Res in bits.
-    #define LIS3DH_TOTAL_BITS           10                                          // Bits to memorize data (in digit).
+    #define LIS3DH_TOTAL_BITS           10                                          // Bits to memorize raw data (in digit).
     #define LIS3DH_RIGHT_SHIFT          (LIS3DH_TOTAL_BITS - LIS3DH_RESOLUTION)     // to perform right shift.
     #define BYTES_PER_AXIS              (uint8_t)(LIS3DH_RESOLUTION/LIS3DH_OUT_AXES)
     #define BYTE_TO_TRANSFER            1 + LIS3DH_RESOLUTION + 1

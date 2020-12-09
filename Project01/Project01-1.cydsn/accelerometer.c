@@ -23,36 +23,36 @@ ErrorCode I2C_LIS3DH_Start()
     
 
     // Setup control register 1
-//    I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-//                                 LIS3DH_CTRL_REG1,
-//                                 LIS3DH_SETUP_10_CTRL_REG1);    // ODR
-//    // Setup control register 3
-//    I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-//                                 LIS3DH_CTRL_REG3,
-//                                 LIS3DH_SETUP_CTRL_REG3);       // Interrupt on watermark
-//    // Setup control register 4
-//    I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-//                                 LIS3DH_CTRL_REG4,
-//                                 LIS3DH_SETUP_0_CTRL_REG4);     // FS
-//    // Setup control register 5
-//    I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-//                                 LIS3DH_CTRL_REG5,
-//                                 LIS3DH_SETUP_CTRL_REG5);       // FIFO enable
-//    // Setup FIFO control register (bypass to reset)
-//    I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-//                                 LIS3DH_FIFO_CTRL_REG,
-//                                 LIS3DH_RESET_FIFO_CTRL_REG);   // Software reset of accelerometer mode.
-//    // Setup FIFO control register
-//    I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-//                                 LIS3DH_FIFO_CTRL_REG,
-//                                 LIS3DH_SETUP_FIFO_CTRL_REG );  // select Stream mode and set WTM to 31 level
+    I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                 LIS3DH_CTRL_REG1,
+                                 LIS3DH_SETUP_10_CTRL_REG1);    // ODR
+    // Setup control register 3
+    I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                 LIS3DH_CTRL_REG3,
+                                 LIS3DH_SETUP_CTRL_REG3);       // Interrupt on watermark
+    // Setup control register 4
+    I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                 LIS3DH_CTRL_REG4,
+                                 LIS3DH_SETUP_02_CTRL_REG4);     // FS
+    // Setup control register 5
+    I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                 LIS3DH_CTRL_REG5,
+                                 LIS3DH_SETUP_CTRL_REG5);       // FIFO enable
+    // Setup FIFO control register (bypass to reset)
+    I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                 LIS3DH_FIFO_CTRL_REG,
+                                 LIS3DH_RESET_FIFO_CTRL_REG);   // Software reset of accelerometer mode.
+    // Setup FIFO control register
+    I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                 LIS3DH_FIFO_CTRL_REG,
+                                 LIS3DH_SETUP_FIFO_CTRL_REG );  // select Stream mode and set WTM to 31 level
 
-    I2C_Peripheral_WriteRegister(0x18, 0x2E,0x00);//FIFO
-    I2C_Peripheral_WriteRegister(0x18, 0x20,0x47);//1
-    I2C_Peripheral_WriteRegister(0x18, 0x22,0x04);//3
-    I2C_Peripheral_WriteRegister(0x18, 0x23,0x00);//4
-    I2C_Peripheral_WriteRegister(0x18, 0x24,0x40);//5
-    I2C_Peripheral_WriteRegister(0x18, 0x2E,0x9E);//FIFO
+//    I2C_Peripheral_WriteRegister(0x18, 0x2E,0x00);//FIFO
+//    I2C_Peripheral_WriteRegister(0x18, 0x20,0x47);//1
+//    I2C_Peripheral_WriteRegister(0x18, 0x22,0x04);//3
+//    I2C_Peripheral_WriteRegister(0x18, 0x23,0x00);//4
+//    I2C_Peripheral_WriteRegister(0x18, 0x24,0x40);//5
+//    I2C_Peripheral_WriteRegister(0x18, 0x2E,0x9E);//FIFO
 
 
     
