@@ -107,11 +107,18 @@ ErrorCode I2C_LIS3DH_Get_Raw_Data(int16_t* data)
 {
     uint8_t sensorData[LIS3DH_OUT_N]; // This array is storing left-aligned bytes coming from accelerometer.
     
-    // Storing data in temporary array.
+    //Storing data in temporary array.
     I2C_Peripheral_ReadRegisterMulti(LIS3DH_DEVICE_ADDRESS,
                                     0x28,
                                     6,
                                     sensorData);
+    
+//    I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS, LIS3DH_OUT_X_L, &sensorData[0]);
+//    I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS, 0x29 , &sensorData[1]);
+//    I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS, 0x2A, &sensorData[2]);
+//    I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS, 0x2B, &sensorData[3]);
+//    I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS, 0x2C, &sensorData[4]);
+//    I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS, 0x2D, &sensorData[5]);
     
     // Re-arranging data to have them right-aligned as integers.
     for(int i = 0; i < LIS3DH_OUT_AXES; i++) data[i] = (int16_t)((sensorData[2*i+1] << 8 | sensorData[2*i])) >> LIS3DH_RIGHT_SHIFT;   

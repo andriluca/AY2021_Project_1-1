@@ -87,7 +87,7 @@ ErrorCode I2C_Peripheral_ReadRegisterMulti(uint8_t device_address,
         if(error == I2C_Master_MSTR_NO_ERROR)
         {
             // modifying the register address in order to automatically read multiple values
-            register_address |= 0x08;
+            register_address |= 0x80;
             // writing the register address
             error = I2C_Master_MasterWriteByte(register_address);
             

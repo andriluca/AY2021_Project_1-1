@@ -14,6 +14,7 @@
 #include "define.h"
 #include "accelerometer.h"
 #include "states.h"
+#include "stdio.h"
 
 volatile uint8_t wtm = WTM_LOW;
 uint8_t raw_data_8bit[BYTE_TO_READ_PER_LEVEL];
@@ -61,11 +62,44 @@ int main(void)
     for(;;)
     {
         if(wtm){
-            for (int level = 0; level < 31; level++){
+            for (int level = 0; level < 30; level++){
                 I2C_LIS3DH_Get_Raw_Data(raw_data_16bit);
+                for (uint8_t i = 0; i < LIS3DH_OUT_AXES; i++)
+                {
+                    converted_acc[i] = (int16)(raw_data_16bit[i] * sensitivity * CONVERSION);
+                }
+                
+                concatenated_Data = 0;
+                uint8_t count = LIS3DH_OUT_AXES-1;
+                for(uint8_t i = 0; i < LIS3DH_OUT_AXES; i++)
+                {
+                    concatenated_Data |= (uint32_t)((converted_acc[i] & 0x3FF) << 10*count);
+                    count--;
+                }
+//                concatenated_Data = (uint32_t)(converted_acc[A_Z] | (converted_acc[A_Y] << 10) | (converted_acc[A_X] << 20));
+                
+                out[0 + offset] = (uint8_t)(concatenated_Data & 0xFF);
+                out[1 + offset] = (uint8_t)((concatenated_Data >> 8) & 0xFF);
+                out[2 + offset] = (uint8_t)((concatenated_Data >> 16) & 0xFF);
+                out[3 + offset] = (uint8_t)((concatenated_Data >> 24) & 0xFF);
+                
+                //inviamo out[4]; 
+                
+                offset = offset + 4;
+                
             }
+            
+//            for(uint8 i = 0; i <3; i++)
+//            {    
+//                char message[20];
+//                sprintf(message, "raw_data_16: %u \n", (unsigned int) (raw_data_16bit[i]));
+//                UART_PutString(message);
+//            }
+            
             wtm = 0;
         }
+        
+        
         
         
 //        if (wtm)
