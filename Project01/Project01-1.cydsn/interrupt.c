@@ -17,4 +17,9 @@ CY_ISR(WTM_ISR)
 {
     wtm = WTM_HIGH; //vedere se funziona
 }
+
+CY_ISR_PROTO(COMM_RX)
+{
+    comm = COMM_RECEIVED; //comando inviato da GUI a psoc
+}
     

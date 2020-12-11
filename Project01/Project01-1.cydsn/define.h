@@ -148,5 +148,10 @@
     #define A_Z     2
     #define A_Y     1
     #define A_X     0
+    #define COMM_RECEIVED               1
+    #define COMM_READ                   0
+    #define NOT_CONNECTED               0
+    #define CONNECTED                   1
+    
 
 #endif

@@ -32,6 +32,19 @@ int main(void)
     
     init();
     
+    volatile uint8_t comm = COMM_READ;
+    uint8 command;
+
+    uint8_t connection = NOT_CONNECTED;
+
+    int config;
+    int fsr;
+    int odr;
+    int save;
+    int temp_form;
+
+    ISR_RX_StartEx(COMM_RX);
+    
     uint8 sensitivity = 4;
     //uint8 freq = EEPROM_ODR_25;
     //uint8 fsr = LIS3DH_NORMAL_CTRL_REG4_FS0;
@@ -59,7 +72,118 @@ int main(void)
     //uint8 pin = 1;
     
     for(;;)
-    {
+    {        
+        if(comm == COMM_RECEIVED)
+        {
+            command = UART_GetChar();
+            switch(command)
+            {
+                case 'b':
+                    if(connection == CONNECTED)
+                    {
+                        I2C_Peripheral_Start();         //start data acquisition and saving
+                    }
+                    break;
+                case 's':
+                    if(connection == CONNECTED)
+                    {
+                        I2C_Peripheral_Stop();          //stop data acquisition and saving
+                    }
+                    break;
+                case 'v':
+                    if(connection == NOT_CONNECTED)
+                    {
+                        UART_PutString("Accelerometer Hello $$$");
+                    }
+                    else
+                    {
+                        //send data from EEPROM to GUI
+                    }
+                    break;
+                case 'c':
+                    if(connection == CONNECTED)
+                    {   
+                        //read config register and change settings
+                        config = UART_GetByte();        //necessary to read 000000
+                        
+                        fsr = config & 0x03;            //bits 0-1
+                        odr = config & 0x0C;            //bits 2-3
+                        save = config & 0x10;           //bit 4
+                        temp_form = config & 0x20;      //bit 5
+                        
+                        switch(fsr)
+                        {
+                            case 0x03:
+                                I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS, LIS3DH_CTRL_REG4, maschera_fsr_16g);    //fsr 16g  
+                                sensitivity = 48;                                                                           //mg/digit
+                                break;
+                            case 0x02:
+                                I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS, LIS3DH_CTRL_REG4, maschera_fsr_8g);     //fsr 8g 
+                                sensitivity = 16;                                                                           //mg/digit
+                                break;
+                            case 0x01:
+                                I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS, LIS3DH_CTRL_REG4, maschera_fsr_4g);     //fsr 4g    
+                                sensitivity = 8;                                                                            //mg/digit
+                                break;
+                            case 0x00:
+                                I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS, LIS3DH_CTRL_REG4, maschera_fsr_2g);     //fsr 2g   
+                                sensitivity = 4;                                                                            //mg/digit
+                                break;
+                            default:
+                                break;                            
+                        }
+                        
+                        switch(odr)
+                        {
+                            case 0x0C:
+                                I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS, LIS3DH_CTRL_REG1, maschera_odr_50Hz);     //odr 50Hz
+                                break;
+                            case 0x08:
+                                I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS, LIS3DH_CTRL_REG1, maschera_odr_25Hz);     //odr 25Hz
+                                break;
+                            case 0x04:
+                                I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS, LIS3DH_CTRL_REG1, maschera_odr_10Hz);     //odr 10Hz
+                                break;
+                            case 0x00:
+                                I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS, LIS3DH_CTRL_REG1, maschera_odr_1Hz);     //odr 1Hz
+                                break;
+                            default:
+                                break;                            
+                        }
+                        
+                        if(save)
+                        {
+                            //enable saving
+                        }
+                        else
+                        {
+                            //disable saving
+                        }
+                        
+                        if(temp_form)
+                        {
+                            //temp in °F
+                        }
+                        else
+                        {
+                            //temp in °C
+                        }         
+                        
+                        //clear EEPROM
+                        
+                    }
+                    break;
+                default:
+                    break;
+            }
+            comm = COMM_READ;
+        }                       
+    }
+}
+        
+        
+        
+        
         if(wtm){
             for (int level = 0; level < 31; level++){
                 I2C_LIS3DH_Get_Raw_Data(raw_data_16bit);
