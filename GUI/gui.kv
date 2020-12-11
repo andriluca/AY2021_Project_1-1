@@ -1,0 +1,110 @@
+#:kivy 1.11
+
+
+
+<Home>:
+
+    orientation: "horizontal"
+
+    com: _com                           #connection part
+    conn_bt: _conn_bt
+
+    fsr: _fsr                           
+    sf: _sf
+    tf: _tf
+    save: _save 
+
+    msg: _msg
+
+    st_bt: _st_bt
+    pr_bt: _pr_bt
+    up_bt: _up_bt
+
+    BoxLayout:
+        orientation: "vertical"
+        BoxLayout:                        
+            Spinner:
+                id: _com
+                text: "Ports"
+            Button:
+                id: _conn_bt
+                text: "Connect"
+                disabled: True
+                on_press: root.Connect()
+        
+        BoxLayout:                         #setting part
+            orientation: "vertical"
+            Button:
+                id: _st_bt
+                text:"Start"
+                on_press: root.Work()
+                disabled:True
+            Button:
+                id: _pr_bt
+                text:"Print data"
+                disabled:True
+                on_press: root.Print()
+            Button:
+                id: _up_bt
+                text:"Update Settings"
+                disabled:True
+                on_press: root.ChangeSettings()
+            BoxLayout:
+                Label:
+                    text: 'Full Scale Range'
+                Spinner:
+                    id: _fsr
+                    text: '+-2g'
+                    values: ('+-2g','+-4g','+-8g','+-16g')
+            BoxLayout:
+                Label:
+                    text: 'Sampling Frequency'
+                Spinner:
+                    id: _sf
+                    text: '1Hz'
+                    values: ('1Hz','10Hz','25Hz','50Hz')
+            BoxLayout:
+                Label:
+                    text: 'Temperature Format'
+                Spinner:
+                    id: _tf
+                    text: 'Celsius'
+                    values: ('Celsius','Fahrenheit')
+            BoxLayout:
+                Label:
+                    text: 'Save data to EEPROM'
+                Spinner:
+                    id: _save
+                    text: 'Enable'
+                    values: ('Enable','Disable')
+
+    BoxLayout:
+        orientation: "vertical"
+        BoxLayout:
+            orientation:"horizontal"
+            Label:
+                text:"grafico x"
+            Label:
+                text:"grafico y"
+        BoxLayout:
+            orientation:"horizontal"
+            Label:
+                text:"grafico z"
+            Label:
+                text:"grafico t"
+        ScrollView:
+            scrool_y:True
+            scrool_x:False
+            canvas.before:
+                Color:  
+                    rgba: 1, 1, 1, 1  
+                Rectangle:  
+                    pos: self.pos  
+                    size: self.size
+            Label:
+                id: _msg
+                text: "Welcome" 
+                color: (0,0,0,1)
+                text_size: self.width, None
+                size_hint_y: None
+                height: self.texture_size[1] 
