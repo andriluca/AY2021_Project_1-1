@@ -14,6 +14,8 @@ from kivy.clock import Clock
 import serial
 from serial.tools.list_ports import comports
 
+from kivy_garden.graph import Graph, LinePlot
+
 import time
 
 
@@ -92,10 +94,6 @@ class Home (BoxLayout):
             self.device = False
             self.conn_bt.text = "Connect"
             self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Device disconnected"
-            self.ser.flushInput()
-            time.sleep(.1)
-            self.ser.flushOutput()
-            time.sleep(.1)
             self.ser.close()
 
     def Work(self):                             #manage data acquisition and saving
@@ -121,27 +119,34 @@ class Home (BoxLayout):
         uart = bytes(uart, 'utf-8')
         self.ser.write(uart)
 
-#this also works, but we read all the bytes first, may be better so that we can also get the size for the cycle
-#        data = self.ser.read(18)
-#        for i in range(3):
-#            pack = data[i*6:i*6+6]
-#            acc_x.append(pack[0] | ((pack[1] & 0x03)<<8))
-#            acc_y.append(((pack[1] & 0xFC)>>2) | ((pack[2] & 0x0f)<<6))
-#            acc_z.append(((pack[2] & 0xFC)>>2) | ((pack[3] & 0x0f)<<6))
-#            temp.append(pack[4] | pack[5]<<8)            
-       
-        for i in range(3):                      #range=number of packages
-            data = self.ser.read(6)             #reads 1 package at a time
-            pack = data
+        data = self.ser.readline()
+ 
+        for i in range(len(data)//6):                      #range=number of packages
+            pack = data[i*6:i*6+6]            #reads 1 package at a time
             acc_x.append(pack[0] | ((pack[1] & 0x03)<<8))                   #first 2 bytes for x acc
             acc_y.append(((pack[1] & 0xFC)>>2) | ((pack[2] & 0x0f)<<6))     
             acc_z.append(((pack[2] & 0xFC)>>2) | ((pack[3] & 0x0f)<<6))
             temp.append(pack[4] | pack[5]<<8)      
 
-        self.x_data.text = str(acc_x)
-        self.y_data.text = str(acc_y)
-        self.z_data.text = str(acc_z)
-        self.t_data.text = str(temp)
+        plot_x = LinePlot(line_width=2, color=[1, 1, 1, 1])
+        plot_x.points = [(x, acc_x[x]) for x in range(len(acc_x))]
+        self.x_data.add_plot(plot_x)
+        self.x_data.xmax=len(acc_x)
+
+        plot_y = LinePlot(line_width=2, color=[1, 1, 1, 1])
+        plot_y.points = [(x, acc_y[x]) for x in range(len(acc_y))]
+        self.y_data.add_plot(plot_y)
+        self.y_data.xmax=len(acc_y)
+
+        plot_z = LinePlot(line_width=2, color=[1, 1, 1, 1])
+        plot_z.points = [(x, acc_z[x]) for x in range(len(acc_z))]
+        self.z_data.add_plot(plot_z)
+        self.z_data.xmax=len(acc_z)
+
+        plot_t = LinePlot(line_width=2, color=[1, 1, 1, 1])
+        plot_t.points = [(x, temp[x]) for x in range(len(temp))]
+        self.t_data.add_plot(plot_t)
+        self.t_data.xmax=len(temp)
 
     fsr=ObjectProperty()
     sf=ObjectProperty()
@@ -202,16 +207,16 @@ class Home (BoxLayout):
             conf= conf.to_bytes(1, 'big')
             self.ser.write(conf)
 
-            psoc=self.ser.readline()
-            psoc=psoc.decode(errors='ignore')
-            if psoc == "Done\n":
-                self.changing = False
-                self.up_bt.text = "Change settings"
-                self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Settings updated"
-                self.fsr.disabled = True
-                self.sf.disabled = True
-                self.esav.disabled = True
-                self.tf.disabled = True
+ #           psoc=self.ser.readline()
+ #           psoc=psoc.decode(errors='ignore')
+ #           if psoc == "Done\n":
+            self.changing = False
+            self.up_bt.text = "Change settings"
+            self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Settings updated"
+            self.fsr.disabled = True
+            self.sf.disabled = True
+            self.esav.disabled = True
+            self.tf.disabled = True
 
 
 class GUIApp (App):

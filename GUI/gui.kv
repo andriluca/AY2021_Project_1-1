@@ -1,6 +1,5 @@
 #:kivy 1.11
-
-
+#:import MeshLinePlot kivy.garden.graph.MeshLinePlot
 
 <Home>:
     padding: 5
@@ -109,20 +108,88 @@
         orientation: "vertical"
         BoxLayout:
             orientation:"horizontal"
-            Label:
-                id: _x_data
-                text:"grafico x"
-            Label:
-                id: _y_data
-                text:"grafico y"
+            BoxLayout:
+                padding: 5
+                orientation: "vertical"
+                Label:
+                    text: "X axis acceleration"
+                    bold:True
+                    size_hint: (1,.1)  
+                Graph:
+                    padding:3
+                    id: _x_data
+                    x_grid:True
+                    y_grid:True
+                    x_ticks_major: 1
+                    y_ticks_major: 100
+                    x_grid_label: True
+                    y_grid_label: True
+                    xmin:-0
+                    xmax:10
+                    ymin:-0
+                    ymax:1100
+            BoxLayout:
+                orientation: "vertical"
+                padding: 5
+                Label:
+                    text:"Y axis acceleration"
+                    bold:True
+                    size_hint: (1,.1)
+                Graph:
+                    padding:3
+                    id: _y_data
+                    x_grid:True
+                    y_grid:True
+                    x_ticks_major: 1
+                    y_ticks_major: 100
+                    x_grid_label: True
+                    y_grid_label: True
+                    xmin:-0
+                    xmax:10
+                    ymin:-0
+                    ymax:1100
         BoxLayout:
             orientation:"horizontal"
-            Label:
-                id: _z_data
-                text:"grafico z"
-            Label:
-                id: _t_data
-                text:"grafico t"
+            BoxLayout:
+                padding: 5
+                orientation: "vertical"
+                Label:
+                    text:"Z axis acceleration"
+                    bold:True
+                    size_hint: (1,.1)
+                Graph:
+                    padding:3
+                    id: _z_data
+                    x_grid:True
+                    y_grid:True
+                    x_ticks_major: 1
+                    y_ticks_major: 100
+                    x_grid_label: True
+                    y_grid_label: True
+                    xmin:-0
+                    xmax:10
+                    ymin:-0
+                    ymax:1100
+            BoxLayout:
+                padding: 5
+                orientation: "vertical"
+                Label:
+                    text:"Temperature"
+                    bold:True
+                    size_hint: (1,.1)
+                Graph:
+                    padding:3
+                    id: _t_data
+                    x_grid:True
+                    y_grid:True
+                    x_ticks_major: 1
+                    y_ticks_major: 5
+                    x_grid_label: True
+                    y_grid_label: True
+                    xmin:-0
+                    xmax:10
+                    ymin:-0
+                    ymax:50
         ScrollView:
             size_hint:(1,.25)
             scrool_y:True
