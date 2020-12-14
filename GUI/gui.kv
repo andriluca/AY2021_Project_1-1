@@ -3,16 +3,17 @@
 
 
 <Home>:
-
+    padding: 5
+    spacing:5
     orientation: "horizontal"
 
-    com: _com                           #connection part
+    com: _com                           
     conn_bt: _conn_bt
 
     fsr: _fsr                           
     sf: _sf
     tf: _tf
-    save: _save 
+    esav: _esav 
 
     msg: _msg
 
@@ -20,9 +21,18 @@
     pr_bt: _pr_bt
     up_bt: _up_bt
 
-    BoxLayout:
+    x_data: _x_data
+    y_data: _y_data
+    z_data: _z_data
+    t_data: _t_data
+
+    BoxLayout:                          #connection part
+        spacing: 5
+        size_hint: (.3,1)
         orientation: "vertical"
-        BoxLayout:                        
+        BoxLayout: 
+            spacing:5
+            size_hint: (1,.2)                       
             Spinner:
                 id: _com
                 text: "Ports"
@@ -33,6 +43,7 @@
                 on_press: root.Connect()
         
         BoxLayout:                         #setting part
+            spacing: 5
             orientation: "vertical"
             Button:
                 id: _st_bt
@@ -46,53 +57,74 @@
                 on_press: root.Print()
             Button:
                 id: _up_bt
-                text:"Update Settings"
+                text:"Change Settings"
                 disabled:True
                 on_press: root.ChangeSettings()
             BoxLayout:
                 Label:
                     text: 'Full Scale Range'
+                    text_size: self.size
+                    halign: "center"
+                    valign: "center"
                 Spinner:
                     id: _fsr
                     text: '+-2g'
                     values: ('+-2g','+-4g','+-8g','+-16g')
+                    disabled:True
             BoxLayout:
                 Label:
                     text: 'Sampling Frequency'
+                    text_size: self.size
+                    halign: "center"
+                    valign: "center"
                 Spinner:
                     id: _sf
                     text: '1Hz'
                     values: ('1Hz','10Hz','25Hz','50Hz')
+                    disabled:True
             BoxLayout:
                 Label:
                     text: 'Temperature Format'
+                    text_size: self.size
+                    halign: "center"
+                    valign: "center"
                 Spinner:
                     id: _tf
                     text: 'Celsius'
                     values: ('Celsius','Fahrenheit')
+                    disabled:True
             BoxLayout:
                 Label:
                     text: 'Save data to EEPROM'
+                    text_size: self.size
+                    halign: "center"
+                    valign: "center"
                 Spinner:
-                    id: _save
+                    id: _esav
                     text: 'Enable'
                     values: ('Enable','Disable')
+                    disabled:True
 
-    BoxLayout:
+    BoxLayout:                          #data visualization
         orientation: "vertical"
         BoxLayout:
             orientation:"horizontal"
             Label:
+                id: _x_data
                 text:"grafico x"
             Label:
+                id: _y_data
                 text:"grafico y"
         BoxLayout:
             orientation:"horizontal"
             Label:
+                id: _z_data
                 text:"grafico z"
             Label:
+                id: _t_data
                 text:"grafico t"
         ScrollView:
+            size_hint:(1,.25)
             scrool_y:True
             scrool_x:False
             canvas.before:
@@ -103,7 +135,7 @@
                     size: self.size
             Label:
                 id: _msg
-                text: "Welcome" 
+                text: "Welcome, connect device and select port to start" 
                 color: (0,0,0,1)
                 text_size: self.width, None
                 size_hint_y: None
