@@ -13,6 +13,12 @@
     #define __STATES_H
     #include "project.h"
     
+    _Bool onWatermark();
+    _Bool onReadEEPROM();
+
+    void doWatermark();
+    void doReadEEPROM();
+
     void init();
 #endif
 

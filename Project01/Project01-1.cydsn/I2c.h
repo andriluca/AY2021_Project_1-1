@@ -7,103 +7,104 @@
     #define __I2C_H
     #include "project.h"
     #include "cytypes.h"
-    
+
     // This enum is encoding the error condition
-    
+
     typedef enum
     {
         NO_ERROR,
         ERROR
     }ErrorCode;
-    
-    
-    
+
+
+
 /*****************************************************************************\
  * Function:    I2C_Peripheral_Start
- * Input:       
+ * Input:
  * Returns:     ErrorCode
- * Description: 
+ * Description:
  *     Initialization of the I2C master communication.
 \*****************************************************************************/
 
     ErrorCode I2C_Peripheral_Start();
-    
+
 /*****************************************************************************\
  * Function:    I2C_Peripheral_Stop
- * Input:       
+ * Input:
  * Returns:     ErrorCode
- * Description: 
+ * Description:
  *     End of the I2C master communication.
 \*****************************************************************************/
-    
+
     ErrorCode I2C_Peripheral_Stop();
 
 /*****************************************************************************\
  * Function:    I2C_Peripheral_Stop
- * Input:       
+ * Input:
  * Returns:     ErrorCode
- * Description: 
+ * Description:
  *     Reading through I2C of a single register.
 \*****************************************************************************/
 
-    
-    ErrorCode I2C_Peripheral_ReadRegister(uint8_t device_address, 
+
+    ErrorCode I2C_Peripheral_ReadRegister(uint8_t device_address,
                                             uint8_t register_address,
                                             uint8_t* data);
-    
+
 /*****************************************************************************\
  * Function:    I2C_Peripheral_ReadRegisterMulti
  * Input:       uint8_t device_address, uint8_t register_address
  *              uint8_t register_count, uint8_t* data
  * Returns:     ErrorCode
- * Description: 
+ * Description:
  *     Multiple reading through I2C of contiguous registers.
 \*****************************************************************************/
 
-    
-    ErrorCode I2C_Peripheral_ReadRegisterMulti(uint8_t device_address, 
+
+    ErrorCode I2C_Peripheral_ReadRegisterMulti(uint8_t device_address,
                                                 uint8_t register_address,
                                                 uint8_t register_count,
                                                 uint8_t* data);
-    
+
 /*****************************************************************************\
  * Function:    I2C_Peripheral_WriteRegister
  * Input:       uint8_t device_address, uint8_t register_address,
  *              uint8_t data
  * Returns:     ErrorCode
- * Description: 
+ * Description:
  *     Write through I2C at a given address.
 \*****************************************************************************/
 
-    
+
     ErrorCode I2C_Peripheral_WriteRegister(uint8_t device_address,
                                             uint8_t register_address,
                                             uint8_t data);
-    
-    ErrorCode I2C_EXT_EEPROM_ReadRegister(uint8_t device_address, 
+
+    ErrorCode I2C_EXT_EEPROM_ReadRegister(uint8_t device_address,
                                             uint8_t register_address_high,
                                             uint8_t register_address_low,
                                             uint8_t* data);
-    
+
     ErrorCode I2C_EXT_EEPROM_WriteRegister(uint8_t device_address,
                                         uint8_t register_address_high,
                                         uint8_t register_address_low,
                                         uint8_t data);
-    
+
     ErrorCode I2C_EXT_EEPROM_WriteRegisterMulti(uint8_t device_address,
                                         uint8_t register_address_high,
                                         uint8_t register_address_low,
                                         uint8_t register_count,
                                         uint8_t* data);
-    ErrorCode I2C_EXT_EEPROM_ReadRegisterMulti(uint8_t device_address, 
+    ErrorCode I2C_EXT_EEPROM_ReadRegisterMulti(uint8_t device_address,
                                         uint8_t register_address_high,
                                         uint8_t register_address_low,
                                         uint8_t register_count,
                                         uint8_t* data);
-    
-    ErrorCode I2C_EXT_EEPROM_ReadRegisterMulti2(uint8_t device_address, 
-                                        uint16_t register_count,
+    ErrorCode I2C_EXT_EEPROM_SequntialRead(uint8_t device_address,
+                                        uint8_t register_count,
                                         uint8_t* data);
+    ErrorCode I2C_EXT_EEPROM_Reset(uint8_t device_address);
 
-    
+
+
 #endif
