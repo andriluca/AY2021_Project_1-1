@@ -125,8 +125,7 @@ class Home (BoxLayout):
 
     def Print(self):                                            #print data
         self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Printing data"
-        acc_x = []
-        
+        acc_x = []    
         acc_y = []
         acc_z = []
         temp = []
@@ -137,13 +136,14 @@ class Home (BoxLayout):
         size = int.from_bytes(self.ser.read(1), 'big')            #get size of data array
 
         data = self.ser.read(size)                                #get data array
-
+        #self.ser.close()
+        #self.ser.open()
         for i in range(len(data)//6):                                       #range = number of packages
             pack = data[i*6:i*6+6]                                          #reads 1 package of 6 bytes at a time
             acc_x.append(pack[0] | ((pack[1] & 0x03)<<8))                   #first 2 bytes for x acc (10 bits)           
             acc_y.append(((pack[1] & 0xFC)>>2) | ((pack[2] & 0x0f)<<6))     
             acc_z.append(((pack[2] & 0xFC)>>2) | ((pack[3] & 0x0f)<<6))
-            temp.append(pack[4] | pack[5]<<8)      
+            temp.append(pack[4] | pack[5]<<8) 
 
         acc_x_w =csv.writer(open('acc_x.csv', 'w'), delimiter=',') 
         acc_y_w =csv.writer(open('acc_y.csv', 'w'), delimiter=',')  
@@ -154,7 +154,10 @@ class Home (BoxLayout):
             acc_x_w.writerow([float(acc_x[i])/100])
             acc_y_w.writerow([float(acc_y[i])/100])
             acc_z_w.writerow([float(acc_z[i])/100])
-            temp_w.writerow([float(temp[i])/100])
+            if self.tf.text == "Celsius":
+                temp_w.writerow([float(temp[i])/100])
+            else:
+                temp_w.writerow([(float(temp[i])/100)+32])
 
         FSR = self.fsr.text
 
@@ -218,11 +221,18 @@ class Home (BoxLayout):
         self.z_data.add_plot(self.plot_z)
         self.z_data.xmax=len(acc_z)       
 
-        self.t_data.remove_plot(self.plot_t)
-        self.plot_t = LinePlot(line_width=2, color=[1, 1, 1, 1])
-        self.plot_t.points = [(x, float(temp[x])/100) for x in range(len(temp))]
-        self.t_data.add_plot(self.plot_t)
-        self.t_data.xmax=len(temp)
+        if self.tf.text == 'Celsius':
+            self.t_data.remove_plot(self.plot_t)
+            self.plot_t = LinePlot(line_width=2, color=[1, 1, 1, 1])
+            self.plot_t.points = [(x, float(temp[x])/100) for x in range(len(temp))]
+            self.t_data.add_plot(self.plot_t)
+            self.t_data.xmax=len(temp)
+        else:
+            self.t_data.remove_plot(self.plot_t)
+            self.plot_t = LinePlot(line_width=2, color=[1, 1, 1, 1])
+            self.plot_t.points = [(x, (float(temp[x])/100)+32) for x in range(len(temp))]
+            self.t_data.add_plot(self.plot_t)
+            self.t_data.xmax=len(temp)
     
     fsr=ObjectProperty()
     sf=ObjectProperty()
@@ -282,10 +292,9 @@ class Home (BoxLayout):
             conf=int('00'+ SAVE + TF + SF + FSR, 2)
             conf= conf.to_bytes(1, 'big')
             self.ser.write(conf)
+            self.ser.close()
+            self.ser.open()
 
- #           psoc=self.ser.readline()
- #           psoc=psoc.decode(errors='ignore')
- #           if psoc == "Done\n":
             self.changing = False
             self.up_bt.text = "Change settings"
             self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Settings updated"
