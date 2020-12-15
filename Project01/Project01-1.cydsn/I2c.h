@@ -100,6 +100,11 @@
                                         uint8_t register_address_low,
                                         uint8_t register_count,
                                         uint8_t* data);
+    ErrorCode I2C_EXT_EEPROM_SequntialRead(uint8_t device_address, 
+                                        uint8_t register_count,
+                                        uint8_t* data);
+    ErrorCode I2C_EXT_EEPROM_Reset(uint8_t device_address);
 
+    
     
 #endif
