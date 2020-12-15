@@ -121,13 +121,13 @@
                     x_grid:True
                     y_grid:True
                     x_ticks_major: 1
-                    y_ticks_major: 100
-                    x_grid_label: True
+                    y_ticks_major: 1
+                    x_grid_label: False
                     y_grid_label: True
-                    xmin:-0
+                    xmin:-0.1
                     xmax:10
-                    ymin:-0
-                    ymax:1100
+                    ymin:-16
+                    ymax:16
             BoxLayout:
                 orientation: "vertical"
                 padding: 5
@@ -136,18 +136,18 @@
                     bold:True
                     size_hint: (1,.1)
                 Graph:
-                    padding:3
+                    padding:5
                     id: _y_data
                     x_grid:True
                     y_grid:True
                     x_ticks_major: 1
-                    y_ticks_major: 100
-                    x_grid_label: True
+                    y_ticks_major: 1
+                    x_grid_label: False
                     y_grid_label: True
-                    xmin:-0
+                    xmin:-0.1
                     xmax:10
-                    ymin:-0
-                    ymax:1100
+                    ymin:-16
+                    ymax:16
         BoxLayout:
             orientation:"horizontal"
             BoxLayout:
@@ -163,13 +163,13 @@
                     x_grid:True
                     y_grid:True
                     x_ticks_major: 1
-                    y_ticks_major: 100
-                    x_grid_label: True
+                    y_ticks_major: 1
+                    x_grid_label: False
                     y_grid_label: True
-                    xmin:-0
+                    xmin:-0.1
                     xmax:10
-                    ymin:-0
-                    ymax:1100
+                    ymin:-16
+                    ymax:16
             BoxLayout:
                 padding: 5
                 orientation: "vertical"
@@ -183,14 +183,15 @@
                     x_grid:True
                     y_grid:True
                     x_ticks_major: 1
-                    y_ticks_major: 5
-                    x_grid_label: True
+                    y_ticks_major: 100
+                    x_grid_label: False
                     y_grid_label: True
-                    xmin:-0
+                    xmin:-0.1
                     xmax:10
-                    ymin:-0
-                    ymax:50
+                    ymin:0
+                    ymax:1000
         ScrollView:
+            padding: 5
             size_hint:(1,.25)
             scrool_y:True
             scrool_x:False

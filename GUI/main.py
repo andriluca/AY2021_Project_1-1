@@ -18,6 +18,7 @@ from kivy_garden.graph import Graph, LinePlot
 
 import time
 
+import csv
 
 
 class Home (BoxLayout):
@@ -85,6 +86,7 @@ class Home (BoxLayout):
                     self.device = True
                     self.conn_bt.text = "Disconnect"
                     self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Connected to " + self.com.text
+                    #+ self.readline() to retrieve config. settings
                 else:
                     self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Connection failed, retry "
                     self.ser.close()
@@ -109,9 +111,22 @@ class Home (BoxLayout):
     z_data=ObjectProperty(None)
     t_data=ObjectProperty(None)
 
+    plot_x=LinePlot(line_width=2, color=[1, 1, 1, 1])           #plots initialization needed
+    plot_x.points = [(x, x) for x in range(5)]
+
+    plot_y=LinePlot(line_width=2, color=[1, 1, 1, 1])
+    plot_y.points = [(x, x) for x in range(5)]
+
+    plot_z=LinePlot(line_width=2, color=[1, 1, 1, 1])
+    plot_z.points = [(x, x) for x in range(5)]
+
+    plot_t=LinePlot(line_width=2, color=[1, 1, 1, 1])
+    plot_t.points = [(x, x) for x in range(5)]
+
     def Print(self):                                            #print data
         self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Printing data"
         acc_x = []
+        
         acc_y = []
         acc_z = []
         temp = []
@@ -119,35 +134,96 @@ class Home (BoxLayout):
         uart = bytes(uart, 'utf-8')
         self.ser.write(uart)
 
-        data = self.ser.readline()
- 
-        for i in range(len(data)//6):                      #range=number of packages
-            pack = data[i*6:i*6+6]            #reads 1 package at a time
-            acc_x.append(pack[0] | ((pack[1] & 0x03)<<8))                   #first 2 bytes for x acc
+        size = int.from_bytes(self.ser.read(1), 'big')            #get size of data array
+
+        data = self.ser.read(size)                                #get data array
+
+        for i in range(len(data)//6):                                       #range = number of packages
+            pack = data[i*6:i*6+6]                                          #reads 1 package of 6 bytes at a time
+            acc_x.append(pack[0] | ((pack[1] & 0x03)<<8))                   #first 2 bytes for x acc (10 bits)           
             acc_y.append(((pack[1] & 0xFC)>>2) | ((pack[2] & 0x0f)<<6))     
             acc_z.append(((pack[2] & 0xFC)>>2) | ((pack[3] & 0x0f)<<6))
             temp.append(pack[4] | pack[5]<<8)      
 
-        plot_x = LinePlot(line_width=2, color=[1, 1, 1, 1])
-        plot_x.points = [(x, acc_x[x]) for x in range(len(acc_x))]
-        self.x_data.add_plot(plot_x)
-        self.x_data.xmax=len(acc_x)
+        acc_x_w =csv.writer(open('acc_x.csv', 'w'), delimiter=',') 
+        acc_y_w =csv.writer(open('acc_y.csv', 'w'), delimiter=',')  
+        acc_z_w =csv.writer(open('acc_z.csv', 'w'), delimiter=',')   
+        temp_w =csv.writer(open('temp.csv', 'w'), delimiter=',')       
+        
+        for i in range(len(acc_x)):
+            acc_x_w.writerow([float(acc_x[i])/100])
+            acc_y_w.writerow([float(acc_y[i])/100])
+            acc_z_w.writerow([float(acc_z[i])/100])
+            temp_w.writerow([float(temp[i])/100])
 
-        plot_y = LinePlot(line_width=2, color=[1, 1, 1, 1])
-        plot_y.points = [(x, acc_y[x]) for x in range(len(acc_y))]
-        self.y_data.add_plot(plot_y)
+        FSR = self.fsr.text
+
+        if FSR=='+-2g':                                 #adjust graph scale on FSR
+            self.x_data.ymin=-2
+            self.x_data.ymax=2
+            self.x_data.y_ticks_major= 1
+            self.z_data.ymin=-2
+            self.z_data.ymax=2
+            self.z_data.y_ticks_major= 1
+            self.y_data.ymin=-2
+            self.y_data.ymax=2
+            self.y_data.y_ticks_major= 1
+        elif FSR=='+-4g':
+            self.z_data.ymin=-4
+            self.z_data.ymax=4
+            self.z_data.y_ticks_major= 2
+            self.x_data.ymin=-4
+            self.x_data.ymax=4
+            self.x_data.y_ticks_major= 2
+            self.y_data.ymin=-4
+            self.y_data.ymax=4
+            self.y_data.y_ticks_major= 2
+        elif FSR=='+-8g':
+            self.x_data.ymin=-8
+            self.x_data.ymax=8
+            self.x_data.y_ticks_major= 2
+            self.z_data.ymin=-8
+            self.z_data.ymax=8
+            self.z_data.y_ticks_major= 2
+            self.y_data.ymin=-8
+            self.y_data.ymax=8
+            self.y_data.y_ticks_major= 2              
+        else:
+            self.x_data.ymin=-16
+            self.x_data.ymax=16
+            self.x_data.y_ticks_major= 4
+            self.y_data.ymin=-16
+            self.y_data.ymax=16
+            self.y_data.y_ticks_major= 4
+            self.z_data.ymin=-16
+            self.z_data.ymax=16
+            self.z_data.y_ticks_major= 4
+
+        self.x_data.remove_plot(self.plot_x)
+        self.first = True                                                           #plot data
+        self.plot_x = LinePlot(line_width=2, color=[1, 1, 1, 1])
+        self.plot_x.points = [(x, float(acc_x[x])/100) for x in range(len(acc_x))]
+        self.x_data.add_plot(self.plot_x)
+        self.x_data.xmax=len(acc_x)     
+
+        self.y_data.remove_plot(self.plot_y)
+        self.plot_y = LinePlot(line_width=2, color=[1, 1, 1, 1])
+        self.plot_y.points = [(x, float(acc_y[x])/100) for x in range(len(acc_y))]
+        self.y_data.add_plot(self.plot_y)
         self.y_data.xmax=len(acc_y)
 
-        plot_z = LinePlot(line_width=2, color=[1, 1, 1, 1])
-        plot_z.points = [(x, acc_z[x]) for x in range(len(acc_z))]
-        self.z_data.add_plot(plot_z)
-        self.z_data.xmax=len(acc_z)
+        self.z_data.remove_plot(self.plot_z)
+        self.plot_z = LinePlot(line_width=2, color=[1, 1, 1, 1])
+        self.plot_z.points = [(x, float(acc_z[x])/100) for x in range(len(acc_z))]
+        self.z_data.add_plot(self.plot_z)
+        self.z_data.xmax=len(acc_z)       
 
-        plot_t = LinePlot(line_width=2, color=[1, 1, 1, 1])
-        plot_t.points = [(x, temp[x]) for x in range(len(temp))]
-        self.t_data.add_plot(plot_t)
+        self.t_data.remove_plot(self.plot_t)
+        self.plot_t = LinePlot(line_width=2, color=[1, 1, 1, 1])
+        self.plot_t.points = [(x, float(temp[x])/100) for x in range(len(temp))]
+        self.t_data.add_plot(self.plot_t)
         self.t_data.xmax=len(temp)
-
+    
     fsr=ObjectProperty()
     sf=ObjectProperty()
     esav=ObjectProperty()
