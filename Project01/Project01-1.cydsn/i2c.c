@@ -251,3 +251,47 @@ ErrorCode I2C_EXT_EEPROM_ReadRegisterMulti(uint8_t device_address,
         return error ? ERROR : NO_ERROR;
 
     }
+    
+ErrorCode I2C_EXT_EEPROM_ReadRegisterMulti2(uint8_t device_address, 
+                                        uint16_t register_count,
+                                        uint8_t* data)
+    {
+        // Start condition
+        uint8_t error = I2C_Master_MasterSendStart(device_address,I2C_Master_WRITE_XFER_MODE);
+        if(error == I2C_Master_MSTR_NO_ERROR)
+        {
+            // modifying the register address in order to automatically read multiple values
+            // writing the register address
+            error = I2C_Master_MasterWriteByte(register_address_high);
+            
+            if(error == I2C_Master_MSTR_NO_ERROR)
+            {
+                error = I2C_Master_MasterWriteByte(register_address_low);
+                if(error == I2C_Master_MSTR_NO_ERROR)
+                {
+                    // Send restart
+                    error = I2C_Master_MasterSendRestart(device_address,I2C_Master_READ_XFER_MODE);
+                    
+                    if(error == I2C_Master_MSTR_NO_ERROR)
+                    {
+                        // send a number of data equal to register_count
+                        uint8_t count = register_count;
+                        while(count>1)
+                        {
+                            data[register_count-count] = I2C_Master_MasterReadByte(I2C_Master_ACK_DATA);
+                            count--;
+                        }
+                        
+                        data[register_count - 1] = I2C_Master_MasterReadByte(I2C_Master_NAK_DATA);
+                    }    
+                }
+                
+            }
+        }
+        // Stop condition
+        error = I2C_Master_MasterSendStop();
+        
+        return error ? ERROR : NO_ERROR;
+
+    }
+

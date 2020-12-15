@@ -26,6 +26,8 @@ uint8_t outEEPROM[BYTE_TO_EEPROM*LEVEL_TO_READ];
 uint8_t j = 0;
 uint8_t offset = 0;
 uint8_t fifo_read = 0;
+uint16_t ind = 0x0000;
+uint8_t page = 0;
 
 
 
@@ -60,11 +62,12 @@ int main(void)
 //    }
     
     //uint8 pin = 1;
-    
+     
     for(;;)
     {
         if(wtm && fifo_read == 0){
-            for (int level = 0; level < 30; level++){
+            for (int level = 0; level < LEVEL_TO_READ; level++) //21
+            {
                 I2C_LIS3DH_Get_Raw_Data(raw_data_16bit);
                 for (uint8_t i = 0; i < LIS3DH_OUT_AXES; i++)
                 {
@@ -84,10 +87,13 @@ int main(void)
                 out[1 + offset] = (uint8_t)((concatenated_Data >> 8) & 0xFF);
                 out[2 + offset] = (uint8_t)((concatenated_Data >> 16) & 0xFF);
                 out[3 + offset] = (uint8_t)((concatenated_Data >> 24) & 0xFF);
+                out[4 + offset] = 123;
+                out[5 + offset] = 123;
+                
                 
                 //inviamo out[4]; 
                 
-                offset = offset + 4;
+                offset = offset + 6;
                 
             }
             
@@ -102,19 +108,28 @@ int main(void)
         }
         if (wtm ==0 && fifo_read)
         {
+            //for (uint8_t i= 120; i<128; i++) out[i] = 0; 
             I2C_EXT_EEPROM_WriteRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
-                                        0x00,
-                                        0x00,
-                                        120,
+                                        ind >> 8,
+                                        ind & 0xFF,
+                                        126,
                                         out);
-            CyDelay(5);
-            I2C_EXT_EEPROM_ReadRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
-                                        0x00,
-                                        0x00,
-                                        120,
-                                        outEEPROM);
+//            CyDelay(5);
+//            I2C_EXT_EEPROM_ReadRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
+//                                        ind >> 8,
+//                                        ind & 0xFF,
+//                                        120,
+//                                        outEEPROM);
+            ind = ind + 0x80;
+            page ++;
             fifo_read = 0;
         }
+        if (page == 4)
+        {
+            
+            
+            
+            
         
         
         

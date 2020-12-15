@@ -100,6 +100,10 @@
                                         uint8_t register_address_low,
                                         uint8_t register_count,
                                         uint8_t* data);
+    
+    ErrorCode I2C_EXT_EEPROM_ReadRegisterMulti2(uint8_t device_address, 
+                                        uint16_t register_count,
+                                        uint8_t* data);
 
     
 #endif
