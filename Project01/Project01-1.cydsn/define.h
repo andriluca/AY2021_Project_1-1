@@ -78,7 +78,7 @@
     #define LIS3DH_BYPASS_FIFO_CTRL_REG         0x00
     
     // Number of levels
-    #define LIS3DH_FTH_WTM_FIFO_CTRL_REG        0x15
+    #define LIS3DH_FTH_WTM_FIFO_CTRL_REG        0x14
     
     // ===== SETUP MASKS =====
     #define LIS3DH_SETUP_01_CTRL_REG1	(LIS3DH_ODR_01 << 4) | LIS3DH_ENABLE_CTRL_REG1  // Setup mask varying with odr
