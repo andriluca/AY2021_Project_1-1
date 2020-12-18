@@ -132,12 +132,14 @@
     #define EEPROM_ODR_100              0x05                                            // 100Hz
     #define EEPROM_ODR_200              0x06                                            // 200Hz    
     #define EEPROM_ODR_400              0x07                                            // 400Hz
+    #define EEPROM_WORD_SIZE            0x80                                            // Number of bytes per word.
+    #define EEPROM_TOTAL_WORDS          512
     
     // Status
     #define WTM_LOW                     0
     #define WTM_HIGH                    1
     #define BYTE_TO_READ_PER_LEVEL      6
-    #define LEVEL_TO_READ               LIS3DH_FTH_WTM_FIFO_CTRL_REG
+    #define LEVEL_TO_READ               LIS3DH_FTH_WTM_FIFO_CTRL_REG + 1
     #define BYTE_TO_EEPROM              4
     #define X_LSB   0
     #define X_MSB   1
