@@ -20,9 +20,13 @@
     
     _Bool onWatermark();
     _Bool onReadEEPROM();
+    _Bool onEEPROMReset();
+
 
     void doWatermark();
     void doReadEEPROM();
+    void doEEPROMReset();
+
 
     void init();
 #endif

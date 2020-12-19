@@ -16,6 +16,7 @@
 #include "states.h"
 #include "stdio.h"
 
+<<<<<<< HEAD
 uint8 sensitivity = 4;
 volatile uint8_t wtm = WTM_LOW;
 uint8_t raw_data_8bit[BYTE_TO_READ_PER_LEVEL];
@@ -35,6 +36,8 @@ uint8_t page = 0;
 uint32_t temperature32 = 0;
 
 
+=======
+>>>>>>> d101645b9624087f0fc0c897c0e69a6aa765cd6d
 
 int main(void)
 {
@@ -43,6 +46,7 @@ int main(void)
     init();
     I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS);
     
+<<<<<<< HEAD
     uint8 sensitivity = 4;
     //uint8 freq = EEPROM_ODR_25;
     //uint8 fsr = LIS3DH_NORMAL_CTRL_REG4_FS0;
@@ -218,7 +222,18 @@ int main(void)
 ////            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS, LIS3DH_FIFO_CTRL_REG, 0); //select Stream mode and set WTM to 31 level
 ////            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS, LIS3DH_FIFO_CTRL_REG, LIS3DH_SETUP_FIFO_CTRL_REG ); //select Stream mode and set WTM to 31 level
 //        }    
+=======
+    for(;;)
+    {
+	    // Resetting the EEPROM
+        if(onEEPROMReset())
+            doEEPROMReset();
+        // Reading the FIFO
+        if(onWatermark())
+	        doWatermark();
+        // Writing the EEPROM
+        if (onReadEEPROM())
+            doReadEEPROM();
+>>>>>>> d101645b9624087f0fc0c897c0e69a6aa765cd6d
     }
 }
-
-/* [] END OF FILE */
