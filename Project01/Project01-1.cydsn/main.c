@@ -16,18 +16,23 @@
 #include "states.h"
 #include "stdio.h"
 
+uint8 sensitivity = 4;
 volatile uint8_t wtm = WTM_LOW;
 uint8_t raw_data_8bit[BYTE_TO_READ_PER_LEVEL];
 int16_t raw_data_16bit[3];
 int16_t converted_acc[3];
 uint32_t concatenated_Data = 0;
-uint8_t out[BYTE_TO_EEPROM*LEVEL_TO_READ];
-uint8_t outEEPROM[BYTE_TO_EEPROM*LEVEL_TO_READ];
+uint8_t out      [(BYTE_TO_EEPROM)*LEVEL_TO_READ + 2];
+uint8_t outEEPROM[(BYTE_TO_EEPROM)*LEVEL_TO_READ + 2];
+//uint8_t out[BYTE_TO_EEPROM*LEVEL_TO_READ];
+//uint8_t outEEPROM[BYTE_TO_EEPROM*LEVEL_TO_READ];
 uint8_t j = 0;
 uint8_t offset = 0;
 uint8_t fifo_read = 0;
+volatile uint8_t shiftIndex;
 uint16_t ind = 0x0000;
 uint8_t page = 0;
+uint32_t temperature32 = 0;
 
 
 
@@ -36,6 +41,7 @@ int main(void)
     CyGlobalIntEnable; /* Enable global interrupts. */
     
     init();
+    I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS);
     
     uint8 sensitivity = 4;
     //uint8 freq = EEPROM_ODR_25;
@@ -87,8 +93,16 @@ int main(void)
                 out[1 + offset] = (uint8_t)((concatenated_Data >> 8) & 0xFF);
                 out[2 + offset] = (uint8_t)((concatenated_Data >> 16) & 0xFF);
                 out[3 + offset] = (uint8_t)((concatenated_Data >> 24) & 0xFF);
-                out[4 + offset] = 123;
-                out[5 + offset] = 123;
+                
+                temperature32 = ADC_Temp_Read32();
+                
+                if (temperature32 > ADC_MAX)    
+                temperature32 = ADC_MAX;
+                if (temperature32 < ADC_MIN)
+                temperature32 = ADC_MIN;
+                      
+                out[4 + offset] = (uint8_t)(temperature32 & 0xFF); //lsb
+                out[5 + offset] = (uint8_t)((temperature32 >>8) & 0xFF); //msb
                 
                 
                 //inviamo out[4]; 
@@ -96,6 +110,10 @@ int main(void)
                 offset = offset + 6;
                 
             }
+            offset = 0;
+            
+            out[126] = 0xC0;
+            out[127] = 0xC0;
             
 //            for(uint8 i = 0; i <3; i++)
 //            {    
@@ -112,20 +130,40 @@ int main(void)
             I2C_EXT_EEPROM_WriteRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
                                         ind >> 8,
                                         ind & 0xFF,
-                                        126,
+                                        128,
                                         out);
-//            CyDelay(5);
+//            for(uint8_t i = 0; i < 128; i++)
+//            {
+//                I2C_EXT_EEPROM_WriteRegister(EXT_EEPROM_DEVICE_ADDRESS,ind >> 8, ind & 0xFF, out[i]);
+//                ind = ind + 0x0001;
+//            }
+            
+           
+//            
 //            I2C_EXT_EEPROM_ReadRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
 //                                        ind >> 8,
 //                                        ind & 0xFF,
 //                                        120,
 //                                        outEEPROM);
-            ind = ind + 0x80;
+            CyDelay(5);
+            //I2C_EXT_EEPROM_SequntialRead(EXT_EEPROM_DEVICE_ADDRESS,128,outEEPROM);
+            ind = ind + 0x0080;
             page ++;
             fifo_read = 0;
         }
-        if (page == 4)
+        if (page == 1)
         {
+            CyDelay(5);
+            for (uint8_t i = 0; i<128; i++)
+            {
+                I2C_EXT_EEPROM_ReadRegister(EXT_EEPROM_DEVICE_ADDRESS, (ind - 0x0080) >> 8, (ind - 0x0080) & 0xFF, &outEEPROM[i]);
+                ind ++;
+            }
+                                        
+            
+            page = 0;
+        }
+            
             
             
             

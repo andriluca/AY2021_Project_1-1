@@ -9,6 +9,11 @@
  *
  * ========================================
 */
+#include "project.h"
+#include "cytypes.h"
+#include "define.h"
+#include "interrupt.h"
+
 #ifndef __STATES_H
     #define __STATES_H
     #include "project.h"

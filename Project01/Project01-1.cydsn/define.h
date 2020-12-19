@@ -138,7 +138,7 @@
     #define WTM_HIGH                    1
     #define BYTE_TO_READ_PER_LEVEL      6
     #define LEVEL_TO_READ               LIS3DH_FTH_WTM_FIFO_CTRL_REG
-    #define BYTE_TO_EEPROM              4
+    #define BYTE_TO_EEPROM              6
     #define X_LSB   0
     #define X_MSB   1
     #define Y_LSB   2
@@ -148,5 +148,9 @@
     #define A_Z     2
     #define A_Y     1
     #define A_X     0
+    
+    // ADC
+    #define ADC_MAX 65535
+    #define ADC_MIN 0
 
 #endif
