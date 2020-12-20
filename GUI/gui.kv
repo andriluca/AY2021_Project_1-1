@@ -1,10 +1,23 @@
 #:kivy 1.11
 #:import MeshLinePlot kivy.garden.graph.MeshLinePlot
 
+
+<ColLabel>:
+    cl: 1,0,0,1
+    pos_hint: {'center_x': 0.5, 'center_y': .8}
+    canvas.before:
+        Color:  
+            rgba: root.cl 
+        Ellipse:  
+            pos: self.pos
+            size: (self.height,self.height)
+
 <Home>:
     padding: 5
     spacing:5
     orientation: "horizontal"
+
+    col: _col
 
     com: _com                           
     conn_bt: _conn_bt
@@ -27,17 +40,28 @@
 
     BoxLayout:                          #connection part
         spacing: 5
-        size_hint: (.3,1)
+        size_hint: (.25,1)
         orientation: "vertical"
         BoxLayout: 
             spacing:5
-            size_hint: (1,.2)                       
-            Spinner:
-                id: _com
-                text: "Ports"
+            size_hint: (1,.2)      
+            orientation:"vertical"
+            BoxLayout:                 
+                ColLabel:
+                    id: _col
+                    size_hint: (0.2,0.4)
+                Spinner:
+                    id: _com
+                    text: "Ports"
+                    text_size: self.size
+                    halign: "center"
+                    valign: "center"
             Button:
                 id: _conn_bt
                 text: "Connect"
+                text_size: self.size
+                halign: "center"
+                valign: "center"
                 disabled: True
                 on_press: root.Connect()
         
@@ -47,61 +71,82 @@
             Button:
                 id: _st_bt
                 text:"Start"
+                text_size: self.size
+                halign: "center"
+                valign: "center"
                 on_press: root.Work()
                 disabled:True
             Button:
                 id: _pr_bt
                 text:"Print data"
+                text_size: self.size
+                halign: "center"
+                valign: "center"
                 disabled:True
                 on_press: root.Print()
             Button:
                 id: _up_bt
                 text:"Change Settings"
+                text_size: self.size
+                halign: "center"
+                valign: "center"
                 disabled:True
                 on_press: root.ChangeSettings()
             BoxLayout:
                 Label:
-                    text: 'Full Scale Range'
+                    text: 'FSR'
                     text_size: self.size
                     halign: "center"
                     valign: "center"
                 Spinner:
                     id: _fsr
                     text: '+-2g'
+                    text_size: self.size
+                    halign: "center"
+                    valign: "center"
                     values: ('+-2g','+-4g','+-8g','+-16g')
                     disabled:True
             BoxLayout:
                 Label:
-                    text: 'Sampling Frequency'
+                    text: 'ODR'
                     text_size: self.size
                     halign: "center"
                     valign: "center"
                 Spinner:
                     id: _sf
                     text: '1Hz'
+                    text_size: self.size
+                    halign: "center"
+                    valign: "center"
                     values: ('1Hz','10Hz','25Hz','50Hz')
                     disabled:True
             BoxLayout:
                 Label:
-                    text: 'Temperature Format'
+                    text: 'Temp Format'
                     text_size: self.size
                     halign: "center"
                     valign: "center"
-                Spinner:
+                Button:
                     id: _tf
+                    on_press: root.Tempconf_Button()
                     text: 'Celsius'
-                    values: ('Celsius','Fahrenheit')
+                    text_size: self.size
+                    halign: "center"
+                    valign: "center"
                     disabled:True
             BoxLayout:
                 Label:
-                    text: 'Save data to EEPROM'
+                    text: 'EEPROM Saving'
                     text_size: self.size
                     halign: "center"
                     valign: "center"
-                Spinner:
+                Button:
                     id: _esav
-                    text: 'Enable'
-                    values: ('Enable','Disable')
+                    text: 'ON'
+                    text_size: self.size
+                    on_press: root.Esav_Button()
+                    halign: "center"
+                    valign: "center"
                     disabled:True
 
     BoxLayout:                          #data visualization
@@ -113,41 +158,57 @@
                 orientation: "vertical"
                 Label:
                     text: "X axis acceleration"
+                    text_size: self.size
+                    halign: "center"
+                    valign: "center"
                     bold:True
                     size_hint: (1,.1)  
-                Graph:
-                    padding:3
-                    id: _x_data
-                    x_grid:True
-                    y_grid:True
-                    x_ticks_major: 1
-                    y_ticks_major: 1
-                    x_grid_label: False
-                    y_grid_label: True
-                    xmin:-0.1
-                    xmax:10
-                    ymin:-16
-                    ymax:16
+                ScrollView:
+                    scrool_y:False
+                    scrool_x:True
+                    Graph:
+                        size_hint_x: 2
+                        size_hint_y:0.95
+                        padding:3
+                        id: _x_data
+                        x_grid:True
+                        y_grid:True
+                        x_ticks_major: 1
+                        y_ticks_major: 1
+                        x_grid_label: False
+                        y_grid_label: True
+                        xmin:-0.001
+                        xmax:10
+                        ymin:-2
+                        ymax:2
             BoxLayout:
                 orientation: "vertical"
                 padding: 5
                 Label:
                     text:"Y axis acceleration"
+                    text_size: self.size
+                    halign: "center"
+                    valign: "center"
                     bold:True
                     size_hint: (1,.1)
-                Graph:
-                    padding:5
-                    id: _y_data
-                    x_grid:True
-                    y_grid:True
-                    x_ticks_major: 1
-                    y_ticks_major: 1
-                    x_grid_label: False
-                    y_grid_label: True
-                    xmin:-0.1
-                    xmax:10
-                    ymin:-16
-                    ymax:16
+                ScrollView:
+                    scrool_y:False
+                    scrool_x:True
+                    Graph:
+                        size_hint_x: 2
+                        size_hint_y:0.95
+                        padding:5
+                        id: _y_data
+                        x_grid:True
+                        y_grid:True
+                        x_ticks_major: 1
+                        y_ticks_major: 1
+                        x_grid_label: False
+                        y_grid_label: True
+                        xmin:-0.001
+                        xmax:10
+                        ymin:-2
+                        ymax:2
         BoxLayout:
             orientation:"horizontal"
             BoxLayout:
@@ -155,41 +216,57 @@
                 orientation: "vertical"
                 Label:
                     text:"Z axis acceleration"
+                    text_size: self.size
+                    halign: "center"
+                    valign: "center"
                     bold:True
                     size_hint: (1,.1)
-                Graph:
-                    padding:3
-                    id: _z_data
-                    x_grid:True
-                    y_grid:True
-                    x_ticks_major: 1
-                    y_ticks_major: 1
-                    x_grid_label: False
-                    y_grid_label: True
-                    xmin:-0.1
-                    xmax:10
-                    ymin:-16
-                    ymax:16
+                ScrollView:
+                    scrool_y:False
+                    scrool_x:True
+                    Graph:
+                        size_hint_x: 2
+                        size_hint_y:0.95
+                        padding:3
+                        id: _z_data
+                        x_grid:True
+                        y_grid:True
+                        x_ticks_major: 1
+                        y_ticks_major: 1
+                        x_grid_label: False
+                        y_grid_label: True
+                        xmin:-0.001
+                        xmax:10
+                        ymin:-2
+                        ymax:2
             BoxLayout:
                 padding: 5
                 orientation: "vertical"
                 Label:
                     text:"Temperature"
+                    text_size: self.size
+                    halign: "center"
+                    valign: "center"
                     bold:True
                     size_hint: (1,.1)
-                Graph:
-                    padding:3
-                    id: _t_data
-                    x_grid:True
-                    y_grid:True
-                    x_ticks_major: 1
-                    y_ticks_major: 100
-                    x_grid_label: False
-                    y_grid_label: True
-                    xmin:-0.1
-                    xmax:10
-                    ymin:0
-                    ymax:1000
+                ScrollView:
+                    scrool_y:False
+                    scrool_x:True
+                    Graph:
+                        size_hint_x: 2
+                        size_hint_y:0.95
+                        padding:3
+                        id: _t_data
+                        x_grid:True
+                        y_grid:True
+                        x_ticks_major: 1
+                        y_ticks_major: 10
+                        x_grid_label: False
+                        y_grid_label: True
+                        xmin:-0.001
+                        xmax:10
+                        ymin:-40
+                        ymax:40
         ScrollView:
             padding: 5
             size_hint:(1,.25)
@@ -206,5 +283,6 @@
                 text: "Welcome, connect device and select port to start" 
                 color: (0,0,0,1)
                 text_size: self.width, None
+                font_size:20
                 size_hint_y: None
                 height: self.texture_size[1] 
