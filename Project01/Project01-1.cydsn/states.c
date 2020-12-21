@@ -87,29 +87,32 @@ _Bool onEEPROMReset(){
 
 void doTemperature(){
     uint8_t actual_level;
-    while(fifo_level <= LEVEL_TO_READ){
-        do{
+    if (fifo_level <= LEVEL_TO_READ)
+    {
         I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS, LIS3DH_FIFO_SRC_REG, &actual_level);
+        if((actual_level & 0x1F) == fifo_level){
+
+            temperature32 = ADC_Temp_Read32();
+                        
+            if (temperature32 > ADC_MAX)    
+            temperature32 = ADC_MAX;
+            if (temperature32 < ADC_MIN)
+            temperature32 = ADC_MIN;
+                  
+
+            temperature[index_temp] = (uint8_t)((temperature32 >>8) & 0xFF); //msb
+            temperature[index_temp + 1] = (uint8_t)(temperature32 & 0xFF); //lsb
+
+            index_temp = index_temp + 2;
+            fifo_level ++;
         }
-        while((actual_level & 0x1F) == fifo_level);
-
-        temperature32 = ADC_Temp_Read32();
-                    
-        if (temperature32 > ADC_MAX)    
-        temperature32 = ADC_MAX;
-        if (temperature32 < ADC_MIN)
-        temperature32 = ADC_MIN;
-              
-
-        temperature[index_temp] = (uint8_t)((temperature32 >>8) & 0xFF); //msb
-        temperature[index_temp + 1] = (uint8_t)(temperature32 & 0xFF); //lsb
-
-        index_temp = index_temp + 2;
-        fifo_level ++;
     }
-    temp = 0;
-    index_temp = 0;
-    fifo_level = 0;
+    if (fifo_level == LEVEL_TO_READ + 1)
+    {
+        temp = 0;
+        index_temp = 0;
+        fifo_level = 0;
+    }
 }
 
 //void doTemperature(){
