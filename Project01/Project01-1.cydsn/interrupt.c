@@ -17,3 +17,10 @@ CY_ISR(WTM_ISR)
 {
     wtm = WTM_HIGH; //vedere se funziona
 }
+
+//CY_ISR(TIMER_ISR)
+//{
+//    TIMER_ReadStatusRegister();
+//    temp ++;
+//}
+//

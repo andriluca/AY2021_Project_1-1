@@ -21,11 +21,10 @@ ErrorCode I2C_LIS3DH_Start()
 //        EEPROM_WriteByte(EEPROM_INIT_VALUE, EEPROM_REGISTER);
 //    }
     
-
     // Setup control register 1
     I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                  LIS3DH_CTRL_REG1,
-                                 LIS3DH_SETUP_10_CTRL_REG1);    // ODR
+                                 LIS3DH_SETUP_50_CTRL_REG1);    // ODR
     // Setup control register 3
     I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                  LIS3DH_CTRL_REG3,

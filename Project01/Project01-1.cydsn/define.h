@@ -33,7 +33,9 @@
     #define LIS3DH_CTRL_REG3            0x22
     #define LIS3DH_CTRL_REG4            0x23                                    // Register 4 --> setup FS[1:0] + LIS3DH_SENSITIVITY (use masks below).
     #define LIS3DH_CTRL_REG5            0x24
+    #define LIS3DH_CTRL_REG6            0x25
     #define LIS3DH_FIFO_CTRL_REG        0x2e
+    #define LIS3DH_FIFO_SRC_REG         0x2f
     #define LIS3DH_STATUS_REG           0x27                                    // Status Register.
     #define LIS3DH_OUT_X_L              0x28                                    // First output register.
     #define LIS3DH_OUT_Z_H              0x2d                                    // Last output register.
@@ -57,19 +59,23 @@
     // Control Register 3
     #define LIS3DH_WM_CTRL_REG3         0x04
     #define LIS3DH_OVR_CTRL_REG3        0x02
+    #define LIS3DH_I1_ZYXDA_CTRL_REG3   0x10
 
     // Control Register 4
     #define LIS3DH_NR_CTRL_REG4         0x00    // Partial mask: the rest is modified by the if defined.
+    #define LIS3DH_BDU_CTRL_REG4          0x80
     // Normal mode Full Scales
     #define LIS3DH_FS_02                  0x00    // FS = [-2, +2]g   --> So =  4
     #define LIS3DH_FS_04                  0x01    // FS = [-4, +4]g   --> So =  8
     #define LIS3DH_FS_08                  0x02    // FS = [-8, +8]g   --> So = 16
     #define LIS3DH_FS_16                  0x03    // FS = [-16, +16]g --> So = 48
     // Use these masks to setup the Control Register 4
-
+    
     // Control Register 5
     #define LIS3DH_FIFO_EN_CTRL_REG5       0x40    // Enable the FIFO register
 
+    // Control Register 6
+    #define LIS3DH_INT_POLARITY_CTRL_REG6       0x02
     // FIFO Control Register
 	// Modes
     #define LIS3DH_STREAM_MODE_FIFO_CTRL_REG    0x80
@@ -104,6 +110,12 @@
     //--------------------------------------------//
 
 
+    //ODR
+    #define ODR_1         1    //da implementare automaticamente   
+    #define ODR_10        10      
+    #define ODR_25        25      
+    #define ODR_50        50      
+    
     // Normal mode sensitivities
     #define LIS3DH_SENSITIVITY_0        4       // mg/digit
     #define LIS3DH_SENSITIVITY_1        8       // mg/digit
@@ -134,12 +146,13 @@
     #define EEPROM_ODR_400              0x07                                            // 400Hz
     #define EEPROM_WORD_SIZE            0x80                                            // Number of bytes per word.
     #define EEPROM_TOTAL_WORDS          512
+    #define EEPROM_FULL 65536
 
     // Status
     #define WTM_LOW                     0
     #define WTM_HIGH                    1
     #define BYTE_TO_READ_PER_LEVEL      6
-    #define LEVEL_TO_READ               LIS3DH_FTH_WTM_FIFO_CTRL_REG + 1
+    #define LEVEL_TO_READ               LIS3DH_FTH_WTM_FIFO_CTRL_REG
     #define BYTE_TO_EEPROM              4
     #define X_LSB   0
     #define X_MSB   1
@@ -150,6 +163,7 @@
     #define A_Z     2
     #define A_Y     1
     #define A_X     0
+    
 
     // ADC
     #define ADC_MAX 65535

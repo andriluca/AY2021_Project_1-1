@@ -18,12 +18,15 @@
     #define __STATES_H
     #include "project.h"
     
+    _Bool onTemperature();
     _Bool onWatermark();
+    _Bool onWriteEEPROM();
     _Bool onReadEEPROM();
     _Bool onEEPROMReset();
 
-
+    void doTemperature();
     void doWatermark();
+    void doWriteEEPROM();
     void doReadEEPROM();
     void doEEPROMReset();
 
