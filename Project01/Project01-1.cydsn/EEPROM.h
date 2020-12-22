@@ -18,6 +18,9 @@
     #include "I2c.h"
     #include "stdio.h"
     
+    uint16_t counter_pages;
+    uint16_t pages;
+    
     
     ErrorCode I2C_EXT_EEPROM_ReadRegister(uint8_t device_address, 
                                             uint8_t register_address_high,

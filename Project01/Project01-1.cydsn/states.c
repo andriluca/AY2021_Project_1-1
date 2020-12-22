@@ -71,6 +71,8 @@ void init()
     fifo_write = 0;
     fifo_read = 0;
     written_pages = 0;
+    pages = 1; //da 0x00 a 0x80 è già una pagina scritta
+    counter_pages = 0;
     concatenated_Data = 0;
     sensitivity = 4;
     wtm = WTM_LOW;
@@ -283,7 +285,7 @@ void doReadEEPROM(){
     uint16_t outIndex = 0;
 
     UART_PutArray(header, 1);
-    for (uint16_t i = 0; i<512 /*(int)(eeprom_index/EEPROM_WORD_SIZE)*/; i++)
+    for (uint16_t i = 0; i<pages; i++)
     {
 
         I2C_EXT_EEPROM_ReadRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
@@ -297,6 +299,7 @@ void doReadEEPROM(){
         UART_PutArray(outEEPROM, 128);
     }
     UART_PutArray(tail, 1);
+    pages = 1;
     fifo_read = 0;
     eeprom_reset = 1;
 
