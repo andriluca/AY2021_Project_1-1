@@ -17,6 +17,7 @@
 
 uint8 sensitivity;
 volatile uint8_t wtm;
+volatile uint8_t t_isr;
 uint8_t raw_data_8bit[BYTE_TO_READ_PER_LEVEL];
 int16_t raw_data_16bit[3];
 int16_t converted_acc[3];
@@ -46,12 +47,19 @@ uint8_t temperature[(LEVEL_TO_READ+1) * 2];
 void init()
 {
     UART_Start();
+    T_TIMER_CLOCK_Start();
+    T_TIMER_Start();
+    ADC_Temp_Start();
     I2C_Peripheral_Start();
+    CyDelay(5);
     I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS);
     I2C_LIS3DH_Start();
     ISR_ACC_StartEx(WTM_ISR);
     
-    wtm = WTM_LOW;
+    
+    
+    
+    t_isr = 0;
     temp = 1;
     fifo_level = 0;
     index_temp = 0;
@@ -65,8 +73,9 @@ void init()
     written_pages = 0;
     concatenated_Data = 0;
     sensitivity = 4;
-    CyDelay(5);
-    ADC_Temp_Start();
+    wtm = WTM_LOW;
+    
+    
 }
 
 _Bool onTemperature(){
@@ -95,29 +104,42 @@ _Bool onEEPROMReset(){
 
 void doTemperature(){
     uint8_t actual_level;
-    while(fifo_level <= LEVEL_TO_READ){
-        do{
+    
+    if(fifo_level == 0) ISR_T_StartEx(TEMP_ISR);
+    
+    if(fifo_level <= LEVEL_TO_READ)
+    {
+        if(t_isr)
+        {
         I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS, LIS3DH_FIFO_SRC_REG, &actual_level);
+        t_isr = 0;
         }
-        while((actual_level & 0x1F) == fifo_level);
+        
+        if((actual_level & 0x1F) == fifo_level)
+        {
 
-        temperature32 = ADC_Temp_Read32();
-                    
-        if (temperature32 > ADC_MAX)    
-        temperature32 = ADC_MAX;
-        if (temperature32 < ADC_MIN)
-        temperature32 = ADC_MIN;
-              
+            temperature32 = ADC_Temp_Read32();
+                        
+            if (temperature32 > ADC_MAX)    
+            temperature32 = ADC_MAX;
+            if (temperature32 < ADC_MIN)
+            temperature32 = ADC_MIN;
+                  
 
-        temperature[index_temp] = (uint8_t)((temperature32 >>8) & 0xFF); //msb
-        temperature[index_temp + 1] = (uint8_t)(temperature32 & 0xFF); //lsb
+            temperature[index_temp] = (uint8_t)((temperature32 >>8) & 0xFF); //msb
+            temperature[index_temp + 1] = (uint8_t)(temperature32 & 0xFF); //lsb
 
-        index_temp = index_temp + 2;
-        fifo_level ++;
+            index_temp = index_temp + 2;
+            fifo_level ++;
+        }
     }
-    temp = 0;
-    index_temp = 0;
-    fifo_level = 0;
+    else
+    {
+        ISR_T_Stop();
+        temp = 0;
+        index_temp = 0;
+        fifo_level = 0;
+    }
 }
 
 //void doTemperature(){
@@ -243,8 +265,8 @@ void doWriteEEPROM(){
     
     
     
-    if (outIndex == 10*EEPROM_WORD_SIZE
-//        I2C_EXT_EEPROM_Last_Index(out) < 126 || outIndex == 0
+    if (//outIndex == 5*EEPROM_WORD_SIZE
+        I2C_EXT_EEPROM_Last_Index(out) < 126 || outIndex == 0
     ) //overflow
     {
         fifo_read = 1;
@@ -261,7 +283,7 @@ void doReadEEPROM(){
     uint16_t outIndex = 0;
     
     UART_PutArray(header, 1);
-    for (uint16_t i = 0; i<(int)(eeprom_index/EEPROM_WORD_SIZE); i++)
+    for (uint16_t i = 0; i<(int)(eeprom_index/EEPROM_WORD_SIZE +1); i++)
     {
         
         I2C_EXT_EEPROM_ReadRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,

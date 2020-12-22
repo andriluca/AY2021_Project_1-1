@@ -16,10 +16,13 @@
     uint8_t zyxda;                                  // keeps track of the zyxda bit of status register.
     
     volatile uint8_t wtm;
+    volatile uint8_t t_isr;
     
     CY_ISR_PROTO(SW_ISR);
     
     CY_ISR_PROTO(WTM_ISR);
+    
+    CY_ISR_PROTO(TEMP_ISR);
     
 
     
