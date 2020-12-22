@@ -126,8 +126,8 @@ void doTemperature(){
             temperature32 = ADC_MIN;
 
 
-            temperature[index_temp] = (uint8_t)((temperature32 >>8) & 0xFF); //msb
-            temperature[index_temp + 1] = (uint8_t)(temperature32 & 0xFF); //lsb
+            temperature[index_temp + 1] = (uint8_t)((temperature32 >>8) & 0xFF); //msb
+            temperature[index_temp] = (uint8_t)(temperature32 & 0xFF); //lsb
 
             index_temp = index_temp + 2;
             fifo_level ++;
@@ -259,14 +259,14 @@ void doWriteEEPROM(){
 //                                        eeprom_index & 0xFF,
 //                                        128,
 //                                        outEEPROM);
-    outIndex = outIndex + 128;
+    outIndex = outIndex + 126;
     temp = 1;
     fifo_write = 0;
 
 
 
     if (//outIndex == 5*EEPROM_WORD_SIZE
-        I2C_EXT_EEPROM_Last_Index(out) < 126 || outIndex == 0
+        I2C_EXT_EEPROM_Last_Index(out) < 126 || outIndex == 110
     ) //overflow
     {
         fifo_read = 1;
@@ -283,7 +283,7 @@ void doReadEEPROM(){
     uint16_t outIndex = 0;
 
     UART_PutArray(header, 1);
-    for (uint16_t i = 0; i<(int)(eeprom_index/EEPROM_WORD_SIZE +1); i++)
+    for (uint16_t i = 0; i<512 /*(int)(eeprom_index/EEPROM_WORD_SIZE)*/; i++)
     {
 
         I2C_EXT_EEPROM_ReadRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,

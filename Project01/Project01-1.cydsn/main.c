@@ -104,7 +104,7 @@ int main(void)
         
         // Reading the TEMPERATURE
         if(onTemperature())
-            doTemperature();
+          doTemperature();
         // Reading the FIFO
         if(onWatermark())
 	        doWatermark();
