@@ -1,5 +1,9 @@
 #include "EEPROM.h"
 
+extern volatile uint16_t eeprom_index;
+extern uint8_t word_sizes[EEPROM_TOTAL_WORDS];
+extern uint16_t written_pages;
+
 ErrorCode I2C_EXT_EEPROM_WriteRegister(uint8_t device_address,
                                     uint8_t register_address_high,
                                     uint8_t register_address_low,
@@ -171,4 +175,60 @@ void I2C_EXT_EEPROM_PrintWord(uint16_t word){
     }
     UART_PutString("\r\n");
     
+}
+
+ErrorCode I2C_EXT_EEPROM_WriteWord(uint8_t* word){
+    
+    uint8_t word_index = I2C_EXT_EEPROM_Last_Index(word); // index of the first available empty byte.
+    
+    uint8_t potential_bytes = EEPROM_WORD_SIZE - (eeprom_index % EEPROM_WORD_SIZE);
+
+    // Controllo che la parola possa essere scritta sulla pagina
+    if(potential_bytes > word_index){
+        I2C_EXT_EEPROM_WriteRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
+                                            (eeprom_index >> 8) & 0xff,
+                                            (eeprom_index) & 0xff,
+                                            word_index,
+                                            word);
+        word_sizes[written_pages] += word_index;
+        written_pages++;
+        eeprom_index += word_index;
+        
+    }
+    else{
+        I2C_EXT_EEPROM_WriteRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
+                                            (eeprom_index >> 8) & 0xff,
+                                            (eeprom_index) & 0xff,
+                                            potential_bytes,
+                                            word);
+        eeprom_index += potential_bytes;
+        word_sizes[written_pages] += potential_bytes;
+        written_pages++;
+        CyDelay(5);
+        I2C_EXT_EEPROM_WriteRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
+                                            (eeprom_index >> 8) & 0xff,
+                                            (eeprom_index) & 0xff,
+                                            word_index - potential_bytes,
+                                            &word[potential_bytes]);
+        eeprom_index += word_index - potential_bytes;
+        word_sizes[written_pages] += word_index - potential_bytes;
+    }
+    CyDelay(5);
+    
+    return NO_ERROR;
+}
+
+uint8_t I2C_EXT_EEPROM_Last_Index(uint8_t* word){
+    uint8_t count = 0;
+    uint8_t i;
+    // Ciclo per tutta la dimensione della parola
+    for (i = 20; i > 0; i--){
+        for (uint8_t j = 0; j < BYTE_TO_TRANSFER; j++){
+            // Modificare il parametro sulla base di cosa viene restituito dall'accelerometro quando incompleto.
+            if (word[j+i*6] == 0) count ++;
+        }
+        if (count < BYTE_TO_TRANSFER) return (i + 1)*BYTE_TO_TRANSFER;
+        else count = 0;
+    }
+    return BYTE_TO_TRANSFER;
 }

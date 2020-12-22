@@ -47,7 +47,13 @@
     void I2C_EXT_EEPROM_PrintAll();
     
     void I2C_EXT_EEPROM_PrintWord(uint16_t word);
+
+    ErrorCode I2C_EXT_EEPROM_WriteWord(uint8_t* word);
     
+    ErrorCode I2C_EXT_EEPROM_SendWord();
+    
+    uint8_t I2C_EXT_EEPROM_Last_Index(uint8_t* word);
+
 #endif
 
 /* [] END OF FILE */

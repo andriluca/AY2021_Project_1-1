@@ -16,7 +16,7 @@
 #include "EEPROM.h"
 
 uint8 sensitivity;
-volatile uint8_t wtm = WTM_LOW;
+volatile uint8_t wtm;
 uint8_t raw_data_8bit[BYTE_TO_READ_PER_LEVEL];
 int16_t raw_data_16bit[3];
 int16_t converted_acc[3];
@@ -30,9 +30,13 @@ uint8_t offset;
 uint8_t fifo_write;
 uint8_t fifo_read;
 uint8_t fifo_level;
+uint8_t word_sizes[EEPROM_TOTAL_WORDS] = {};
+uint16_t written_pages;
+uint16_t outIndex;
 volatile uint8_t shiftIndex;
 volatile uint16_t eeprom_index; //max 65535 se uint16
 volatile uint8_t eeprom_reset;
+
 
 
 uint8_t index_temp;
@@ -43,22 +47,26 @@ void init()
 {
     UART_Start();
     I2C_Peripheral_Start();
+    I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS);
     I2C_LIS3DH_Start();
     ISR_ACC_StartEx(WTM_ISR);
     
+    wtm = WTM_LOW;
     temp = 1;
     fifo_level = 0;
     index_temp = 0;
     shiftIndex = 0;
+    outIndex = 0;
     eeprom_index = 0;
     eeprom_reset = 0;   // per resettare la eeprom
     offset = 0;
     fifo_write = 0;
     fifo_read = 0;
+    written_pages = 0;
     concatenated_Data = 0;
     sensitivity = 4;
     CyDelay(5);
-    ADC_Temp_Start();    
+    ADC_Temp_Start();
 }
 
 _Bool onTemperature(){
@@ -211,12 +219,14 @@ void doWatermark(){
 
 void doWriteEEPROM(){
 
-    I2C_EXT_EEPROM_WriteRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
-                (eeprom_index >> 8) & 0xFF,
-				eeprom_index & 0xFF,
-				126,
-				out);
-//    I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS);
+    I2C_EXT_EEPROM_WriteWord(out);
+    
+//    I2C_EXT_EEPROM_WriteRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
+//                (eeprom_index >> 8) & 0xFF,
+//				eeprom_index & 0xFF,
+//				126,
+//				out);
+////    I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS);
 //    CyDelay(5);
 //
 ////    for (uint8_t i = 0; i<128; i++)
@@ -227,12 +237,15 @@ void doWriteEEPROM(){
 //                                        eeprom_index & 0xFF,
 //                                        128,
 //                                        outEEPROM);
-    eeprom_index = eeprom_index + 128;
+    outIndex = outIndex + 128;
     temp = 1;
     fifo_write = 0;
     
     
-    if (eeprom_index == 0) //overflow
+    
+    if (outIndex == 10*EEPROM_WORD_SIZE
+//        I2C_EXT_EEPROM_Last_Index(out) < 126 || outIndex == 0
+    ) //overflow
     {
         fifo_read = 1;
     }
@@ -245,23 +258,21 @@ void doReadEEPROM(){
     uint8_t header[] = {0xA0};
     uint8_t tail[] = {0xC0};
     
+    uint16_t outIndex = 0;
+    
     UART_PutArray(header, 1);
-    for (uint16_t i = 0; i<512; i++)
+    for (uint16_t i = 0; i<(int)(eeprom_index/EEPROM_WORD_SIZE); i++)
     {
         
         I2C_EXT_EEPROM_ReadRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
-                                        (eeprom_index >> 8) & 0xFF,
-                                        eeprom_index & 0xFF,
+                                        (outIndex >> 8) & 0xFF,
+                                        outIndex & 0xFF,
                                         128,
                                         outEEPROM);
-        eeprom_index = eeprom_index + 128;
+        outIndex = outIndex + 128;
         
-        for (uint8_t j = 0; j<126; j++)
-        {
-            outUART[j] = outEEPROM[j];
-        }
         
-        UART_PutArray(outUART, 126);
+        UART_PutArray(outEEPROM, 128);
     }
     UART_PutArray(tail, 1);
     fifo_read = 0;

@@ -128,7 +128,7 @@
     #define LIS3DH_TOTAL_BITS           10                                          // Bits to memorize raw data (in digit).
     #define LIS3DH_RIGHT_SHIFT          (LIS3DH_TOTAL_BITS - LIS3DH_RESOLUTION)     // to perform right shift.
     #define BYTES_PER_AXIS              (uint8_t)(LIS3DH_RESOLUTION/LIS3DH_OUT_AXES)
-    #define BYTE_TO_TRANSFER            1 + LIS3DH_RESOLUTION + 1
+    #define BYTE_TO_TRANSFER            (1 + LIS3DH_RESOLUTION + 1)
 
     // Conversion
     #define GRAVITY                     9.81                                // ms^-2
