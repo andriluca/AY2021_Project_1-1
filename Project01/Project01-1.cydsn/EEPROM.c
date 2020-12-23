@@ -223,7 +223,7 @@ ErrorCode I2C_EXT_EEPROM_WriteWord(uint8_t* word){
         I2C_EXT_EEPROM_WriteRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
                                                 (eeprom_index >> 8) & 0xff,
                                                 (eeprom_index) & 0xff,
-                                                potential_bytes,
+                                                potential_bytes - (potential_bytes%BYTE_TO_READ_PER_LEVEL),
                                                 word);
         eeprom_index += potential_bytes;
         written_pages++;

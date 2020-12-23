@@ -284,7 +284,7 @@ void doReadEEPROM(){
 
     uint16_t outIndex = 0;
 
-    UART_PutArray(header, 1);
+    //UART_PutArray(header, 1);
     for (uint16_t i = 0; i<pages; i++)
     {
 
@@ -298,7 +298,7 @@ void doReadEEPROM(){
 
         UART_PutArray(outEEPROM, 128);
     }
-    UART_PutArray(tail, 1);
+    //UART_PutArray(tail, 1);
     pages = 1;
     fifo_read = 0;
     eeprom_reset = 1;
