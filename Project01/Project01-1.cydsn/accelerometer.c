@@ -102,7 +102,7 @@ ErrorCode I2C_LIS3DH_Manage_Data(int16 * array, uint8 sensitivity)
     return NO_ERROR;
 }
 
-ErrorCode I2C_LIS3DH_Get_Raw_Data(int16_t* data)
+ErrorCode I2C_LIS3DH_Get_Raw_Data(uint16_t* data)
 {
     uint8_t sensorData[LIS3DH_OUT_N]; // This array is storing left-aligned bytes coming from accelerometer.
     
@@ -120,7 +120,7 @@ ErrorCode I2C_LIS3DH_Get_Raw_Data(int16_t* data)
 //    I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS, 0x2D, &sensorData[5]);
     
     // Re-arranging data to have them right-aligned as integers.
-    for(int i = 0; i < LIS3DH_OUT_AXES; i++) data[i] = (int16_t)((sensorData[2*i+1] << 8 | sensorData[2*i])) >> LIS3DH_RIGHT_SHIFT;   
+    for(int i = 0; i < LIS3DH_OUT_AXES; i++) data[i] = (uint16_t)((sensorData[2*i+1] << 8 | sensorData[2*i])) >> LIS3DH_RIGHT_SHIFT;   
 //    data[0] = 10;
 //    data[1] = 20;
 //    data[2] = 30;

@@ -6,6 +6,9 @@
 #ifndef __DEFINE_H
 
     #define __DEFINE_H
+    
+    #define EXT_LED_ON      1
+    #define EXT_LED_OFF     0
 
     /* === Changeable values === */
     // Persistent memory

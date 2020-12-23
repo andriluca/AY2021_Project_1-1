@@ -19,7 +19,7 @@ uint8 sensitivity;
 volatile uint8_t wtm;
 volatile uint8_t t_isr;
 uint8_t raw_data_8bit[BYTE_TO_READ_PER_LEVEL];
-int16_t raw_data_16bit[3];
+uint16_t raw_data_16bit[3];
 int16_t converted_acc[3];
 uint32_t concatenated_Data;
 uint8_t out      [(LEVEL_TO_READ + 1) * 6];
@@ -200,16 +200,16 @@ void doWatermark(){
         // Receiving raw data
     	I2C_LIS3DH_Get_Raw_Data(raw_data_16bit);
     	// Converting data
-    	for (uint8_t i = 0; i < LIS3DH_OUT_AXES; i++)
-    	{
-    	    converted_acc[i] = (int16)(raw_data_16bit[i] * sensitivity * CONVERSION);
-    	}
+//    	for (uint8_t i = 0; i < LIS3DH_OUT_AXES; i++)
+//    	{
+//    	    converted_acc[i] = (int16)(raw_data_16bit[i] * sensitivity * CONVERSION);
+//    	}
     	// Creating the data packets
     	concatenated_Data = 0;
     	uint8_t count = LIS3DH_OUT_AXES-1;
     	for(uint8_t i = 0; i < LIS3DH_OUT_AXES; i++)
     	{
-    	    concatenated_Data |= (uint32_t)((converted_acc[i] & 0x3FF) << 10*count);
+    	    concatenated_Data |= (uint32_t)((raw_data_16bit[i] & 0x3FF) << 10*count);
     	    count--;
     	}
 
@@ -277,14 +277,16 @@ void doWriteEEPROM(){
 }
 
 void doReadEEPROM(){
-
+    
+    EXT_LED_Write(EXT_LED_ON);
+    
     CyDelay(5);
     uint8_t header[] = {0xA0};
     uint8_t tail[] = {0xC0};
 
     uint16_t outIndex = 0;
 
-    //UART_PutArray(header, 1);
+    UART_PutArray(header, 1);
     for (uint16_t i = 0; i<pages; i++)
     {
 
@@ -298,10 +300,12 @@ void doReadEEPROM(){
 
         UART_PutArray(outEEPROM, 128);
     }
-    //UART_PutArray(tail, 1);
+    UART_PutArray(tail, 1);
     pages = 1;
     fifo_read = 0;
     eeprom_reset = 1;
+    
+    EXT_LED_Write(EXT_LED_OFF);
 
 }
 
