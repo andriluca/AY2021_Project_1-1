@@ -24,7 +24,7 @@ ErrorCode I2C_LIS3DH_Start()
     // Setup control register 1
     I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                  LIS3DH_CTRL_REG1,
-                                 LIS3DH_SETUP_50_CTRL_REG1);    // ODR
+                                 LIS3DH_SETUP_25_CTRL_REG1);    // ODR
     // Setup control register 3
     I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                  LIS3DH_CTRL_REG3,
@@ -112,18 +112,9 @@ ErrorCode I2C_LIS3DH_Get_Raw_Data(uint16_t* data)
                                     6,
                                     sensorData);
     
-//    I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS, LIS3DH_OUT_X_L, &sensorData[0]);
-//    I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS, 0x29 , &sensorData[1]);
-//    I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS, 0x2A, &sensorData[2]);
-//    I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS, 0x2B, &sensorData[3]);
-//    I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS, 0x2C, &sensorData[4]);
-//    I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS, 0x2D, &sensorData[5]);
     
     // Re-arranging data to have them right-aligned as integers.
     for(int i = 0; i < LIS3DH_OUT_AXES; i++) data[i] = (uint16_t)((sensorData[2*i+1] << 8 | sensorData[2*i])) >> LIS3DH_RIGHT_SHIFT;   
-//    data[0] = 10;
-//    data[1] = 20;
-//    data[2] = 30;
     
     return NO_ERROR;
 }

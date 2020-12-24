@@ -1,8 +1,6 @@
 #include "EEPROM.h"
 
 extern volatile uint16_t eeprom_index;
-extern uint8_t word_sizes[EEPROM_TOTAL_WORDS];
-extern uint16_t written_pages;
 
 
 ErrorCode I2C_EXT_EEPROM_WriteRegister(uint8_t device_address,
@@ -127,20 +125,7 @@ ErrorCode I2C_EXT_EEPROM_Reset(uint8_t device_address)
             CyDelay(5);
         }
         return NO_ERROR;
-
-//        uint8_t error = I2C_Master_MasterSendStart(device_address, I2C_Master_WRITE_XFER_MODE);
-//        if (error == I2C_Master_MSTR_NO_ERROR){
-//            // Sending ones
-//            error = I2C_Master_MasterWriteByte(0xFF);
-//            if(error == I2C_Master_MSTR_NO_ERROR){
-//                error = I2C_Master_MasterSendStart(device_address,I2C_Master_READ_XFER_MODE);
-//                if(error == I2C_Master_MSTR_NO_ERROR){
-//                    error = I2C_Master_MasterSendStop();
-//                }   
-//            }
-//        }
-//        return error ? ERROR : NO_ERROR;
-
+        
     }
     
    
@@ -155,7 +140,6 @@ void I2C_EXT_EEPROM_PrintWord(uint16_t word){
     char message[10];
     uint8_t bytes_per_row = 6;
     uint8_t out[EEPROM_WORD_SIZE];
-    
     
     // Reading the word
     UART_PutString("Word: ");
@@ -193,8 +177,6 @@ ErrorCode I2C_EXT_EEPROM_WriteWord(uint8_t* word){
                                                 (eeprom_index) & 0xff,
                                                 word_index,
                                                 word);
-            word_sizes[written_pages] += word_index;
-            written_pages++;
             eeprom_index += word_index; //126
  
         }
@@ -206,8 +188,6 @@ ErrorCode I2C_EXT_EEPROM_WriteWord(uint8_t* word){
                                                 word);
             eeprom_index += potential_bytes;
             pages ++;    
-            word_sizes[written_pages] += potential_bytes;
-            written_pages++;
             CyDelay(5);
             I2C_EXT_EEPROM_WriteRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
                                                 (eeprom_index >> 8) & 0xff,
@@ -215,7 +195,6 @@ ErrorCode I2C_EXT_EEPROM_WriteWord(uint8_t* word){
                                                 word_index - potential_bytes,
                                                 &word[potential_bytes]);
             eeprom_index += word_index - potential_bytes;
-            word_sizes[written_pages] += word_index - potential_bytes;
         }
     }
     else 
@@ -226,7 +205,6 @@ ErrorCode I2C_EXT_EEPROM_WriteWord(uint8_t* word){
                                                 potential_bytes - (potential_bytes%BYTE_TO_READ_PER_LEVEL),
                                                 word);
         eeprom_index += potential_bytes;
-        written_pages++;
     }
     
     CyDelay(5);

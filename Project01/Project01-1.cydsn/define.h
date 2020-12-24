@@ -7,6 +7,11 @@
 
     #define __DEFINE_H
     
+    #define LED_PERIOD_FAST     127
+    #define LED_PERIOD_SLOW     511
+    #define LED_COMPARE_FAST    64
+    #define LED_COMPARE_SLOW    256
+    
     #define EXT_LED_ON      1
     #define EXT_LED_OFF     0
 
