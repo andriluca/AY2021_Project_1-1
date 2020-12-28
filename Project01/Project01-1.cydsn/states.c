@@ -93,6 +93,50 @@ void init()
     wtm = WTM_LOW;
 }
 
+void restart()
+{
+    T_TIMER_CLOCK_Start();
+    T_TIMER_Start();
+ 
+    if((settings & 0xC0) != 0x00)           
+        {
+            settings = _2g|(_1Hz<<2)|(CELSIUS<<4)|(ESAV_OFF<<5);               //"Reboot" starting from minimum sampling frequency
+            INT_EEPROM_Write(&settings, CONFIG_REGISTER);
+        }
+        
+    if((settings & ESAV_STATUS)>>5)
+        {
+            temp = 1;
+            PWM_Start();
+            I2C_LIS3DH_Start(settings);
+            ISR_ACC_StartEx(WTM_ISR);
+        }       
+    else
+        {
+            temp = 0;            
+            ISR_ACC_Stop(); 
+            PWM_Stop();
+        }
+    
+    t_isr = 0;          //abilita isr timer
+    fifo_level = 0;     //
+    index_temp = 0;     //puntatore array temperatura
+    outIndex = 0;       //usato in writeeeprom per tenere indirizzo attuale
+    eeprom_index = 0;   //primo indirizzo eeprom disponibile
+    eeprom_reset = 0;   // per resettare la eeprom
+    offset = 0;         //per leggere fifo    
+    pages = 1;          //da 0x00 a 0x80 è già una pagina scritta
+    concatenated_Data = 0;      //pacchetto di dati per ogni livello  
+    full_eeprom = 0;
+    comm_rec = 0;
+    comm_abilitate = 1;
+    temp = 1;
+    fifo_write = 0;     
+    fifo_read = 0;
+    wtm = WTM_LOW;
+  
+}
+
 
 // Condizioni
 

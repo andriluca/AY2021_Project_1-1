@@ -50,12 +50,12 @@ int main(void)
                     PWM_Stop();  
                     break;
                 case 'b':
-                    temp = 1;
-                    I2C_LIS3DH_Start(settings);
-                    ISR_ACC_StartEx(WTM_ISR); 
-                    wtm = WTM_LOW;
-                    PWM_Start();
-                   // init();
+//                    temp = 1;
+//                    I2C_LIS3DH_Start(settings);
+//                    ISR_ACC_StartEx(WTM_ISR); 
+//                    wtm = WTM_LOW;
+//                    PWM_Start();
+                    restart();
                     break;
                 case 'h':
                     UART_PutString("Accelerometer Hello $$$\n"); //important \n to stop ser.readline()                    

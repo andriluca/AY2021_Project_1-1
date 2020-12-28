@@ -28,4 +28,5 @@
 
 
     void init();
+    void restart();
 #endif
