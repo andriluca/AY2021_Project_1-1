@@ -5,8 +5,51 @@
 
 #include "accelerometer.h"
 
+void I2C_LIS3DH_SetConfig(uint8 settings, uint8* config)
+{
+    switch(settings & FSR)
+    {
+        case _2g:
+            config[0]=LIS3DH_SETUP_02_CTRL_REG4;           
+            break;
+        case _4g:
+            config[0]=LIS3DH_SETUP_04_CTRL_REG4; 
+            break; 
+        case _8g:
+            config[0]=LIS3DH_SETUP_08_CTRL_REG4; 
+            break;
+        case _16g:
+            config[0]=LIS3DH_SETUP_16_CTRL_REG4; 
+            break;
+        default:
+            config[0]=LIS3DH_SETUP_02_CTRL_REG4;  
+            break; 
+    }
+    
+    switch((settings&ODR)>>2)
+    {
+        case _1Hz:
+            config[1]=LIS3DH_SETUP_01_CTRL_REG1;
+            break;
+        case _10Hz:
+            config[1]=LIS3DH_SETUP_10_CTRL_REG1;
+            break; 
+        case _25Hz:
+            config[1]=LIS3DH_SETUP_25_CTRL_REG1;
+            break;
+        case _50Hz:
+            config[1]=LIS3DH_SETUP_50_CTRL_REG1;
+            break;
+        default:
+            config[1]=LIS3DH_SETUP_01_CTRL_REG1;
+            break;
+    }
+    
+}
 
-ErrorCode I2C_LIS3DH_Start()
+
+
+ErrorCode I2C_LIS3DH_Start(uint8 setting)
 {
     // Reading EEPROM register dedicated to startup ODR.
     // Checking if the memorized value is in allowed range.
@@ -20,11 +63,12 @@ ErrorCode I2C_LIS3DH_Start()
 //		// Initialization of the EEPROM register
 //        EEPROM_WriteByte(EEPROM_INIT_VALUE, EEPROM_REGISTER);
 //    }
-    
+    uint8 config[2];
+    I2C_LIS3DH_SetConfig(setting, config);
     // Setup control register 1
     I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                  LIS3DH_CTRL_REG1,
-                                 LIS3DH_SETUP_25_CTRL_REG1);    // ODR
+                                 config[1]);    // ODR
     // Setup control register 3
     I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                  LIS3DH_CTRL_REG3,
@@ -32,7 +76,7 @@ ErrorCode I2C_LIS3DH_Start()
     // Setup control register 4
     I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                  LIS3DH_CTRL_REG4,
-                                 LIS3DH_SETUP_02_CTRL_REG4);     // FS
+                                 config[0]);     // FS
     // Setup control register 5
     I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                  LIS3DH_CTRL_REG5,

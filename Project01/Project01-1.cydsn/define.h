@@ -176,5 +176,23 @@
     // ADC
     #define ADC_MAX 65535
     #define ADC_MIN 0
+    
+    #define CONFIG_REGISTER 0x00
+    #define FSR 0x03
+    #define ODR 0X0C
+    #define TEMP_FORMAT 0x10
+    #define ESAV_STATUS 0x20
+    #define _2g 0x00
+    #define _4g 0x01
+    #define _8g 0x02
+    #define _16g 0x03
+    #define _1Hz 0x00
+    #define _10Hz 0x01
+    #define _25Hz 0x02
+    #define _50Hz 0x03
+    #define ESAV_OFF 0x00
+    #define ESAV_ON 0x01
+    #define CELSIUS 0x00
+    #define FAHRENHEIT 0x01
 
 #endif

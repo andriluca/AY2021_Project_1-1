@@ -24,6 +24,10 @@
     
     CY_ISR_PROTO(TEMP_ISR);
     
+    CY_ISR_PROTO(COMM_GUI);
+    
+    volatile uint8_t comm_rec;
+    
 
     
 #endif

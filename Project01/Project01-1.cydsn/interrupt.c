@@ -24,6 +24,11 @@ CY_ISR(TEMP_ISR)
     t_isr = 1;
 }
 
+CY_ISR(COMM_GUI)
+{
+    comm_rec = 1;
+}
+
 //CY_ISR(TIMER_ISR)
 //{
 //    TIMER_ReadStatusRegister();

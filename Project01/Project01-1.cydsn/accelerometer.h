@@ -36,7 +36,7 @@
  *     It gathers ODR from EEPROM.
 \*****************************************************************************/
    
-    ErrorCode I2C_LIS3DH_Start();
+    ErrorCode I2C_LIS3DH_Start(uint8 settings);
     
     
 /*****************************************************************************\
@@ -60,5 +60,7 @@ ErrorCode I2C_LIS3DH_Get_Raw_Data(uint16_t* data);
 \*****************************************************************************/
     
     ErrorCode I2C_LIS3DH_Manage_Data(int16_t* array, uint8 sensitivity);
-    
+  
+void I2C_LIS3DH_SetConfig(uint8 settings, uint8* config);
+
 #endif
