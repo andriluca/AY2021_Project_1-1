@@ -280,7 +280,7 @@ void doReadEEPROM(){
     
     CyDelay(5);
     uint8_t header[] = {0xA0};
-    uint8_t tail[] = {0xC0};
+    uint8_t tail[] = {0xC0, 0xC0};
 
     uint16_t outIndex_read = 0;
 
@@ -298,7 +298,7 @@ void doReadEEPROM(){
 
         UART_PutArray(outEEPROM, 128);
     }
-    UART_PutArray(tail, 1);
+    UART_PutArray(tail, 2);
     
     pages = 1;
     fifo_read = 0;

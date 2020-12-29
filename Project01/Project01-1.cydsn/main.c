@@ -186,10 +186,11 @@ int main(void)
                         
                     if((settings & ESAV_STATUS)>>5)
                     {
-                        temp = 1;
-                        PWM_Start();
-                        I2C_LIS3DH_Start(settings);
-                        ISR_ACC_StartEx(WTM_ISR);
+                        //temp = 1;
+                        //PWM_Start();
+                        //I2C_LIS3DH_Start(settings);
+                        //ISR_ACC_StartEx(WTM_ISR);
+                        restart();
                     }       
                     else
                     {
