@@ -288,12 +288,13 @@ void doReadEEPROM(){
     for (uint16_t i = 0; i<pages; i++)
     {
 
-        I2C_EXT_EEPROM_ReadRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
-                                        (outIndex_read >> 8) & 0xFF,
-                                        outIndex_read & 0xFF,
-                                        128,
-                                        outEEPROM);
-        outIndex_read = outIndex_read + 128;
+//        I2C_EXT_EEPROM_ReadRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
+//                                        (outIndex_read >> 8) & 0xFF,
+//                                        outIndex_read & 0xFF,
+//                                        128,
+//                                        outEEPROM);
+//        outIndex_read = outIndex_read + 128;
+        I2C_EXT_EEPROM_PrintWord(i);
 
 
         UART_PutArray(outEEPROM, 128);
