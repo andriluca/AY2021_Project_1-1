@@ -12,6 +12,18 @@
             pos: self.pos
             size: (self.height,self.height)
 
+<MyPopup>:
+
+    pb: _pb
+    size: (10,10)
+    title: "Printing data, please wait"
+    auto_dismiss: False  
+    ProgressBar:
+        id: _pb
+        max:100
+        value:0
+
+
 <Home>:
     padding: 5
     spacing:5
@@ -26,6 +38,8 @@
     sf: _sf
     tf: _tf
     esav: _esav 
+    
+    
 
     msg: _msg
 
@@ -37,6 +51,8 @@
     y_data: _y_data
     z_data: _z_data
     t_data: _t_data
+
+    
 
     BoxLayout:                          #connection part
         spacing: 5
@@ -67,10 +83,10 @@
         
         BoxLayout:                         #setting part
             spacing: 5
-            orientation: "vertical"
+            orientation: "vertical"          
             Button:
                 id: _st_bt
-                text:"Start"
+                text: "Start Device"
                 text_size: self.size
                 halign: "center"
                 valign: "center"
