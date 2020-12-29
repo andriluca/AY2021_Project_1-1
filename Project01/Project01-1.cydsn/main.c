@@ -44,7 +44,11 @@ int main(void)
             switch(msg)
             {   
                 case 's':
-                    temp = 0;              
+                    temp = 0;   
+                    settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
+                    settings = settings & (0x1F);
+                    INT_EEPROM_UpdateTemperature();
+                    INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
                     ISR_ACC_Stop(); 
                     wtm = WTM_LOW;
                     PWM_Stop();  
@@ -55,6 +59,10 @@ int main(void)
 //                    ISR_ACC_StartEx(WTM_ISR); 
 //                    wtm = WTM_LOW;
 //                    PWM_Start();
+                    settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
+                    settings = settings | (0x20);
+                    INT_EEPROM_UpdateTemperature();
+                    INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
                     restart();
                     break;
                 case 'h':
@@ -230,6 +238,8 @@ int main(void)
             doWriteEEPROM();
         if (onFullEEPROM())
             doFullEEPROM();
+        if (onButtonReleased())
+            doButtonReleased();
         // Reading the EEPROM
         //if (onReadEEPROM())
         //    doReadEEPROM();

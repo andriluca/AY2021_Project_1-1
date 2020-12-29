@@ -195,4 +195,11 @@
     #define CELSIUS 0x00
     #define FAHRENHEIT 0x01
 
+    // Timer
+    #define TIMER_RESET_HIGH_THRESHOLD          3 * 2
+    #define TIMER_RESET_LOW_THRESHOLD           1
+    #define TOGGLE_DEVICE                       1
+    #define EMPTY_EEPROM                        2
+    
+    
 #endif

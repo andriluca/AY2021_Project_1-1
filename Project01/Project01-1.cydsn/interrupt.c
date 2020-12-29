@@ -29,6 +29,29 @@ CY_ISR(COMM_GUI)
     comm_rec = 1;
 }
 
+CY_ISR_PROTO(BUTTON_RELEASE){
+
+    // Settare flag del bottone rilasciato
+    isButtonReleased = 1;
+    // Controllo il tempo di pressione
+    if(counted_seconds > TIMER_RESET_LOW_THRESHOLD && counted_seconds < TIMER_RESET_HIGH_THRESHOLD) 
+        status = TOGGLE_DEVICE;
+    else if(counted_seconds >= TIMER_RESET_HIGH_THRESHOLD)
+        status = EMPTY_EEPROM;
+    // Reset contatore
+    counted_seconds = 0;
+}
+
+CY_ISR_PROTO(COUNT_SEC){
+    
+    // Reset contatore timer
+    TIMER_RESET_ReadStatusRegister();
+    // Incrementare contatore
+    counted_seconds++;
+
+}
+
+
 //CY_ISR(TIMER_ISR)
 //{
 //    TIMER_ReadStatusRegister();

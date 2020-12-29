@@ -73,6 +73,12 @@ void init()
         PWM_Stop();
     }
     
+    TIMER_RESET_Start();
+    
+    ISR_RELEASE_StartEx(BUTTON_RELEASE);
+    
+    ISR_TIMER_RESET_StartEx(COUNT_SEC);
+    
     ISR_RX_StartEx(COMM_GUI);
     
     
@@ -91,6 +97,10 @@ void init()
     fifo_write = 0;     
     fifo_read = 0;
     wtm = WTM_LOW;
+    counted_seconds = 0;
+    isButtonReleased = 0;
+    status = 0;
+    
 }
 
 void restart()
@@ -162,6 +172,10 @@ _Bool onReadEEPROM(){
 
 _Bool onEEPROMReset(){
     return eeprom_reset;
+}
+
+_Bool onButtonReleased(){
+    return isButtonReleased;
 }
 
 // Stati
@@ -313,5 +327,40 @@ void doEEPROMReset(){
     
     I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS);
     eeprom_reset = 0;
+    
+}
+
+void doButtonReleased(){
+    if(status == TOGGLE_DEVICE){
+        // B o S
+        // lettura della configurazione attuale
+        settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
+        // Se siamo in saving
+        if (settings & 0x20){
+            temp = 0;
+            settings &= (0x1F);
+            INT_EEPROM_UpdateTemperature();
+            INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
+            ISR_ACC_Stop(); 
+            wtm = WTM_LOW;
+            PWM_Stop(); 
+        }
+        else{
+            settings |= (0x20);
+            INT_EEPROM_UpdateTemperature();
+            INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
+            restart();
+        }
+        UART_PutString("toggle device\r\n");
+    }
+    else if(status == EMPTY_EEPROM){
+        // reset eeprom
+        I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS);
+        UART_PutString("Empty eeprom\r\n");
+        
+    }
+
+    isButtonReleased = 0;
+    status = 0;
     
 }

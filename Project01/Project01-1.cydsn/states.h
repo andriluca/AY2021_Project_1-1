@@ -18,6 +18,7 @@
     _Bool onFullEEPROM();
     _Bool onReadEEPROM();
     _Bool onEEPROMReset();
+    _Bool onButtonReleased();
 
     void doTemperature();
     void doWatermark();
@@ -25,7 +26,7 @@
     void doFullEEPROM();
     void doReadEEPROM();
     void doEEPROMReset();
-
+    void doButtonReleased();
 
     void init();
     void restart();

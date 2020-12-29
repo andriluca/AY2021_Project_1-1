@@ -17,6 +17,9 @@
     
     volatile uint8_t wtm;
     volatile uint8_t t_isr;
+    volatile uint8_t counted_seconds;
+    volatile uint8_t isButtonReleased;
+    volatile uint8_t status;
     
     CY_ISR_PROTO(SW_ISR);
     
@@ -25,6 +28,10 @@
     CY_ISR_PROTO(TEMP_ISR);
     
     CY_ISR_PROTO(COMM_GUI);
+    
+    CY_ISR_PROTO(BUTTON_RELEASE);
+    
+    CY_ISR_PROTO(COUNT_SEC);
     
     volatile uint8_t comm_rec;
     
