@@ -46,7 +46,8 @@
                                         uint8_t register_count,
                                         uint8_t* data);
     ErrorCode I2C_EXT_EEPROM_Reset(uint8_t device_address);
-
+    ErrorCode I2C_EXT_EEPROM_Partial_Reset(uint8_t device_address, uint8_t pages);
+    
     void I2C_EXT_EEPROM_PrintAll();
     
     void I2C_EXT_EEPROM_PrintWord(uint16_t word);

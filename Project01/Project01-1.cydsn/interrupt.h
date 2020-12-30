@@ -33,6 +33,8 @@
     
     CY_ISR_PROTO(COUNT_SEC);
     
+    CY_ISR_PROTO(BUTTON_PRESS);
+    
     volatile uint8_t comm_rec;
     
 

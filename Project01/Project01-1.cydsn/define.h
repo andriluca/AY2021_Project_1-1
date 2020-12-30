@@ -179,7 +179,7 @@
     
     #define CONFIG_REGISTER 0x00
     #define FSR 0x03
-    #define ODR 0X0C
+    #define ODR 0x0C
     #define TEMP_FORMAT 0x10
     #define ESAV_STATUS 0x20
     #define _2g 0x00

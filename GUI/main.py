@@ -231,8 +231,6 @@ class Home (BoxLayout):
                     data.append(tail)
                     if tail == 0x00:
                         no_data = no_data + 1
-                        if no_data == 4:
-                            reading = False
                     else:
                         no_data = 0
 
@@ -368,7 +366,7 @@ class Home (BoxLayout):
                 self.st_bt.text = 'Stop Device'
             else:
                 SAVE=0x00
-                self.st_bt.text = 'Stop Device'
+                self.st_bt.text = 'Start Device'
 
             conf = FSR | SF | TF | SAVE | 0x00
             conf = bytes([conf])

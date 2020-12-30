@@ -116,11 +116,13 @@ ErrorCode I2C_EXT_EEPROM_ReadRegisterMulti(uint8_t device_address,
 
     }
 
+    
 ErrorCode I2C_EXT_EEPROM_Reset(uint8_t device_address)
     {
+        uint8_t in[512] = {};  
+        
         for (uint16_t word = 0; word < 512; word++)
         {
-            uint8_t in[512] = {};  
             I2C_EXT_EEPROM_WriteRegisterMulti(device_address, (word*EEPROM_WORD_SIZE) >> 8, word*EEPROM_WORD_SIZE & 0xFF, 128, in);
             CyDelay(5);
         }
@@ -128,7 +130,20 @@ ErrorCode I2C_EXT_EEPROM_Reset(uint8_t device_address)
         
     }
     
-   
+ErrorCode I2C_EXT_EEPROM_Partial_Reset(uint8_t device_address, uint8_t pages)
+    {
+        uint8_t in[512] = {};  
+        
+        for (uint16_t word = 0; word < pages; word++)
+        {
+            I2C_EXT_EEPROM_WriteRegisterMulti(device_address, (word*EEPROM_WORD_SIZE) >> 8, word*EEPROM_WORD_SIZE & 0xFF, 128, in);
+            CyDelay(5);
+        }
+        return NO_ERROR;
+        
+    }
+
+    
 
 void I2C_EXT_EEPROM_PrintAll(){
     UART_PutString("Memory content:\r\n");

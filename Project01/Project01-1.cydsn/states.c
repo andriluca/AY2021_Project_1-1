@@ -38,6 +38,12 @@ uint8_t index_temp;
 uint32_t temperature32 = 0;
 uint8_t temperature[(LEVEL_TO_READ+1) * 2];
 uint8 settings;
+char msg;
+
+void getParam(uint8_t settings, uint8_t* parameters);
+
+void doStoppingDevice();
+void doSavingDevice();
 
 void init()
 {
@@ -55,9 +61,12 @@ void init()
     }
        
     I2C_Peripheral_Start();
+    
     // I2C Boot
     CyDelay(5);
-    I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS);
+    
+    // La seguente riga non può essere implementata
+//    I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS);
     
     if((settings & ESAV_STATUS)>>5)
     {
@@ -73,6 +82,7 @@ void init()
         PWM_Stop();
     }
     
+    // ISR_PRESS_StartEx(BUTTON_PRESS);
     TIMER_RESET_Start();
     
     ISR_RELEASE_StartEx(BUTTON_RELEASE);
@@ -138,8 +148,6 @@ void restart()
     pages = 1;          //da 0x00 a 0x80 è già una pagina scritta
     concatenated_Data = 0;      //pacchetto di dati per ogni livello  
     full_eeprom = 0;
-    comm_rec = 0;
-    comm_abilitate = 1;
     temp = 1;
     fifo_write = 0;     
     fifo_read = 0;
@@ -149,6 +157,267 @@ void restart()
 
 
 // Condizioni
+
+_Bool onByteReceived(){
+    return comm_abilitate && comm_rec;
+}
+
+void doByteReceived(){
+    msg = UART_ReadRxData();
+    UART_ClearRxBuffer();
+}
+
+_Bool onStopping(){
+    return onByteReceived() && msg == 's';
+}
+
+void doStopping(){
+    
+    comm_abilitate = 0;
+    // Disabilitare il salvataggio della temperatura
+    temp = 0;
+    // Lettura registro di configurazione da eeprom
+    settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
+    // Toggle del bit di saving
+    settings = settings & (0x1F);
+    INT_EEPROM_UpdateTemperature();
+    INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
+    // Disabilito ISR per leggere accelerazioni
+    ISR_ACC_Stop();
+    wtm = WTM_LOW;
+    PWM_Stop();
+    UART_PutString("Done Stopping!\n");
+    comm_abilitate = 1;
+    
+    comm_rec = 0;
+}
+
+void doStoppingDevice(){
+    
+    // Disabilitare il salvataggio della temperatura
+    temp = 0;
+    // Toggle del bit di saving
+    settings = settings & (0x1F);
+    INT_EEPROM_UpdateTemperature();
+    INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
+    // Disabilito ISR per leggere accelerazioni
+    ISR_ACC_Stop();
+    wtm = WTM_LOW;
+    PWM_Stop();
+    UART_PutString("Done Stopping Device!\n");
+
+}
+
+
+_Bool onSaving(){
+    return onByteReceived() && msg == 'b';
+}
+
+void doSaving(){
+    
+    comm_abilitate = 0;
+    // Lettura registro configurazione da eeprom
+    settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
+    // Toggle del bit di saving
+    settings = settings | (0x20);
+    INT_EEPROM_UpdateTemperature();
+    INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
+    restart();
+    UART_PutString("Done Saving!\n");
+    comm_abilitate = 1;
+    
+    comm_rec = 0;
+}
+
+void doSavingDevice(){
+    
+    // Toggle del bit di saving
+    settings = settings | (0x20);
+    INT_EEPROM_UpdateTemperature();
+    INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
+    restart();
+    UART_PutString("Done Saving Device!\n");
+    
+}
+
+
+_Bool onHandshake(){
+    return onByteReceived() && msg == 'h';
+}
+
+void doHandshake(){
+    
+    uint8_t parameters[4];
+    comm_abilitate = 0;
+    UART_PutString("Accelerometer Hello $$$\n"); //important \n to stop ser.readline()                    
+    settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
+    char tosend[10];
+    getParam(settings, parameters);
+    
+    // Sending FSR
+    sprintf(tosend, "+-%dg\n", parameters[0]);
+    UART_PutString(tosend);
+    
+    // Sending ODR
+    sprintf(tosend, "%dHz\n", parameters[1]);
+    UART_PutString(tosend);
+    
+    // Sending Temperature Format
+    if(parameters[2])
+        UART_PutString("Fahrenheit\n");
+    else
+        UART_PutString("Celsius\n");
+    
+    // Sending Saving Status
+    if(parameters[3])
+        UART_PutString("ON\n");
+    else
+        UART_PutString("OFF\n");
+        
+    comm_abilitate = 1;
+    comm_rec = 0;
+
+}
+
+_Bool onChangeConfig(){
+    return onByteReceived() && msg == 'c';
+}
+
+void doChangeConfig(){
+    
+    comm_abilitate = 0;
+    comm_rec = 0;
+    
+    //UART_ClearRxBuffer();
+    while(comm_rec == 0);
+    
+    // Reading settings
+    settings = UART_ReadRxData();   
+    UART_ClearRxBuffer();
+    
+    switch(settings & FSR)
+    {
+        case _2g:
+            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                 LIS3DH_CTRL_REG4,
+                 LIS3DH_SETUP_02_CTRL_REG4);        
+            break;
+        case _4g:
+            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                 LIS3DH_CTRL_REG4,
+                 LIS3DH_SETUP_04_CTRL_REG4); 
+            break; 
+        case _8g:
+            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                 LIS3DH_CTRL_REG4,
+                 LIS3DH_SETUP_08_CTRL_REG4); 
+            break;
+        case _16g:
+            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                 LIS3DH_CTRL_REG4,
+                 LIS3DH_SETUP_16_CTRL_REG4); 
+            break;
+        default:
+            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                 LIS3DH_CTRL_REG4,
+                 LIS3DH_SETUP_02_CTRL_REG4);   
+            break; 
+    }
+    
+    switch((settings & ODR) >> 2)
+    {
+        case _1Hz:
+            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                 LIS3DH_CTRL_REG1,
+                 LIS3DH_SETUP_01_CTRL_REG1);
+            break;
+        case _10Hz:
+            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                 LIS3DH_CTRL_REG1,
+                 LIS3DH_SETUP_10_CTRL_REG1);
+            break; 
+        case _25Hz:
+            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                 LIS3DH_CTRL_REG1,
+                 LIS3DH_SETUP_25_CTRL_REG1);
+            break;
+        case _50Hz:
+            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                 LIS3DH_CTRL_REG1,
+                 LIS3DH_SETUP_50_CTRL_REG1);
+            break;
+        default:
+            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                 LIS3DH_CTRL_REG1,
+                 LIS3DH_SETUP_01_CTRL_REG1);
+            break;
+    }
+        
+    if((settings & ESAV_STATUS) >> 5) 
+        doSavingDevice();
+    else
+        doStoppingDevice();
+    
+    I2C_EXT_EEPROM_Partial_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);
+    
+    comm_abilitate = 1;
+    
+    comm_rec = 0;
+}
+
+_Bool onVisualizing(){
+    return onByteReceived() && msg == 'v';
+}
+
+void doVisualizing(){
+
+    doReadEEPROM();
+    doStopping();
+    I2C_EXT_EEPROM_Partial_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);  
+}
+
+void getParam(uint8_t settings, uint8_t* parameters){
+    
+    switch(settings & FSR)
+    {            
+        case _2g:
+            parameters[0] = 2;
+            break;
+        case _4g:
+            parameters[0] = 4;
+            break; 
+        case _8g:
+            parameters[0] = 8;
+            break;
+        case _16g:
+            parameters[0] = 16;
+            break;
+        default:
+            break;
+    }
+    
+    switch((settings & ODR) >> 2)
+    {
+        case _1Hz:
+            parameters[1] = 1;
+            break;
+        case _10Hz:
+            parameters[1] = 10;
+            break; 
+        case _25Hz:
+            parameters[1] = 25;
+            break;
+        case _50Hz:
+            parameters[1] = 50;
+            break;
+        default:
+            break;
+    }
+    
+    parameters[2] = (settings & TEMP_FORMAT)>>4;
+    
+    parameters[3] = (settings & ESAV_STATUS)>>5;
+}
 
 _Bool onTemperature(){
     return temp && !wtm && !fifo_write && !fifo_read;
@@ -227,10 +496,6 @@ void doWatermark(){
         // Receiving raw data
     	I2C_LIS3DH_Get_Raw_Data(raw_data_16bit);
     	// Converting data
-//    	for (uint8_t i = 0; i < LIS3DH_OUT_AXES; i++)
-//    	{
-//    	    converted_acc[i] = (int16)(raw_data_16bit[i] * sensitivity * CONVERSION);
-//    	}
         CyDelayUs(200);
     	// Creating the data packets
     	concatenated_Data = 0;
@@ -302,18 +567,19 @@ void doReadEEPROM(){
     for (uint16_t i = 0; i<pages; i++)
     {
 
-//        I2C_EXT_EEPROM_ReadRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
-//                                        (outIndex_read >> 8) & 0xFF,
-//                                        outIndex_read & 0xFF,
-//                                        128,
-//                                        outEEPROM);
-//        outIndex_read = outIndex_read + 128;
-        I2C_EXT_EEPROM_PrintWord(i);
+        I2C_EXT_EEPROM_ReadRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
+                                        (outIndex_read >> 8) & 0xFF,
+                                        outIndex_read & 0xFF,
+                                        128,
+                                        outEEPROM);
+        outIndex_read = outIndex_read + 128;
+//        I2C_EXT_EEPROM_PrintWord(i);
 
 
         UART_PutArray(outEEPROM, 128);
     }
     UART_PutArray(tail, 2);
+    
     
     pages = 1;
     fifo_read = 0;
@@ -355,7 +621,7 @@ void doButtonReleased(){
     }
     else if(status == EMPTY_EEPROM){
         // reset eeprom
-        I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS);
+        I2C_EXT_EEPROM_Partial_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);
         UART_PutString("Empty eeprom\r\n");
         
     }
@@ -364,3 +630,4 @@ void doButtonReleased(){
     status = 0;
     
 }
+

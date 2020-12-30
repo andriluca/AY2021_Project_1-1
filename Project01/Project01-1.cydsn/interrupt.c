@@ -40,6 +40,7 @@ CY_ISR_PROTO(BUTTON_RELEASE){
         status = EMPTY_EEPROM;
     // Reset contatore
     counted_seconds = 0;
+    TIMER_RESET_Stop();
 }
 
 CY_ISR_PROTO(COUNT_SEC){
@@ -49,6 +50,10 @@ CY_ISR_PROTO(COUNT_SEC){
     // Incrementare contatore
     counted_seconds++;
 
+}
+
+CY_ISR_PROTO(BUTTON_PRESS){
+    TIMER_RESET_Start();
 }
 
 
