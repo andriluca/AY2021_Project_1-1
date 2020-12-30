@@ -33,7 +33,7 @@ volatile uint16_t eeprom_index; //max 65535 se uint16
 volatile uint8_t eeprom_reset;
 
 
-uint8_t comm_abilitate;
+//uint8_t comm_abilitate;
 uint8_t index_temp;
 uint32_t temperature32 = 0;
 uint8_t temperature[(LEVEL_TO_READ+1) * 2];
@@ -103,7 +103,7 @@ void init()
     concatenated_Data = 0;      //pacchetto di dati per ogni livello  
     full_eeprom = 0;
     comm_rec = 0;
-    comm_abilitate = 1;
+    //comm_abilitate = 1;
     fifo_write = 0;     
     fifo_read = 0;
     wtm = WTM_LOW;
@@ -159,12 +159,13 @@ void restart()
 // Condizioni
 
 _Bool onByteReceived(){
-    return comm_abilitate && comm_rec;
+    //return comm_abilitate && comm_rec;
+    return comm_rec;
 }
 
 void doByteReceived(){
     msg = UART_ReadRxData();
-    UART_ClearRxBuffer();
+    //UART_ClearRxBuffer();
 }
 
 _Bool onStopping(){
@@ -173,7 +174,7 @@ _Bool onStopping(){
 
 void doStopping(){
     
-    comm_abilitate = 0;
+    //comm_abilitate = 0;
     // Disabilitare il salvataggio della temperatura
     temp = 0;
     // Lettura registro di configurazione da eeprom
@@ -186,9 +187,9 @@ void doStopping(){
     ISR_ACC_Stop();
     wtm = WTM_LOW;
     PWM_Stop();
-    UART_PutString("Done Stopping!\n");
-    comm_abilitate = 1;
-    
+    //UART_PutString("Done Stopping!\n");
+    //comm_abilitate = 1;
+    msg=' ';
     comm_rec = 0;
 }
 
@@ -204,7 +205,7 @@ void doStoppingDevice(){
     ISR_ACC_Stop();
     wtm = WTM_LOW;
     PWM_Stop();
-    UART_PutString("Done Stopping Device!\n");
+    //UART_PutString("Done Stopping Device!\n");
 
 }
 
@@ -215,7 +216,7 @@ _Bool onSaving(){
 
 void doSaving(){
     
-    comm_abilitate = 0;
+    //comm_abilitate = 0;
     // Lettura registro configurazione da eeprom
     settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
     // Toggle del bit di saving
@@ -223,9 +224,9 @@ void doSaving(){
     INT_EEPROM_UpdateTemperature();
     INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
     restart();
-    UART_PutString("Done Saving!\n");
-    comm_abilitate = 1;
-    
+    //UART_PutString("Done Saving!\n");
+    //comm_abilitate = 1;
+    msg=' ';
     comm_rec = 0;
 }
 
@@ -236,7 +237,7 @@ void doSavingDevice(){
     INT_EEPROM_UpdateTemperature();
     INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
     restart();
-    UART_PutString("Done Saving Device!\n");
+    //UART_PutString("Done Saving Device!\n");
     
 }
 
@@ -248,7 +249,7 @@ _Bool onHandshake(){
 void doHandshake(){
     
     uint8_t parameters[4];
-    comm_abilitate = 0;
+    //comm_abilitate = 0;
     UART_PutString("Accelerometer Hello $$$\n"); //important \n to stop ser.readline()                    
     settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
     char tosend[10];
@@ -274,10 +275,11 @@ void doHandshake(){
     else
         UART_PutString("OFF\n");
         
-    comm_abilitate = 1;
+    //comm_abilitate = 1;
+    msg=' ';
     comm_rec = 0;
 
-}
+} 
 
 _Bool onChangeConfig(){
     return onByteReceived() && msg == 'c';
@@ -285,7 +287,7 @@ _Bool onChangeConfig(){
 
 void doChangeConfig(){
     
-    comm_abilitate = 0;
+    //comm_abilitate = 0;
     comm_rec = 0;
     
     //UART_ClearRxBuffer();
@@ -293,7 +295,7 @@ void doChangeConfig(){
     
     // Reading settings
     settings = UART_ReadRxData();   
-    UART_ClearRxBuffer();
+    //UART_ClearRxBuffer();
     
     switch(settings & FSR)
     {
@@ -360,8 +362,8 @@ void doChangeConfig(){
     
     I2C_EXT_EEPROM_Partial_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);
     
-    comm_abilitate = 1;
-    
+    //comm_abilitate = 1;
+    msg=' ';
     comm_rec = 0;
 }
 
@@ -617,12 +619,12 @@ void doButtonReleased(){
             INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
             restart();
         }
-        UART_PutString("toggle device\r\n");
+        //UART_PutString("toggle device\r\n");
     }
     else if(status == EMPTY_EEPROM){
         // reset eeprom
         I2C_EXT_EEPROM_Partial_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);
-        UART_PutString("Empty eeprom\r\n");
+        //UART_PutString("Empty eeprom\r\n");
         
     }
 

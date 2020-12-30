@@ -229,10 +229,6 @@ class Home (BoxLayout):
                 else:
                     end_read = 0
                     data.append(tail)
-                    if tail == 0x00:
-                        no_data = no_data + 1
-                    else:
-                        no_data = 0
 
         #MyPopup().open()
         #MyPopup().pb.max = (len(data) - no_data)//6
@@ -332,7 +328,7 @@ class Home (BoxLayout):
             uart = 'c'
             uart = bytes(uart, 'utf-8')
             self.ser.write(uart)
-            time.sleep(.1)
+            
             FSR = self.fsr.text
             SF = self.sf.text
             TF = self.tf.text
@@ -370,9 +366,10 @@ class Home (BoxLayout):
 
             conf = FSR | SF | TF | SAVE | 0x00
             conf = bytes([conf])
+            time.sleep(1)
             self.ser.write(conf)
-            self.ser.close()
-            self.ser.open()
+            #self.ser.close()
+            #self.ser.open()
 
             self.changing = False
             self.up_bt.text = "Change Settings"

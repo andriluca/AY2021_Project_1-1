@@ -69,8 +69,8 @@ int main(void)
         if (onFullEEPROM())
             doFullEEPROM();
         
-        if (onButtonReleased())
-            doButtonReleased();
+        //if (onButtonReleased())
+        //    doButtonReleased();
         
         
     }
