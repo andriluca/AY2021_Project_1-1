@@ -196,10 +196,8 @@
     #define FAHRENHEIT 0x01
 
     // Timer
-    #define TIMER_RESET_HIGH_THRESHOLD          3 * 2
-    #define TIMER_RESET_LOW_THRESHOLD           1
-    #define TOGGLE_DEVICE                       1
-    #define EMPTY_EEPROM                        2
+    #define TOGGLE_DEVICE                       5120 - 256
+    #define EMPTY_EEPROM                        5120 - 2560
     
     
 #endif

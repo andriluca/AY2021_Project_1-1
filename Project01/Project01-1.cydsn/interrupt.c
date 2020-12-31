@@ -28,7 +28,7 @@ CY_ISR(COMM_GUI)
 {
     comm_rec = 1;
 }
-
+/*
 CY_ISR_PROTO(BUTTON_RELEASE){
 
     // Settare flag del bottone rilasciato
@@ -42,14 +42,14 @@ CY_ISR_PROTO(BUTTON_RELEASE){
     counted_seconds = 0;
     TIMER_RESET_Stop();
 }
-
+*/
 CY_ISR_PROTO(COUNT_SEC){
     
     // Reset contatore timer
-    TIMER_RESET_ReadStatusRegister();
+    counted_seconds = TIMER_RESET_ReadCapture();
     // Incrementare contatore
-    counted_seconds++;
-
+    isButtonReleased = 1;
+    
 }
 
 CY_ISR_PROTO(BUTTON_PRESS){

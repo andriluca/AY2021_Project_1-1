@@ -214,19 +214,22 @@ class Home (BoxLayout):
         no_data = 0
         data = []
         end_read = 0
-        if reading == True:
-            
+        if reading == True:           
             while reading == True:            
                 flag=self.ser.read(1) 
                 #self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Loading" + "."
                 tail = int.from_bytes(flag, 'big', signed=False)
                 if tail == 0xC0:
-                    end_read = end_read + 1                    
+                    end_read = end_read + 1                  
                     if end_read == 2:
                         reading = False
                     else:
                         data.append(tail)
-                else:
+                elif tail == 0x00:
+                    no_data = no_data + 1
+                    data.append(tail)
+                else:                   
+                    no_data = 0
                     end_read = 0
                     data.append(tail)
 
@@ -299,6 +302,11 @@ class Home (BoxLayout):
             #MyPopup().dismiss()  
         else:
             self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "No data available"  
+            if self.esav.text == "ON":          #when data gets printed device gets turned OFF
+                self.esav.text = "OFF"
+            
+            if self.st_bt.text == 'Stop Device':             #same as above
+                self.st_bt.text = 'Start Device'
 
     def PrintData(self, data, obj, grafico, sens):
         data.remove_plot(grafico)
@@ -306,7 +314,7 @@ class Home (BoxLayout):
         grafico.points = [(x, float(obj[x])*sens) for x in range(len(obj))]
         data.add_plot(grafico)
         data.xmax=len(obj)
-        data.size_hint_x = 1 + (100 * len(obj)/10752)
+        data.size_hint_x = 2 + (10 * len(obj)/10752)
         
         return grafico
 

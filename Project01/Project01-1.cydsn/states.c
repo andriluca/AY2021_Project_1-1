@@ -85,7 +85,7 @@ void init()
     // ISR_PRESS_StartEx(BUTTON_PRESS);
     TIMER_RESET_Start();
     
-    ISR_RELEASE_StartEx(BUTTON_RELEASE);
+    //ISR_RELEASE_StartEx(BUTTON_RELEASE);
     
     ISR_TIMER_RESET_StartEx(COUNT_SEC);
     
@@ -211,7 +211,7 @@ void doStoppingDevice(){
 
 
 _Bool onSaving(){
-    return onByteReceived() && msg == 'b';
+    return onByteReceived() && msg == 'b' && !full_eeprom;
 }
 
 void doSaving(){
@@ -371,11 +371,11 @@ _Bool onVisualizing(){
     return onByteReceived() && msg == 'v';
 }
 
-void doVisualizing(){
-
-    doReadEEPROM();
+void doVisualizing(){    
     doStopping();
-    I2C_EXT_EEPROM_Partial_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);  
+    doReadEEPROM();
+    I2C_EXT_EEPROM_Partial_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);  //diventerà reset
+    if(full_eeprom) full_eeprom = 0; 
 }
 
 void getParam(uint8_t settings, uint8_t* parameters){
@@ -541,6 +541,9 @@ void doWriteEEPROM(){
     ) //overflow
     {
         full_eeprom = 1;
+        doStopping();
+        PWM_Start();
+        LED_BlinkFast();
     }
 
     temp = 1;
@@ -551,7 +554,7 @@ void doWriteEEPROM(){
 void doFullEEPROM(){
     
     LED_BlinkFast();
-    full_eeprom = 0;
+    //full_eeprom = 0;
     
 }
 
@@ -599,7 +602,8 @@ void doEEPROMReset(){
 }
 
 void doButtonReleased(){
-    if(status == TOGGLE_DEVICE){
+    
+    if(counted_seconds <  TOGGLE_DEVICE && counted_seconds > EMPTY_EEPROM){
         // B o S
         // lettura della configurazione attuale
         settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
@@ -621,15 +625,14 @@ void doButtonReleased(){
         }
         //UART_PutString("toggle device\r\n");
     }
-    else if(status == EMPTY_EEPROM){
+    else if(counted_seconds < EMPTY_EEPROM){
         // reset eeprom
         I2C_EXT_EEPROM_Partial_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);
         //UART_PutString("Empty eeprom\r\n");
         
     }
 
+    counted_seconds = 0;
     isButtonReleased = 0;
-    status = 0;
-    
 }
 

@@ -139,6 +139,7 @@ ErrorCode I2C_EXT_EEPROM_Partial_Reset(uint8_t device_address, uint8_t pages)
             I2C_EXT_EEPROM_WriteRegisterMulti(device_address, (word*EEPROM_WORD_SIZE) >> 8, word*EEPROM_WORD_SIZE & 0xFF, 128, in);
             CyDelay(5);
         }
+        
         return NO_ERROR;
         
     }

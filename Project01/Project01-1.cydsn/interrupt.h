@@ -17,7 +17,7 @@
     
     volatile uint8_t wtm;
     volatile uint8_t t_isr;
-    volatile uint8_t counted_seconds;
+    volatile uint16_t counted_seconds;
     volatile uint8_t isButtonReleased;
     volatile uint8_t status;
     

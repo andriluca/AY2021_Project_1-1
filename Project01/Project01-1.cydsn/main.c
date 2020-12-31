@@ -67,10 +67,12 @@ int main(void)
             doWriteEEPROM();
         
         if (onFullEEPROM())
-            doFullEEPROM();
+            LED_BlinkFast();
+        else
+            LED_BlinkSlow();
         
-        //if (onButtonReleased())
-        //    doButtonReleased();
+        if (onButtonReleased())
+            doButtonReleased();
         
         
     }

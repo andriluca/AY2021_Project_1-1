@@ -250,6 +250,17 @@
   </Group>
   <Data key="DataVersionKey" value="2" />
   <Group key="DWRInstGuidMapping">
+    <Group key="Interrupt">
+      <Data key="3a0d2802-64a5-4c4f-a620-3e5ca24b3ba9" value="ISR_PRESS" />
+      <Data key="4eac814f-099b-4bb1-a947-982bcb5a8267" value="ISR_T" />
+      <Data key="6f2d57bd-b6d0-4115-93da-ded3485bf4ed/74b069b5-d5c5-469b-a48a-44b8a12146cd" value="I2C_Master_I2C_IRQ" />
+      <Data key="72d9ef99-970c-49a1-b4a1-dfb6f12958dc" value="ISR_TIMER_RESET" />
+      <Data key="3089e22e-2c44-4455-8415-257f61f42222" value="ISR_RELEASE" />
+      <Data key="5150aa83-5eb9-42a1-b456-8efc95fcc847" value="ISR_TX" />
+      <Data key="56074398-c6d4-4f32-aa00-f77eb30f1d4a" value="ISR_RX" />
+      <Data key="d8af49bb-c2af-4f7f-99c2-85eb75b6e5a9/b6592af9-e743-4dfd-a597-27f9102033ee" value="ADC_Temp_IRQ" />
+      <Data key="de826a57-a87e-4606-b955-30fbc0163665" value="ISR_ACC" />
+    </Group>
     <Group key="Pin">
       <Data key="02f2cf2c-2c7a-49df-9246-7a3435c21be3" value="SCL" />
       <Data key="8d318d8b-cf7b-4b6b-b02c-ab1c5c49d0ba" value="SW" />
@@ -3345,6 +3356,15 @@
       </Group>
       <Group key="1024">
         <Data key="LevelKey" value="00" />
+      </Group>
+    </Group>
+  </Group>
+  <Group key="Interrupt">
+    <Group key="72d9ef99-970c-49a1-b4a1-dfb6f12958dc">
+      <Group key="CortexM3">
+        <Data key="Assigned" value="True" />
+        <Data key="Priority" value="6" />
+        <Data key="Vector" value="-1" />
       </Group>
     </Group>
   </Group>
