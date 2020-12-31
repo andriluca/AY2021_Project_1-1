@@ -7,6 +7,14 @@
 
     #define __DEFINE_H
 
+    #define LED_PERIOD_FAST     127
+    #define LED_PERIOD_SLOW     511
+    #define LED_COMPARE_FAST    64
+    #define LED_COMPARE_SLOW    256
+
+    #define EXT_LED_ON      1
+    #define EXT_LED_OFF     0
+
     /* === Changeable values === */
     // Persistent memory
     #define EEPROM_REGISTER             0x0000            // EEPROM register for initialization.
@@ -70,7 +78,7 @@
     #define LIS3DH_FS_08                  0x02    // FS = [-8, +8]g   --> So = 16
     #define LIS3DH_FS_16                  0x03    // FS = [-16, +16]g --> So = 48
     // Use these masks to setup the Control Register 4
-    
+
     // Control Register 5
     #define LIS3DH_FIFO_EN_CTRL_REG5       0x40    // Enable the FIFO register
 
@@ -111,11 +119,11 @@
 
 
     //ODR
-    #define ODR_1         1    //da implementare automaticamente   
-    #define ODR_10        10      
-    #define ODR_25        25      
-    #define ODR_50        50      
-    
+    #define ODR_1         1    //da implementare automaticamente
+    #define ODR_10        10
+    #define ODR_25        25
+    #define ODR_50        50
+
     // Normal mode sensitivities
     #define LIS3DH_SENSITIVITY_0        4       // mg/digit
     #define LIS3DH_SENSITIVITY_1        8       // mg/digit
@@ -128,7 +136,7 @@
     #define LIS3DH_TOTAL_BITS           10                                          // Bits to memorize raw data (in digit).
     #define LIS3DH_RIGHT_SHIFT          (LIS3DH_TOTAL_BITS - LIS3DH_RESOLUTION)     // to perform right shift.
     #define BYTES_PER_AXIS              (uint8_t)(LIS3DH_RESOLUTION/LIS3DH_OUT_AXES)
-    #define BYTE_TO_TRANSFER            1 + LIS3DH_RESOLUTION + 1
+    #define BYTE_TO_TRANSFER            (1 + LIS3DH_RESOLUTION + 1)
 
     // Conversion
     #define GRAVITY                     9.81                                // ms^-2
@@ -163,10 +171,33 @@
     #define A_Z     2
     #define A_Y     1
     #define A_X     0
-    
+
 
     // ADC
     #define ADC_MAX 65535
     #define ADC_MIN 0
+
+    #define CONFIG_REGISTER 0x00
+    #define FSR 0x03
+    #define ODR 0x0C
+    #define TEMP_FORMAT 0x10
+    #define ESAV_STATUS 0x20
+    #define _2g 0x00
+    #define _4g 0x01
+    #define _8g 0x02
+    #define _16g 0x03
+    #define _1Hz 0x00
+    #define _10Hz 0x01
+    #define _25Hz 0x02
+    #define _50Hz 0x03
+    #define ESAV_OFF 0x00
+    #define ESAV_ON 0x01
+    #define CELSIUS 0x00
+    #define FAHRENHEIT 0x01
+
+    // Timer
+    #define TOGGLE_DEVICE                       5120 - 256
+    #define EMPTY_EEPROM                        5120 - 2560
+
 
 #endif

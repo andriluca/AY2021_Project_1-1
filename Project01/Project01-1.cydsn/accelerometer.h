@@ -25,27 +25,42 @@
 
     // Array collecting the float to send
     outtype outarray[LIS3DH_OUT_AXES];
-    
-    
+
+
 /*****************************************************************************\
  * Function:    I2C_LIS3DH_Start
- * Input:       
+ * Input:
  * Returns:     ErrorCode
- * Description: 
- *     Initialization of the LIS3DH Config Registers. 
+ * Description:
+ *     Initialization of the LIS3DH Config Registers.
  *     It gathers ODR from EEPROM.
 \*****************************************************************************/
-   
-    ErrorCode I2C_LIS3DH_Start();
-    
+
+    ErrorCode I2C_LIS3DH_Start(uint8 settings);
+
+
+/*****************************************************************************\
+ * Function:    I2C_LIS3DH_Get_Raw_Data
+ * Input:       int16_t data
+ * Returns:     ErrorCode
+ * Description:
+ *     Populates an int16_t array with right-aligned sensor data
+\*****************************************************************************/
+
+
+ErrorCode I2C_LIS3DH_Get_Raw_Data(uint16_t* data);
+
+
 /*****************************************************************************\
  * Function:    I2C_LIS3DH_Manage_Data
  * Input:       outtype* array
  * Returns:     ErrorCode
- * Description: 
+ * Description:
  *     Gathers LIS3DH data and sends them through UART
 \*****************************************************************************/
-    
-    ErrorCode I2C_LIS3DH_Manage_Data(int16_t* array);
-    
+
+    ErrorCode I2C_LIS3DH_Manage_Data(int16_t* array, uint8 sensitivity);
+
+void I2C_LIS3DH_SetConfig(uint8 settings, uint8* config);
+
 #endif
