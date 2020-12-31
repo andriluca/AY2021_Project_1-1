@@ -1,7 +1,6 @@
 #:kivy 1.11
 #:import MeshLinePlot kivy.garden.graph.MeshLinePlot
 
-
 <ColLabel>:
     cl: 1,0,0,1
     pos_hint: {'center_x': 0.5, 'center_y': .8}
@@ -11,18 +10,6 @@
         Ellipse:  
             pos: self.pos
             size: (self.height,self.height)
-
-<MyPopup>:
-
-    pb: _pb
-    size: (10,10)
-    title: "Printing data, please wait"
-    auto_dismiss: False  
-    ProgressBar:
-        id: _pb
-        max:100
-        value:0
-
 
 <Home>:
     padding: 5
@@ -38,8 +25,6 @@
     sf: _sf
     tf: _tf
     esav: _esav 
-    
-    
 
     msg: _msg
 
@@ -51,8 +36,7 @@
     y_data: _y_data
     z_data: _z_data
     t_data: _t_data
-
-    
+    temp_label: _temp_label 
 
     BoxLayout:                          #connection part
         spacing: 5
@@ -185,15 +169,15 @@
                     Graph:
                         size_hint_x: 2
                         size_hint_y:0.95
-                        padding:3
+                        padding:5
                         id: _x_data
                         x_grid:True
                         y_grid:True
                         x_ticks_major: 1
                         y_ticks_major: 1
-                        x_grid_label: False
+                        x_grid_label: True
                         y_grid_label: True
-                        xmin:-0.001
+                        xmin:0
                         xmax:10
                         ymin:-2
                         ymax:2
@@ -219,9 +203,9 @@
                         y_grid:True
                         x_ticks_major: 1
                         y_ticks_major: 1
-                        x_grid_label: False
+                        x_grid_label: True
                         y_grid_label: True
-                        xmin:-0.001
+                        xmin:0
                         xmax:10
                         ymin:-2
                         ymax:2
@@ -243,15 +227,15 @@
                     Graph:
                         size_hint_x: 2
                         size_hint_y:0.95
-                        padding:3
+                        padding:5
                         id: _z_data
                         x_grid:True
                         y_grid:True
                         x_ticks_major: 1
                         y_ticks_major: 1
-                        x_grid_label: False
+                        x_grid_label: True
                         y_grid_label: True
-                        xmin:-0.001
+                        xmin:0
                         xmax:10
                         ymin:-2
                         ymax:2
@@ -259,7 +243,8 @@
                 padding: 5
                 orientation: "vertical"
                 Label:
-                    text:"Temperature [°C]"
+                    id: _temp_label
+                    text:"Temperature [Celsius]"
                     text_size: self.size
                     halign: "center"
                     valign: "center"
@@ -271,15 +256,15 @@
                     Graph:
                         size_hint_x: 2
                         size_hint_y:0.95
-                        padding:3
+                        padding:5
                         id: _t_data
                         x_grid:True
                         y_grid:True
                         x_ticks_major: 1
                         y_ticks_major: 10
-                        x_grid_label: False
+                        x_grid_label: True
                         y_grid_label: True
-                        xmin:-0.001
+                        xmin:0
                         xmax:10
                         ymin:-40
                         ymax:40
