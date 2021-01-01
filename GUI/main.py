@@ -76,7 +76,7 @@ class Home (BoxLayout):
     def Connect(self):                               #connect to serial port
         if self.conn_bt.text == "Connect":
             port_name = self.com.text
-            self.ser = serial.Serial(port = port_name, baudrate = 19200)
+            self.ser = serial.Serial(port = port_name, baudrate = 57600)
             if self.ser.is_open:
                 uart = 'h'
                 uart = bytes(uart, 'utf-8')
@@ -141,7 +141,6 @@ class Home (BoxLayout):
     y_data=ObjectProperty(None)
     z_data=ObjectProperty(None)
     t_data=ObjectProperty(None)
-    temp_label=ObjectProperty(None)
 
     plot_x=LinePlot(line_width=2, color=[1, 1, 1, 1])           #plots initialization needed
     plot_x.points = [(x, x) for x in range(5)]
@@ -172,11 +171,11 @@ class Home (BoxLayout):
         if self.tf.text == "Celsius":
                 self.t_data.ymin = -40
                 self.t_data.ymax = 40
-                self.temp_label.text = "Temperature [Celsius]"
+                self.t_data.ylabel = "[Celsius]"
         else:
             self.t_data.ymin = -4
             self.t_data.ymax = 76
-            self.temp_label.text = "Temperature [Fahrenheit]"
+            self.t_data.ylabel = "[Fahrenheit]"
 
         FSR = int(self.fsr.text.replace('+''-','').replace('g',''))
 
@@ -245,10 +244,12 @@ class Home (BoxLayout):
                     x=x|0xFC00
                 x=np.int16(x)
 
+                t=np.int16(pack[4] | (pack[5]<<8))
+
                 acc_z.append(z)                                  
                 acc_y.append(y)     
                 acc_x.append(x)
-                temp.append(np.int16(pack[4] | (pack[5]<<8))) 
+                temp.append(t) 
                 
             acc_x_w = csv.writer(open('acc_x.csv', 'w'))                            #saving in .csv files
             acc_x_w.writerow(['X AXIS ACCELERATION'])

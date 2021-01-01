@@ -36,7 +36,6 @@
     y_data: _y_data
     z_data: _z_data
     t_data: _t_data
-    temp_label: _temp_label 
 
     BoxLayout:                          #connection part
         spacing: 5
@@ -157,7 +156,7 @@
                 padding: 5
                 orientation: "vertical"
                 Label:
-                    text: "X axis acceleration [g]"
+                    text: "X axis acceleration"
                     text_size: self.size
                     halign: "center"
                     valign: "center"
@@ -171,6 +170,8 @@
                         size_hint_y:0.95
                         padding:5
                         id: _x_data
+                        xlabel: 'sample'
+                        ylabel: '[g]'
                         x_grid:True
                         y_grid:True
                         x_ticks_major: 1
@@ -185,7 +186,7 @@
                 orientation: "vertical"
                 padding: 5
                 Label:
-                    text:"Y axis acceleration [g]"
+                    text:"Y axis acceleration"
                     text_size: self.size
                     halign: "center"
                     valign: "center"
@@ -199,6 +200,8 @@
                         size_hint_y:0.95
                         padding:5
                         id: _y_data
+                        xlabel: 'sample'
+                        ylabel: '[g]'
                         x_grid:True
                         y_grid:True
                         x_ticks_major: 1
@@ -215,7 +218,7 @@
                 padding: 5
                 orientation: "vertical"
                 Label:
-                    text:"Z axis acceleration [g]"
+                    text:"Z axis acceleration"
                     text_size: self.size
                     halign: "center"
                     valign: "center"
@@ -229,6 +232,8 @@
                         size_hint_y:0.95
                         padding:5
                         id: _z_data
+                        xlabel: 'sample'
+                        ylabel: '[g]'
                         x_grid:True
                         y_grid:True
                         x_ticks_major: 1
@@ -243,8 +248,7 @@
                 padding: 5
                 orientation: "vertical"
                 Label:
-                    id: _temp_label
-                    text:"Temperature [Celsius]"
+                    text:"Temperature"
                     text_size: self.size
                     halign: "center"
                     valign: "center"
@@ -258,6 +262,8 @@
                         size_hint_y:0.95
                         padding:5
                         id: _t_data
+                        xlabel: 'sample'
+                        ylabel: '[Celsius]'
                         x_grid:True
                         y_grid:True
                         x_ticks_major: 1
