@@ -14,7 +14,9 @@
     #define __LED_H
     #include "project.h"
     #include "define.h"
-    
+
+    void LED_Start();
+    void LED_Stop();
     void LED_BlinkSlow();
     void LED_BlinkFast();
     

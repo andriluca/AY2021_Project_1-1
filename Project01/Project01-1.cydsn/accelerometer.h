@@ -1,6 +1,6 @@
-/* ========================================
- * Assignment #05, Luca Andriotto
- * ========================================
+/* =========================================================================
+ * Project01-1, Luca Andriotto, Matteo Cavicchioli, Alessandro Pirelli
+ * =========================================================================
 */
 
 #ifndef ACCELEROMETER_H
@@ -10,21 +10,6 @@
     #include "I2c.h"
     #include "define.h"
     #include "interrupt.h"
-
-    // The union is the trick to decompose a float into its constituting bytes.
-    // It behaves like a "binary translator" for floats.
-    // By storing in its float32 argument the data and then masking its uint32_t
-    // argument it's possible to send floating point data as bytes.
-    // This normally isn't possible when handling floating point data.
-
-    typedef union
-    {
-        float32 data;
-        uint32_t mask;
-    } outtype;
-
-    // Array collecting the float to send
-    outtype outarray[LIS3DH_OUT_AXES];
 
 
 /*****************************************************************************\
@@ -38,7 +23,6 @@
 
     ErrorCode I2C_LIS3DH_Start(uint8 settings);
 
-
 /*****************************************************************************\
  * Function:    I2C_LIS3DH_Get_Raw_Data
  * Input:       int16_t data
@@ -47,20 +31,11 @@
  *     Populates an int16_t array with right-aligned sensor data
 \*****************************************************************************/
 
+    ErrorCode I2C_LIS3DH_Get_Raw_Data(uint16_t* data);
 
-ErrorCode I2C_LIS3DH_Get_Raw_Data(uint16_t* data);
+    uint16_t I2C_LIS3DH_SetConfig(uint8 settings, uint8* config);
 
+    uint8_t out[(LEVEL_TO_READ + 1) * 6];
 
-/*****************************************************************************\
- * Function:    I2C_LIS3DH_Manage_Data
- * Input:       outtype* array
- * Returns:     ErrorCode
- * Description:
- *     Gathers LIS3DH data and sends them through UART
-\*****************************************************************************/
-
-    ErrorCode I2C_LIS3DH_Manage_Data(int16_t* array, uint8 sensitivity);
-
-void I2C_LIS3DH_SetConfig(uint8 settings, uint8* config);
 
 #endif

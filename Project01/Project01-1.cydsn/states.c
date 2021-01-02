@@ -1,257 +1,517 @@
-/* ========================================
- *
- * Copyright YOUR COMPANY, THE YEAR
- * All Rights Reserved
- * UNPUBLISHED, LICENSED SOFTWARE.
- *
- * CONFIDENTIAL AND PROPRIETARY INFORMATION
- * WHICH IS THE PROPERTY OF your company.
- *
- * ========================================
+/* =========================================================================
+ * Project01-1, Luca Andriotto, Matteo Cavicchioli, Alessandro Pirelli
+ * =========================================================================
 */
 
 #include "states.h"
 
-volatile uint8_t wtm;
-volatile uint8_t t_isr;
-uint8_t raw_data_8bit[BYTE_TO_READ_PER_LEVEL];
-uint16_t raw_data_16bit[3];
-int16_t converted_acc[3];
-uint32_t concatenated_Data;
-uint8_t out      [(LEVEL_TO_READ + 1) * 6];
-uint8_t outEEPROM[(LEVEL_TO_READ + 1) * 6 + 2];
-uint8_t outUART [(LEVEL_TO_READ + 1) * 6];
-uint8_t temp;
-uint8_t offset;
-uint8_t fifo_write;
-uint8_t fifo_read;
-uint8_t fifo_level;
-uint16_t outIndex;
-volatile uint8_t full_eeprom;
-volatile uint8_t shiftIndex;
-volatile uint16_t eeprom_index; //max 65535 se uint16
-volatile uint8_t eeprom_reset;
+// ================================= CONDITIONS =================================
+
+/*****************************************************************************\
+ * Function:    onByteReceived
+ * Returns:     Boolean
+ * Description: 
+ *     True when byte from UART is received.
+\*****************************************************************************/
+
+_Bool onByteReceived();
+
+/*****************************************************************************\
+ * Function:    onStopping
+ * Returns:     Boolean
+ * Description: 
+ *     True to abilitate doStopping state.
+\*****************************************************************************/
+
+_Bool onStopping();
+
+/*****************************************************************************\
+ * Function:    onSaving
+ * Returns:     Boolean
+ * Description: 
+ *     True to abilitate doSaving state.
+\*****************************************************************************/
+
+_Bool onSaving();
+
+/*****************************************************************************\
+ * Function:    onHandshake
+ * Returns:     Boolean
+ * Description: 
+ *     True to abilitate doHandshake state.
+\*****************************************************************************/
+
+_Bool onHandshake();
+
+/*****************************************************************************\
+ * Function:    onChangeConfig
+ * Returns:     Boolean
+ * Description: 
+ *     True to abilitate doChangeConfig state.
+\*****************************************************************************/
+
+_Bool onChangeConfig();
+
+/*****************************************************************************\
+ * Function:    onVisualizing
+ * Returns:     Boolean
+ * Description: 
+ *     True to abilitate doVisualizing state.
+\*****************************************************************************/
+
+_Bool onVisualizing();
+
+/*****************************************************************************\
+ * Function:    onTemperature
+ * Returns:     Boolean
+ * Description: 
+ *     True to abilitate doTemperature state.
+\*****************************************************************************/
+
+_Bool onTemperature();
+
+/*****************************************************************************\
+ * Function:    onWatermark
+ * Returns:     Boolean
+ * Description: 
+ *     True to abilitate doWatermark state.
+\*****************************************************************************/
+
+_Bool onWatermark();
+
+/*****************************************************************************\
+ * Function:    onWriteEEPROM
+ * Returns:     Boolean
+ * Description: 
+ *     True to abilitate doWriteEEPROM state.
+\*****************************************************************************/
+
+_Bool onWriteEEPROM();
+
+/*****************************************************************************\
+ * Function:    onFullEEPROM
+ * Returns:     Boolean
+ * Description: 
+ *     True to abilitate doFullEEPROM state.
+\*****************************************************************************/
+
+_Bool onFullEEPROM();
+
+/*****************************************************************************\
+ * Function:    onReadEEPROM
+ * Returns:     Boolean
+ * Description: 
+ *     True to abilitate doReadEEPROM state.
+\*****************************************************************************/
+
+_Bool onReadEEPROM();
+
+/*****************************************************************************\
+ * Function:    onEEPROMReset
+ * Returns:     Boolean
+ * Description: 
+ *     True to abilitate doEEPROMReset state.
+\*****************************************************************************/
+
+_Bool onEEPROMReset();
+
+/*****************************************************************************\
+ * Function:    onButtonReleased
+ * Returns:     Boolean
+ * Description: 
+ *     True to abilitate doButtonReleased state.
+\*****************************************************************************/
+
+_Bool onButtonReleased();
+
+// =============================== END CONDITIONS ===============================
+
+// =================================== STATES ===================================
+
+/*****************************************************************************\
+ * Function:    doByteReceived
+ * Returns:     Void
+ * Description: 
+ *     Reads command coming from GUI (UART).
+\*****************************************************************************/
+
+void doByteReceived();
+
+/*****************************************************************************\
+ * Function:    doStopping
+ * Returns:     Void
+ * Inputs: reading: True when EEPROM reading is required
+ * Description: 
+ *     Disabilitating data saving and acquisition.
+\*****************************************************************************/
+
+void doStopping(uint8_t reading);
+
+/*****************************************************************************\
+ * Function:    doSaving
+ * Returns:     Void
+ * Inputs: reading: True when EEPROM reading is required
+ * Description: 
+ *     Enabling data saving and acquisition.
+\*****************************************************************************/
+
+void doSaving(uint8_t reading);
+
+/*****************************************************************************\
+ * Function:    doHandshake
+ * Returns:     Void
+ * Description: 
+ *     Upon receiving specific command from GUI, sends back custom strings and current settings.
+\*****************************************************************************/
+
+void doHandshake();
+
+/*****************************************************************************\
+ * Function:    doChangeConfig
+ * Returns:     Void
+ * Description: 
+ *     Updates Registers considering the Configuration Byte.
+\*****************************************************************************/
+
+void doChangeConfig();
+
+/*****************************************************************************\
+ * Function:    doVisualizing
+ * Returns:     Void
+ * Description: 
+ *     Sends EXT EEPROM content through UART.
+\*****************************************************************************/
+
+void doVisualizing();
+
+/*****************************************************************************\
+ * Function:    doTemperature
+ * Returns:     Void
+ * Description: 
+ *     Samples the temperature values with the same ODR.
+\*****************************************************************************/
+
+void doTemperature();
+
+/*****************************************************************************\
+ * Function:    doWatermark
+ * Returns:     Void
+ * Description: 
+ *     Sampling acceleration when WTM ISR is received.
+\*****************************************************************************/
+
+void doWatermark();
+
+/*****************************************************************************\
+ * Function:    doWriteEEPROM
+ * Returns:     Void
+ * Description: 
+ *     .
+\*****************************************************************************/
+
+void doWriteEEPROM();
+
+/*****************************************************************************\
+ * Function:    doFullEEPROM
+ * Returns:     Void
+ * Description: 
+ *     .
+\*****************************************************************************/
+
+void doFullEEPROM();
+
+/*****************************************************************************\
+ * Function:    doReadEEPROM
+ * Returns:     Void
+ * Description: 
+ *     .
+\*****************************************************************************/
+
+void doReadEEPROM();
+
+/*****************************************************************************\
+ * Function:    doEEPROMReset
+ * Returns:     Void
+ * Description: 
+ *     .
+\*****************************************************************************/
+
+void doEEPROMReset();
+
+/*****************************************************************************\
+ * Function:    doButtonReleased
+ * Returns:     Void
+ * Description: 
+ *     .
+\*****************************************************************************/
+
+void doButtonReleased();
+
+// ================================= END STATES =================================
 
 
-//uint8_t comm_abilitate;
-uint8_t index_temp;
-uint32_t temperature32 = 0;
-uint8_t temperature[(LEVEL_TO_READ+1) * 2];
-uint8 settings;
-char msg;
+// =================================== UTILS ===================================
 
+void restart();
 void getParam(uint8_t settings, uint8_t* parameters);
+void doManageData();
 
-void doStoppingDevice();
-void doSavingDevice();
+// ================================= END UTILS =================================
+
+
+// Initialization
 
 void init()
 {
+    CyGlobalIntEnable;
+    // Setup peripherals
     UART_Start();
     T_TIMER_CLOCK_Start();
     T_TIMER_Start();
     ADC_Temp_Start();
     INT_EEPROM_Start();
-    INT_EEPROM_UpdateTemperature();
+    
     settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
-    if((settings & 0xC0) != 0x00)
+    
+    // Checking memory content's consistency
+    if(settings & 0xC0)
     {
-        settings = _2g|(_1Hz<<2)|(CELSIUS<<4)|(ESAV_OFF<<5);               //"Reboot" starting from minimum sampling frequency
+        settings =      _2g 
+                    | ( _1Hz        << ODR_LSB) 
+                    | ( CELSIUS     << TEMP_FORMAT_LSB) 
+                    | ( ESAV_OFF    << ESAV_STATUS_LSB);               // "Reboot" starting from minimum sampling frequency
+        INT_EEPROM_UpdateTemperature();
         INT_EEPROM_Write(&settings, CONFIG_REGISTER);
     }
 
     I2C_Peripheral_Start();
+    CyDelay(5);                 // I2C Boot
 
-    // I2C Boot
-    CyDelay(5);
-
-    // La seguente riga non può essere implementata
-//    I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS);
-
-    if((settings & ESAV_STATUS)>>5)
+    if((settings & ESAV_STATUS) >> 5)
     {
         temp = 1;
-        PWM_Start();
+        LED_Start();
         I2C_LIS3DH_Start(settings);
+        ISR_T_StartEx(TEMP_ISR);
         ISR_ACC_StartEx(WTM_ISR);
     }
     else
     {
         temp = 0;
         ISR_ACC_Stop();
-        PWM_Stop();
+        LED_Stop();
     }
 
-    // ISR_PRESS_StartEx(BUTTON_PRESS);
     TIMER_RESET_Start();
-
-    //ISR_RELEASE_StartEx(BUTTON_RELEASE);
 
     ISR_TIMER_RESET_StartEx(COUNT_SEC);
 
     ISR_RX_StartEx(COMM_GUI);
 
 
-    t_isr = 0;          //abilita isr timer
+    // Setup variables
     fifo_level = 0;     //
-    index_temp = 0;     //puntatore array temperatura
-    outIndex = 0;       //usato in writeeeprom per tenere indirizzo attuale
+    outIndex = INT_EEPROM_ReadByte(INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_L) 
+                | (INT_EEPROM_ReadByte(INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_H) << 8);       //usato in writeeeprom per tenere indirizzo attuale
     eeprom_index = 0;   //primo indirizzo eeprom disponibile
     eeprom_reset = 0;   // per resettare la eeprom
-    offset = 0;         //per leggere fifo
     pages = 1;          //da 0x00 a 0x80 è già una pagina scritta
-    concatenated_Data = 0;      //pacchetto di dati per ogni livello
     full_eeprom = 0;
     comm_rec = 0;
-    //comm_abilitate = 1;
     fifo_write = 0;
     fifo_read = 0;
-    wtm = WTM_LOW;
     counted_seconds = 0;
     isButtonReleased = 0;
-    status = 0;
-
-}
-
-void restart()
-{
-    T_TIMER_CLOCK_Start();
-    T_TIMER_Start();
-
-    if((settings & 0xC0) != 0x00)
-        {
-            settings = _2g|(_1Hz<<2)|(CELSIUS<<4)|(ESAV_OFF<<5);               //"Reboot" starting from minimum sampling frequency
-            INT_EEPROM_Write(&settings, CONFIG_REGISTER);
-        }
-
-    if((settings & ESAV_STATUS)>>5)
-        {
-            temp = 1;
-            PWM_Start();
-            I2C_LIS3DH_Start(settings);
-            ISR_ACC_StartEx(WTM_ISR);
-        }
-    else
-        {
-            temp = 0;
-            ISR_ACC_Stop();
-            PWM_Stop();
-        }
-
-    t_isr = 0;          //abilita isr timer
-    fifo_level = 0;     //
-    index_temp = 0;     //puntatore array temperatura
-    outIndex = 0;       //usato in writeeeprom per tenere indirizzo attuale
-    eeprom_index = 0;   //primo indirizzo eeprom disponibile
-    eeprom_reset = 0;   // per resettare la eeprom
-    offset = 0;         //per leggere fifo
-    pages = 1;          //da 0x00 a 0x80 è già una pagina scritta
-    concatenated_Data = 0;      //pacchetto di dati per ogni livello
-    full_eeprom = 0;
-    temp = 1;
-    fifo_write = 0;
-    fifo_read = 0;
+    offset = 0;
+    index_temp = 0;
+    boot = 1;
     wtm = WTM_LOW;
-
+    t_isr = 0;
+    trigger = 1;
 }
 
+void loop(){
+    
+    for(;;)
+    {
+        // Controlling the received byte
+        if(onByteReceived())
+            doByteReceived();
+        // Controlling each case
+        // 1. Stopping character received
+        if(onStopping())
+            doStopping(EXT_EEPROM_READING);
+        // 2. Saving character received
+        if(onSaving())
+            doSaving(EXT_EEPROM_READING);
+        // 3. Handshake character received
+        if(onHandshake())
+            doHandshake();
+        // 4. Configuration and Config Buffer characters received
+        if(onChangeConfig())
+            doChangeConfig();
+        // 5. Visualizing character received
+        if(onVisualizing())
+            doVisualizing();
+        // Reading the TEMPERATURE
+        if (onTemperature())
+            doTemperature();
+        // Reading the FIFO
+        if (onWatermark())
+	        doWatermark();
+        // Writing the EEPROM
+        if (onWriteEEPROM())
+            doWriteEEPROM();
+        // Handling BUILT-IN LED blinking
+        if (onFullEEPROM())
+            LED_BlinkFast();
+        else
+            LED_BlinkSlow();
+        // Handling Button releasing
+        if (onButtonReleased())
+            doButtonReleased();
+            
+    }
+    
+}
 
-// Condizioni
+// Conditions
 
 _Bool onByteReceived(){
-    //return comm_abilitate && comm_rec;
+    
     return comm_rec;
-}
 
-void doByteReceived(){
-    msg = UART_ReadRxData();
-    //UART_ClearRxBuffer();
 }
 
 _Bool onStopping(){
+
     return onByteReceived() && msg == 's';
-}
-
-void doStopping(){
-
-    //comm_abilitate = 0;
-    // Disabilitare il salvataggio della temperatura
-    temp = 0;
-    // Lettura registro di configurazione da eeprom
-    settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
-    // Toggle del bit di saving
-    settings = settings & (0x1F);
-    INT_EEPROM_UpdateTemperature();
-    INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
-    // Disabilito ISR per leggere accelerazioni
-    ISR_ACC_Stop();
-    wtm = WTM_LOW;
-    PWM_Stop();
-    //UART_PutString("Done Stopping!\n");
-    //comm_abilitate = 1;
-    msg=' ';
-    comm_rec = 0;
-}
-
-void doStoppingDevice(){
-
-    // Disabilitare il salvataggio della temperatura
-    temp = 0;
-    // Toggle del bit di saving
-    settings = settings & (0x1F);
-    INT_EEPROM_UpdateTemperature();
-    INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
-    // Disabilito ISR per leggere accelerazioni
-    ISR_ACC_Stop();
-    wtm = WTM_LOW;
-    PWM_Stop();
-    //UART_PutString("Done Stopping Device!\n");
 
 }
-
 
 _Bool onSaving(){
+
     return onByteReceived() && msg == 'b' && !full_eeprom;
+
 }
 
-void doSaving(){
+_Bool onHandshake(){
+    
+    return onByteReceived() && msg == 'h';
+    
+}
 
-    //comm_abilitate = 0;
-    // Lettura registro configurazione da eeprom
-    settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
-    // Toggle del bit di saving
-    settings = settings | (0x20);
+_Bool onChangeConfig(){
+    
+    return onByteReceived() && msg == 'c';
+
+}
+
+_Bool onVisualizing(){
+    
+    return onByteReceived() && msg == 'v';
+
+}
+
+_Bool onTemperature(){
+    
+    return t_isr 
+    // && !wtm 
+    && !fifo_write 
+    && !fifo_read;
+
+}
+
+_Bool onWatermark(){
+    
+    return wtm 
+            && !fifo_write && !fifo_read;
+
+}
+
+_Bool onWriteEEPROM(){
+    
+    return !wtm && fifo_write && !full_eeprom;
+
+}
+
+_Bool onFullEEPROM(){
+    
+    return full_eeprom && !fifo_write;
+
+}
+
+_Bool onReadEEPROM(){
+    
+    return fifo_read;
+
+}
+
+_Bool onEEPROMReset(){
+    
+    return eeprom_reset;
+
+}
+
+_Bool onButtonReleased(){
+    
+    return isButtonReleased;
+
+}
+
+
+// States
+
+void doByteReceived(){
+    
+    msg = UART_ReadRxData();
+
+}
+
+void doStopping(uint8_t reading){
+
+    // Disabling temperature data saving.
+    temp = 0;
+    // Reading configuration byte
+    if(reading) settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
+    // Saving bit toggle
+    settings &= (0x1F);
     INT_EEPROM_UpdateTemperature();
     INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
-    restart();
-    //UART_PutString("Done Saving!\n");
-    //comm_abilitate = 1;
-    msg=' ';
+    // Disabling acceleration reading ISR.
+    ISR_ACC_Stop();
+    wtm = WTM_LOW;
+    LED_Stop();
+    // Discarding old data
+    // if(!reading) I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);
+    msg = ' ';
     comm_rec = 0;
 }
 
-void doSavingDevice(){
+void doSaving(uint8_t reading){
 
-    // Toggle del bit di saving
-    settings = settings | (0x20);
+    // Reading configuration byte
+    if(reading) settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
+    // Saving bit toggle
+    settings  |= (0x20);
     INT_EEPROM_UpdateTemperature();
     INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
     restart();
-    //UART_PutString("Done Saving Device!\n");
-
-}
-
-
-_Bool onHandshake(){
-    return onByteReceived() && msg == 'h';
+    // Discarding old data
+    // if(!reading) I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);
+    msg = ' ';
+    comm_rec = 0;
 }
 
 void doHandshake(){
 
     uint8_t parameters[4];
-    //comm_abilitate = 0;
-    UART_PutString("Accelerometer Hello $$$\n"); //important \n to stop ser.readline()
+    // Sending handshake passphrase.
+    UART_PutString("Accelerometer Hello $$$\n");
+    // Reading stored Configuration byte.
     settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
+    
+    // Preparing messages to send through UART.
     char tosend[10];
     getParam(settings, parameters);
 
@@ -264,39 +524,27 @@ void doHandshake(){
     UART_PutString(tosend);
 
     // Sending Temperature Format
-    if(parameters[2])
-        UART_PutString("Fahrenheit\n");
-    else
-        UART_PutString("Celsius\n");
+    parameters[2] ? UART_PutString("Fahrenheit\n") : UART_PutString("Celsius\n");
 
     // Sending Saving Status
-    if(parameters[3])
-        UART_PutString("ON\n");
-    else
-        UART_PutString("OFF\n");
+    
+    parameters[3] ? UART_PutString("ON\n") : UART_PutString("OFF\n");
 
-    //comm_abilitate = 1;
     msg=' ';
     comm_rec = 0;
 
 }
 
-_Bool onChangeConfig(){
-    return onByteReceived() && msg == 'c';
-}
-
 void doChangeConfig(){
 
-    //comm_abilitate = 0;
+    // Waiting the Configuration Byte.
     comm_rec = 0;
-
-    //UART_ClearRxBuffer();
     while(comm_rec == 0);
 
     // Reading settings
     settings = UART_ReadRxData();
-    //UART_ClearRxBuffer();
-
+    
+    // Updating FSR Register
     switch(settings & FSR)
     {
         case _2g:
@@ -326,57 +574,253 @@ void doChangeConfig(){
             break;
     }
 
+    // Updating ODR Register
     switch((settings & ODR) >> 2)
     {
         case _1Hz:
             I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                  LIS3DH_CTRL_REG1,
                  LIS3DH_SETUP_01_CTRL_REG1);
+            // Settare periodo del timer per avere interrupt ogni odr
             break;
         case _10Hz:
             I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                  LIS3DH_CTRL_REG1,
                  LIS3DH_SETUP_10_CTRL_REG1);
+            // Settare periodo del timer per avere interrupt ogni odr
             break;
         case _25Hz:
             I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                  LIS3DH_CTRL_REG1,
                  LIS3DH_SETUP_25_CTRL_REG1);
+            // Settare periodo del timer per avere interrupt ogni odr
             break;
         case _50Hz:
             I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                  LIS3DH_CTRL_REG1,
                  LIS3DH_SETUP_50_CTRL_REG1);
+            // Settare periodo del timer per avere interrupt ogni odr
             break;
         default:
             I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                  LIS3DH_CTRL_REG1,
                  LIS3DH_SETUP_01_CTRL_REG1);
+            // Settare periodo del timer per avere interrupt ogni odr
             break;
     }
-
-    if((settings & ESAV_STATUS) >> 5)
-        doSavingDevice();
-    else
-        doStoppingDevice();
-
-    I2C_EXT_EEPROM_Partial_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);
-
-    //comm_abilitate = 1;
+    
+    // Updating Saving Status Bit
+    (settings & ESAV_STATUS) >> 5 ? doSaving(EXT_EEPROM_NO_READING) : doStopping(EXT_EEPROM_NO_READING);
+    doEEPROMReset();
     msg=' ';
     comm_rec = 0;
 }
 
-_Bool onVisualizing(){
-    return onByteReceived() && msg == 'v';
+void doVisualizing(){
+    
+    doStopping(EXT_EEPROM_READING);
+    doReadEEPROM();
+    doEEPROMReset();
+    // Check if memory is Full
+    if(full_eeprom) full_eeprom = 0;
+    msg=' ';
+    comm_rec = 0;
+    
 }
 
-void doVisualizing(){
-    doStopping();
-    doReadEEPROM();
-    I2C_EXT_EEPROM_Partial_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);  //diventerà reset
-    if(full_eeprom) full_eeprom = 0;
+//void doTemperature(){
+//    
+//    uint8_t actual_level;                           // Value of FSS register.
+//    
+//    // if(fifo_level == 0) ISR_T_StartEx(TEMP_ISR);    // Enabling Temperature Timer ISR.
+//
+//    if(fifo_level <= LEVEL_TO_READ)
+//    {
+//        // At each ISR, reading the FSS (less computational effort).
+////        if(t_isr)
+////        {
+//            I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS,
+//                                        LIS3DH_FIFO_SRC_REG,
+//                                        &actual_level);
+////            t_isr = 0;
+////        }
+//
+//        // Temperature sampling enabled once every ODR.
+//        if((actual_level & 0x1F) == fifo_level)
+//        {
+//            temperature32 = ADC_Temp_Read32();                      
+//
+//            if (temperature32 > ADC_MAX) temperature32 = ADC_MAX;
+//            if (temperature32 < ADC_MIN) temperature32 = ADC_MIN;
+//
+//
+//            temperature[index_temp + 1] = (uint8_t)((temperature32 >> 8) & 0xFF); //msb
+//            temperature[index_temp]     = (uint8_t)(temperature32 & 0xFF); //lsb
+//
+//            index_temp = index_temp + 2;
+//            fifo_level ++;
+//        }
+//    }
+//    // Stopping temperature sampling when FSS is equal to WTM level (I2C should be cleared at this point).
+//    else
+//    {
+////        ISR_T_Stop();
+//        temp = 0;
+//        index_temp = 0;
+//    }
+//}
+
+void doTemperature(){
+    
+    temperature32 = ADC_Temp_Read32();                      
+
+    if (temperature32 > ADC_MAX) temperature32 = ADC_MAX;
+    if (temperature32 < ADC_MIN) temperature32 = ADC_MIN;
+
+
+    temperature[index_temp + 1] = (uint8_t)((temperature32 >> 8) & 0xFF); //msb
+    temperature[index_temp]     = (uint8_t)(temperature32 & 0xFF); //lsb
+
+    index_temp = index_temp + 2;
+    fifo_level ++;
+    t_isr = 0;
+
 }
+
+void doWatermark(){
+    
+    index_temp = 0;
+    doManageData();
+    index_temp = 0;
+    offset = 0;
+    fifo_write = 1;
+    wtm = 0;
+
+}
+
+void doWriteEEPROM(){
+
+    I2C_EXT_EEPROM_WriteWord(out);
+
+    outIndex = outIndex + 126;
+
+    INT_EEPROM_UpdateTemperature();
+    INT_EEPROM_WriteByte((outIndex & 0xFF),
+                        INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_L);
+    INT_EEPROM_UpdateTemperature();
+    INT_EEPROM_WriteByte(((outIndex >> 8) & 0xFF),
+                        INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_H);
+    
+    if (outIndex == 110) full_eeprom = 1;
+
+    fifo_level = 0;
+    temp = 1;
+    fifo_write = 0;
+
+}
+
+void doFullEEPROM(){
+
+    doStopping(EXT_EEPROM_READING);
+    LED_Start();
+    LED_BlinkFast();
+
+}
+
+void doReadEEPROM(){
+
+    uint8_t outEEPROM[(LEVEL_TO_READ + 1) * 6 + 2];
+    EXT_LED_Write(EXT_LED_ON);
+
+    CyDelay(5);
+    uint8_t header[] = {0xA0};
+    uint8_t tail[] = {0xC0, 0xC0};
+
+    uint16_t outIndex_read = 0;
+
+    UART_PutArray(header, 1);
+    for (uint16_t i = 0; i < pages; i++)
+    {
+
+        I2C_EXT_EEPROM_ReadRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
+                                        (outIndex_read >> 8) & 0xFF,
+                                        outIndex_read & 0xFF,
+                                        128,
+                                        outEEPROM);
+        outIndex_read = outIndex_read + 128;
+        UART_PutArray(outEEPROM, 128);
+    }
+    UART_PutArray(tail, 2);
+
+    fifo_read = 0;
+    eeprom_reset = 1;
+
+    EXT_LED_Write(EXT_LED_OFF);
+
+}
+
+void doEEPROMReset(){
+
+    I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);
+    outIndex = 0;
+    INT_EEPROM_UpdateTemperature();
+    INT_EEPROM_WriteByte(outIndex, INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_L);
+    INT_EEPROM_UpdateTemperature();
+    INT_EEPROM_WriteByte(outIndex >> 8, INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_H);
+    pages = 1;
+    eeprom_index = 0;
+    
+}
+
+void doButtonReleased(){
+
+    if(counted_seconds <  TOGGLE_DEVICE && counted_seconds > EMPTY_EEPROM){
+        // B o S
+        // lettura della configurazione attuale
+        settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
+        // Se siamo in saving
+        if (settings & 0x20){
+            temp = 0;
+            settings &= (0x1F);
+            INT_EEPROM_UpdateTemperature();
+            INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
+            ISR_ACC_Stop();
+            wtm = WTM_LOW;
+            LED_Stop();
+        }
+        else{
+            settings |= (0x20);
+            INT_EEPROM_UpdateTemperature();
+            INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
+            restart();
+        }
+    }
+    else if(counted_seconds < EMPTY_EEPROM){
+        // reset eeprom
+        I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);
+        eeprom_index = 0;
+        outIndex = 0;
+        INT_EEPROM_UpdateTemperature();
+        INT_EEPROM_WriteByte(outIndex, INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_L);
+        INT_EEPROM_UpdateTemperature();
+        INT_EEPROM_WriteByte(outIndex >> 8, INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_H);
+        pages = 1;
+    }
+
+    counted_seconds = 0;
+    isButtonReleased = 0;
+}
+
+
+// Utils
+
+/*****************************************************************************\
+ * Function:    getParam
+ * Returns:     Void
+ * Inputs: settings: Configuration byte, parameters: output vector.
+ * Description: 
+ *     Writes the configuration state in vector parameters.
+\*****************************************************************************/
 
 void getParam(uint8_t settings, uint8_t* parameters){
 
@@ -398,7 +842,7 @@ void getParam(uint8_t settings, uint8_t* parameters){
             break;
     }
 
-    switch((settings & ODR) >> 2)
+    switch((settings & ODR) >> ODR_LSB)
     {
         case _1Hz:
             parameters[1] = 1;
@@ -416,93 +860,71 @@ void getParam(uint8_t settings, uint8_t* parameters){
             break;
     }
 
-    parameters[2] = (settings & TEMP_FORMAT)>>4;
+    parameters[2] = (settings & TEMP_FORMAT) >> TEMP_FORMAT_LSB;
 
-    parameters[3] = (settings & ESAV_STATUS)>>5;
+    parameters[3] = (settings & ESAV_STATUS) >> ESAV_STATUS_LSB;
 }
 
-_Bool onTemperature(){
-    return temp && !wtm && !fifo_write && !fifo_read;
-}
+/*****************************************************************************\
+ * Function:    restart
+ * Returns:     void
+ * Description: 
+ *     Brings the device in an IDLE state.
+\*****************************************************************************/
 
-_Bool onWatermark(){
-    return wtm && !fifo_write && !fifo_read;
-}
+void restart(){
+    
+    T_TIMER_CLOCK_Start();
+    T_TIMER_Start();
+    
 
-_Bool onWriteEEPROM(){
-    return !wtm && fifo_write;
-}
-
-_Bool onFullEEPROM(){
-    return full_eeprom && !fifo_write;
-}
-
-_Bool onReadEEPROM(){
-    return fifo_read; //eventuale condizione del pulsante
-}
-
-_Bool onEEPROMReset(){
-    return eeprom_reset;
-}
-
-_Bool onButtonReleased(){
-    return isButtonReleased;
-}
-
-// Stati
-
-void doTemperature(){
-    uint8_t actual_level;
-
-    if(fifo_level == 0) ISR_T_StartEx(TEMP_ISR);
-
-    if(fifo_level <= LEVEL_TO_READ)
+    if((settings & ESAV_STATUS) >> 5)
     {
-        if(t_isr)
-        {
-        I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS, LIS3DH_FIFO_SRC_REG, &actual_level);
-        t_isr = 0;
-        }
-
-        if((actual_level & 0x1F) == fifo_level)
-        {
-
-            temperature32 = ADC_Temp_Read32();
-
-            if (temperature32 > ADC_MAX)
-            temperature32 = ADC_MAX;
-            if (temperature32 < ADC_MIN)
-            temperature32 = ADC_MIN;
-
-
-            temperature[index_temp + 1] = (uint8_t)((temperature32 >>8) & 0xFF); //msb
-            temperature[index_temp] = (uint8_t)(temperature32 & 0xFF); //lsb
-
-            index_temp = index_temp + 2;
-            fifo_level ++;
-        }
+        temp = 1;
+        LED_Start();
+        I2C_LIS3DH_Start(settings);
+        ISR_T_StartEx(TEMP_ISR);
+        ISR_ACC_StartEx(WTM_ISR);
     }
     else
     {
-        ISR_T_Stop();
         temp = 0;
-        index_temp = 0;
-        fifo_level = 0;
+        ISR_ACC_Stop();
+        LED_Stop();
     }
+
+    t_isr = 0;                  // abilita isr timer
+    fifo_level = 0;             //
+    index_temp = 0;
+    outIndex = INT_EEPROM_ReadByte(INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_L) 
+                | (INT_EEPROM_ReadByte(INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_H) << 8);       //usato in writeeeprom per tenere indirizzo attuale
+    eeprom_reset = 0;           // per resettare la eeprom
+    full_eeprom = 0;
+    temp = 1;
+    fifo_write = 0;
+    fifo_read = 0;
+    boot = 1;
+    wtm = WTM_LOW;
+    trigger = 1;
+
 }
 
+void doManageData(){
 
-void doWatermark(){
-    for (int level = 0; level < LEVEL_TO_READ + 1; level++){
+    uint32_t concatenated_Data;
+    uint16_t raw_data_16bit[3];
+
+    for (int level = 0; level <= LEVEL_TO_READ + 1; level++){
 
         // Receiving raw data
     	I2C_LIS3DH_Get_Raw_Data(raw_data_16bit);
-    	// Converting data
-        CyDelayUs(200);
+//    	// Converting data
+//        CyDelayUs(200);
     	// Creating the data packets
     	concatenated_Data = 0;
-    	uint8_t count = LIS3DH_OUT_AXES-1;
-    	for(uint8_t i = 0; i < LIS3DH_OUT_AXES; i++)
+        
+    	uint8_t count = LIS3DH_OUT_AXES - 1;
+        for(uint8_t i = 0; i < LIS3DH_OUT_AXES; i++)
     	{
     	    concatenated_Data |= (uint32_t)((raw_data_16bit[i] & 0x3FF) << 10*count);
     	    count--;
@@ -521,117 +943,4 @@ void doWatermark(){
     	offset = offset + 6;
 
     }
-
-    index_temp = 0;
-    offset = 0;
-    fifo_write = 1;
-    wtm = 0;
-
-}
-
-void doWriteEEPROM(){
-
-    I2C_EXT_EEPROM_WriteWord(out);
-
-    outIndex = outIndex + 126;
-
-    if (//outIndex == 5*EEPROM_WORD_SIZE
-        //I2C_EXT_EEPROM_Last_Index(out) < 126 || outIndex == 110
-        outIndex == 110
-    ) //overflow
-    {
-        full_eeprom = 1;
-        doStopping();
-        PWM_Start();
-        LED_BlinkFast();
-    }
-
-    temp = 1;
-    fifo_write = 0;
-
-}
-
-void doFullEEPROM(){
-
-    LED_BlinkFast();
-    //full_eeprom = 0;
-
-}
-
-void doReadEEPROM(){
-
-    EXT_LED_Write(EXT_LED_ON);
-
-    CyDelay(5);
-    uint8_t header[] = {0xA0};
-    uint8_t tail[] = {0xC0, 0xC0};
-
-    uint16_t outIndex_read = 0;
-
-    UART_PutArray(header, 1);
-    for (uint16_t i = 0; i<pages; i++)
-    {
-
-        I2C_EXT_EEPROM_ReadRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
-                                        (outIndex_read >> 8) & 0xFF,
-                                        outIndex_read & 0xFF,
-                                        128,
-                                        outEEPROM);
-        outIndex_read = outIndex_read + 128;
-//        I2C_EXT_EEPROM_PrintWord(i);
-
-
-        UART_PutArray(outEEPROM, 128);
-    }
-    UART_PutArray(tail, 2);
-
-
-    pages = 1;
-    fifo_read = 0;
-    eeprom_reset = 1;
-
-    EXT_LED_Write(EXT_LED_OFF);
-
-}
-
-void doEEPROMReset(){
-
-    I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS);
-    eeprom_reset = 0;
-
-}
-
-void doButtonReleased(){
-
-    if(counted_seconds <  TOGGLE_DEVICE && counted_seconds > EMPTY_EEPROM){
-        // B o S
-        // lettura della configurazione attuale
-        settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
-        // Se siamo in saving
-        if (settings & 0x20){
-            temp = 0;
-            settings &= (0x1F);
-            INT_EEPROM_UpdateTemperature();
-            INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
-            ISR_ACC_Stop();
-            wtm = WTM_LOW;
-            PWM_Stop();
-        }
-        else{
-            settings |= (0x20);
-            INT_EEPROM_UpdateTemperature();
-            INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
-            restart();
-        }
-        //UART_PutString("toggle device\r\n");
-    }
-    else if(counted_seconds < EMPTY_EEPROM){
-        // reset eeprom
-        I2C_EXT_EEPROM_Partial_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);
-        //UART_PutString("Empty eeprom\r\n");
-
-    }
-
-    counted_seconds = 0;
-    isButtonReleased = 0;
 }

@@ -1,25 +1,29 @@
-/* ========================================
- * Assignment #05, Luca Andriotto
- * ========================================
+/* =========================================================================
+ * Project01-1, Luca Andriotto, Matteo Cavicchioli, Alessandro Pirelli
+ * =========================================================================
 */
 
 #ifndef __DEFINE_H
 
     #define __DEFINE_H
 
-    #define LED_PERIOD_FAST     127
-    #define LED_PERIOD_SLOW     511
-    #define LED_COMPARE_FAST    64
-    #define LED_COMPARE_SLOW    256
+    // BUILT-IN LED
+    #define BUILT_IN_LED_PERIOD_FAST        127
+    #define BUILT_IN_LED_PERIOD_SLOW        511
+    #define BUILT_IN_LED_COMPARE_FAST       64
+    #define BUILT_IN_LED_COMPARE_SLOW       256
 
-    #define EXT_LED_ON      1
+    // EXT LED
+    #define EXT_LED_ON                      1
     #define EXT_LED_OFF     0
 
     /* === Changeable values === */
     // Persistent memory
-    #define EEPROM_REGISTER             0x0000            // EEPROM register for initialization.
-    #define EEPROM_INIT_VALUE           EEPROM_ODR_1      // Initial ODR if cell content was incosistent (< EEPROM_FINAL_VALUE).
-    #define EEPROM_FINAL_VALUE          EEPROM_ODR_50     // Final encoded ODR value (> EEPROM_FINAL_VALUE).
+    #define CONFIG_REGISTER                         0x00                // EEPROM register for initialization.
+    #define INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_L    0x01
+    #define INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_H    0x02
+    #define INT_EEPROM_INIT_VALUE                   INT_EEPROM_ODR_1    // Initial ODR if cell content was incosistent (< EEPROM_FINAL_VALUE).
+    #define INT_EEPROM_FINAL_VALUE                  INT_EEPROM_ODR_50   // Final encoded ODR value (> EEPROM_FINAL_VALUE).
 
     // FSR
 
@@ -71,19 +75,19 @@
 
     // Control Register 4
     #define LIS3DH_NR_CTRL_REG4         0x00    // Partial mask: the rest is modified by the if defined.
-    #define LIS3DH_BDU_CTRL_REG4          0x80
+    #define LIS3DH_BDU_CTRL_REG4        0x80
     // Normal mode Full Scales
-    #define LIS3DH_FS_02                  0x00    // FS = [-2, +2]g   --> So =  4
-    #define LIS3DH_FS_04                  0x01    // FS = [-4, +4]g   --> So =  8
-    #define LIS3DH_FS_08                  0x02    // FS = [-8, +8]g   --> So = 16
-    #define LIS3DH_FS_16                  0x03    // FS = [-16, +16]g --> So = 48
-    // Use these masks to setup the Control Register 4
+    #define LIS3DH_FS_02                0x00    // FS = [-2, +2]g   --> So =  4
+    #define LIS3DH_FS_04                0x01    // FS = [-4, +4]g   --> So =  8
+    #define LIS3DH_FS_08                0x02    // FS = [-8, +8]g   --> So = 16
+    #define LIS3DH_FS_16                0x03    // FS = [-16, +16]g --> So = 48
 
     // Control Register 5
     #define LIS3DH_FIFO_EN_CTRL_REG5       0x40    // Enable the FIFO register
 
     // Control Register 6
     #define LIS3DH_INT_POLARITY_CTRL_REG6       0x02
+
     // FIFO Control Register
 	// Modes
     #define LIS3DH_STREAM_MODE_FIFO_CTRL_REG    0x80
@@ -113,16 +117,7 @@
     #define LIS3DH_MODE_FIFO_CTRL_REG   LIS3DH_STREAM_MODE_FIFO_CTRL_REG                // Choose between Stream and FIFO mode
     #define LIS3DH_SETUP_FIFO_CTRL_REG  LIS3DH_MODE_FIFO_CTRL_REG | LIS3DH_FTH_WTM_FIFO_CTRL_REG
 
-    //--------------------------------------------//
-    //        NORMAL MODE IS SET BY DEFAULT       //
-    //--------------------------------------------//
-
-
-    //ODR
-    #define ODR_1         1    //da implementare automaticamente
-    #define ODR_10        10
-    #define ODR_25        25
-    #define ODR_50        50
+    
 
     // Normal mode sensitivities
     #define LIS3DH_SENSITIVITY_0        4       // mg/digit
@@ -144,60 +139,81 @@
     #define CONVERSION                  0.001*GRAVITY*100    // ms^-2*digit^-1
 
     // EEPROM
-    #define EEPROM_TOTAL_ODRS           (EEPROM_FINAL_VALUE - EEPROM_INIT_VALUE + 1)    // Number of ODR to be cycled.
-    #define EEPROM_ODR_1                0x01                                            //   1Hz    CHOSEN
-    #define EEPROM_ODR_10               0x02                                            //  10Hz
-    #define EEPROM_ODR_25               0x03                                            //  25Hz
-    #define EEPROM_ODR_50               0x04                                            //  50Hz    CHOSEN
-    #define EEPROM_ODR_100              0x05                                            // 100Hz
-    #define EEPROM_ODR_200              0x06                                            // 200Hz
-    #define EEPROM_ODR_400              0x07                                            // 400Hz
-    #define EEPROM_WORD_SIZE            0x80                                            // Number of bytes per word.
-    #define EEPROM_TOTAL_WORDS          512
-    #define EEPROM_FULL 65536
-
+    #define INT_EEPROM_TOTAL_ODRS           (INT_EEPROM_FINAL_VALUE - INT_EEPROM_INIT_VALUE + 1)    // Number of ODR to be cycled.
+    #define INT_EEPROM_ODR_1                0x01                                                    //   1Hz    
+    #define INT_EEPROM_ODR_10               0x02                                                    //  10Hz
+    #define INT_EEPROM_ODR_25               0x03                                                    //  25Hz
+    #define INT_EEPROM_ODR_50               0x04                                                    //  50Hz
+    #define INT_EEPROM_ODR_100              0x05                                                    // 100Hz
+    #define INT_EEPROM_ODR_200              0x06                                                    // 200Hz
+    #define INT_EEPROM_ODR_400              0x07                                                    // 400Hz
+    #define EXT_EEPROM_WORD_SIZE            0x80                                                    // Number of bytes per word.
+    #define EXT_EEPROM_TOTAL_WORDS          512
+    #define EXT_EEPROM_FULL                 65536
+    #define EXT_EEPROM_NO_READING       0
+    #define EXT_EEPROM_READING          1
+    
     // Status
-    #define WTM_LOW                     0
-    #define WTM_HIGH                    1
     #define BYTE_TO_READ_PER_LEVEL      6
     #define LEVEL_TO_READ               LIS3DH_FTH_WTM_FIFO_CTRL_REG
     #define BYTE_TO_EEPROM              4
-    #define X_LSB   0
-    #define X_MSB   1
-    #define Y_LSB   2
-    #define Y_MSB   3
-    #define Z_LSB   4
-    #define Z_MSB   5
-    #define A_Z     2
-    #define A_Y     1
-    #define A_X     0
+    #define X_LSB                       0
+    #define X_MSB                       1
+    #define Y_LSB                       2
+    #define Y_MSB                       3
+    #define Z_LSB                       4
+    #define Z_MSB                       5
+    #define A_Z                         2
+    #define A_Y                         1
+    #define A_X                         0
 
 
     // ADC
-    #define ADC_MAX 65535
-    #define ADC_MIN 0
+    #define ADC_MAX                     65535
+    #define ADC_MIN                     0
 
-    #define CONFIG_REGISTER 0x00
-    #define FSR 0x03
-    #define ODR 0x0C
-    #define TEMP_FORMAT 0x10
-    #define ESAV_STATUS 0x20
-    #define _2g 0x00
-    #define _4g 0x01
-    #define _8g 0x02
-    #define _16g 0x03
-    #define _1Hz 0x00
-    #define _10Hz 0x01
-    #define _25Hz 0x02
-    #define _50Hz 0x03
-    #define ESAV_OFF 0x00
-    #define ESAV_ON 0x01
-    #define CELSIUS 0x00
-    #define FAHRENHEIT 0x01
+    // Addresses (Configuration Byte)
+    #define ODR_LSB                     0x02
+    #define TEMP_FORMAT_LSB             0x04
+    #define ESAV_STATUS_LSB             0x05
+    // Mask (Configuration Byte)
+    #define FSR                         0x03
+    #define ODR                         0x0C
+    #define TEMP_FORMAT                 0x10
+    #define ESAV_STATUS                 0x20
+    
+    // Codifica
+    
+    #define WTM_LOW                     0
+    #define WTM_HIGH                    1
+    
+    //ODR
+    #define ODR_1         1    //da implementare automaticamente
+    #define ODR_10        10
+    #define ODR_25        25
+    #define ODR_50        50
+    
+    // fsr
+    #define _2g                         0x00
+    #define _4g                         0x01
+    #define _8g                         0x02
+    #define _16g                        0x03
+    // odr
+    #define _1Hz                        0x00
+    #define _10Hz                       0x01
+    #define _25Hz                       0x02
+    #define _50Hz                       0x03
+    // Saving status
+    #define ESAV_OFF                    0x00
+    #define ESAV_ON                     0x01
+    // Temperature
+    #define CELSIUS                     0x00
+    #define FAHRENHEIT                  0x01
 
-    // Timer
-    #define TOGGLE_DEVICE                       5120 - 256
-    #define EMPTY_EEPROM                        5120 - 2560
+    // Timer (Switch)
+    #define TIMER_RESET_PERIOD          5120
+    #define TOGGLE_DEVICE               TIMER_RESET_PERIOD - 256
+    #define EMPTY_EEPROM                TIMER_RESET_PERIOD - 2560
 
 
 #endif
