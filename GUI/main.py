@@ -76,11 +76,11 @@ class Home (BoxLayout):
     def Connect(self):                               #connect to serial port
         if self.conn_bt.text == "Connect":
             port_name = self.com.text
-            self.ser = serial.Serial(port = port_name, baudrate = 57600)
+            self.ser = serial.Serial(port = port_name, baudrate = 115200)
             if self.ser.is_open:
                 uart = 'h'
                 uart = bytes(uart, 'utf-8')
-                self.ser.write(uart)
+                self.ser.write(uart)                #send 'h' command to 'greet' PSoC
                 self.ser.flushInput()
                 psoc = self.ser.readline()
                 psoc = psoc.decode(errors='ignore')                             #mandatory, remember errors=ignore to avoid crash
@@ -124,15 +124,15 @@ class Home (BoxLayout):
     def Work(self):                                     #manage data acquisition and saving
         if self.st_bt.text == 'Start Device':
             uart = 'b'
-            uart = bytes(uart, 'utf-8')
-            self.ser.write(uart)
+            uart = bytes(uart, 'utf-8') 
+            self.ser.write(uart)                        #send 'b' command to start device
             self.st_bt.text = 'Stop Device'         
             self.esav.text = 'ON'
             self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Data acquisition & Saving to EEPROM started"
         else:
             uart = 's'
             uart = bytes(uart, 'utf-8')
-            self.ser.write(uart)
+            self.ser.write(uart)                        #send 's' command to stop device
             self.st_bt.text = 'Start Device'           
             self.esav.text = 'OFF'
             self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Data acquisition & Saving to EEPROM stopped"
@@ -166,14 +166,14 @@ class Home (BoxLayout):
         temp = []
         uart = 'v'
         uart = bytes(uart, 'utf-8')
-        self.ser.write(uart)
+        self.ser.write(uart)                                    #send 'v' command to get data to print and save
 
         if self.tf.text == "Celsius":
-                self.t_data.ymin = -40
+                self.t_data.ymin = -10
                 self.t_data.ymax = 40
                 self.t_data.ylabel = "[Celsius]"
         else:
-            self.t_data.ymin = -4
+            self.t_data.ymin = 26
             self.t_data.ymax = 76
             self.t_data.ylabel = "[Fahrenheit]"
 
@@ -268,11 +268,12 @@ class Home (BoxLayout):
                 acc_y_w.writerow([str((acc_y[i])*sensitivity*9.8) + ' m/s^2'])
                 acc_z_w.writerow([str((acc_z[i])*sensitivity*9.8) + ' m/s^2'])
                 if self.tf.text == "Celsius":
-                    temp_w.writerow([str((temp[i]*7.62*0.00001*90)-40) +' °C'])
-                    temp[i] = (temp[i]*7.62*0.00001*90)-40
+                    temp[i] = (temp[i]*0.0076)-50
+                    temp_w.writerow([str(temp[i]) +' °C'])
+                    
                 else:
-                    temp_w.writerow([str((temp[i]*7.62*0.00001*90)-8) +' °F']) 
-                    temp[i] = (temp[i]*7.62*0.00001*90)-8
+                    temp[i] = (temp[i]*0.0076)-14
+                    temp_w.writerow([str(temp[i]) +' °F']) 
 
             self.plot_x = self.PrintData(self.x_data, acc_x, self.plot_x,sensitivity)       #accs plotted in [g]
             self.plot_y = self.PrintData(self.y_data, acc_y, self.plot_y,sensitivity)
@@ -303,7 +304,7 @@ class Home (BoxLayout):
         grafico.points = [(x, float(obj[x])*sens) for x in range(len(obj))]
         data.add_plot(grafico)
         data.xmax=len(obj)
-        data.size_hint_x = 1 + (39*len(obj)/10752)          #max lenght data = 10752, graph size adjusted
+        data.size_hint_x = 1 + (44*len(obj)/10752)          #max lenght data = 10752, graph size adjusted
         if self.sf.text == '1Hz':
             data.x_ticks_major = 1
         elif self.sf.text == '10Hz':
@@ -332,7 +333,7 @@ class Home (BoxLayout):
         else:
             uart = 'c'
             uart = bytes(uart, 'utf-8')
-            self.ser.write(uart)
+            self.ser.write(uart)                                #send 'c' command to change settings
             
             FSR = self.fsr.text
             SF = self.sf.text
