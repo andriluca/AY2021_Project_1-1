@@ -561,16 +561,17 @@ void doHandshake(){
 }
 
 void doChangeConfig(){
-
+    
+    uint8_t new_settings;
     // Waiting the Configuration Byte.
     comm_rec = 0;
     while(comm_rec == 0);
 
     // Reading settings
-    settings = UART_ReadRxData();
+    new_settings = UART_ReadRxData();
     
     // Updating FSR Register
-    switch(settings & FSR)
+    switch(new_settings & FSR)
     {
         case LIS3DH_FS_02_CB:
             I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
@@ -600,7 +601,7 @@ void doChangeConfig(){
     }
 
     // Updating ODR Register
-    switch((settings & ODR) >> 2)
+    switch((new_settings & ODR) >> 2)
     {
         case LIS3DH_ODR_01_CB:
             I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
@@ -630,7 +631,11 @@ void doChangeConfig(){
     }
     
     // Updating Saving Status Bit
-    (settings & ESAV_STATUS) >> 5 ? doSaving(EXT_EEPROM_RESETTING) : doStopping(EXT_EEPROM_RESETTING);
+    (new_settings & ESAV_STATUS) >> 5 ? doSaving(EXT_EEPROM_RESETTING) : doStopping(EXT_EEPROM_RESETTING);
+    
+    INT_EEPROM_UpdateTemperature();
+    INT_EEPROM_WriteByte(new_settings, CONFIG_REGISTER);
+    
     msg=' ';
     comm_rec = 0;
 }
