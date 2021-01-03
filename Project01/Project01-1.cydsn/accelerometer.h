@@ -11,7 +11,6 @@
     #include "define.h"
     #include "interrupt.h"
 
-
 /*****************************************************************************\
  * Function:    I2C_LIS3DH_Start
  * Input:
@@ -33,9 +32,19 @@
 
     ErrorCode I2C_LIS3DH_Get_Raw_Data(uint16_t* data);
 
+// Utils
+    
+/*****************************************************************************\
+ * Function:    I2C_LIS3DH_SetConfig
+ * Input:       settings: Configuration Byte; config: parameters' array
+ * Returns:     uint16_t
+ * Description:
+ *     Initialization of the LIS3DH Config Registers.
+ *     It gathers ODR from EEPROM.
+\*****************************************************************************/
+
     uint16_t I2C_LIS3DH_SetConfig(uint8 settings, uint8* config);
 
-    uint8_t out[(LEVEL_TO_READ + 1) * 6];
-
+    uint8_t out[EXT_EEPROM_WORD_SIZE - 2];
 
 #endif

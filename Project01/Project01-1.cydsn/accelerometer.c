@@ -25,7 +25,7 @@ ErrorCode I2C_LIS3DH_Start(uint8 setting)
     // Setup control register 4
     I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                  LIS3DH_CTRL_REG4,
-                                 config[0]);     // FS
+                                 config[0]);                    // FS
     // Setup control register 5
     I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                  LIS3DH_CTRL_REG5,
@@ -65,16 +65,16 @@ uint16_t I2C_LIS3DH_SetConfig(uint8 settings, uint8* config)
     uint16_t temp_timer_period;
     switch(settings & FSR)
     {
-        case _2g:
+        case LIS3DH_FS_02_CB:
             config[0]=LIS3DH_SETUP_02_CTRL_REG4;
             break;
-        case _4g:
+        case LIS3DH_FS_04_CB:
             config[0]=LIS3DH_SETUP_04_CTRL_REG4;
             break;
-        case _8g:
+        case LIS3DH_FS_08_CB:
             config[0]=LIS3DH_SETUP_08_CTRL_REG4;
             break;
-        case _16g:
+        case LIS3DH_FS_16_CB:
             config[0]=LIS3DH_SETUP_16_CTRL_REG4;
             break;
         default:
@@ -84,19 +84,19 @@ uint16_t I2C_LIS3DH_SetConfig(uint8 settings, uint8* config)
 
     switch((settings & ODR) >> 2)
     {
-        case _1Hz:
+        case LIS3DH_ODR_01_CB:
             config[1] = LIS3DH_SETUP_01_CTRL_REG1;
             temp_timer_period = 500;
             break;
-        case _10Hz:
+        case LIS3DH_ODR_10_CB:
             config[1] = LIS3DH_SETUP_10_CTRL_REG1;
             temp_timer_period = 50;
             break;
-        case _25Hz:
+        case LIS3DH_ODR_25_CB:
             config[1] = LIS3DH_SETUP_25_CTRL_REG1;
             temp_timer_period = 20;
             break;
-        case _50Hz:
+        case LIS3DH_ODR_50_CB:
             config[1] = LIS3DH_SETUP_50_CTRL_REG1;
             temp_timer_period = 10;
             break;

@@ -167,7 +167,7 @@ void I2C_EXT_EEPROM_PrintWord(uint16_t word){
 
 ErrorCode I2C_EXT_EEPROM_WriteWord(uint8_t* word){
 
-    uint8_t word_index = I2C_EXT_EEPROM_Last_Index(word); // index of the first available empty byte.
+    uint8_t word_index = I2C_EXT_EEPROM_First_Index(word); // index of the first available empty cell.
 
     uint8_t potential_bytes = EXT_EEPROM_WORD_SIZE - (eeprom_index % EXT_EEPROM_WORD_SIZE);
 
@@ -205,7 +205,7 @@ ErrorCode I2C_EXT_EEPROM_WriteWord(uint8_t* word){
         I2C_EXT_EEPROM_WriteRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
                                                 (eeprom_index >> 8) & 0xff,
                                                 (eeprom_index) & 0xff,
-                                                potential_bytes - (potential_bytes%BYTE_TO_READ_PER_LEVEL),
+                                                potential_bytes - (potential_bytes % BYTE_TO_READ_PER_LEVEL),
                                                 word);
         eeprom_index += potential_bytes;
     }
@@ -215,7 +215,7 @@ ErrorCode I2C_EXT_EEPROM_WriteWord(uint8_t* word){
     return NO_ERROR;
 }
 
-uint8_t I2C_EXT_EEPROM_Last_Index(uint8_t* word){
+uint8_t I2C_EXT_EEPROM_First_Index(uint8_t* word){
     
     uint8_t count = 0;
     

@@ -39,8 +39,9 @@
     ErrorCode I2C_Peripheral_Stop();
 
 /*****************************************************************************\
- * Function:    I2C_Peripheral_Stop
- * Input:
+ * Function:    I2C_Peripheral_ReadRegister
+ * Input:       uint8_t device_address, uint8_t register_address,
+ *              uint8_t* data
  * Returns:     ErrorCode
  * Description:
  *     Reading through I2C of a single register.
