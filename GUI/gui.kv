@@ -11,6 +11,12 @@
             size: (self.height,self.height)
 
 <Home>:
+    canvas.before:
+        Color:
+            rgba: 0.5, 0.5, 0.5, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
     padding: 5
     spacing:5
     orientation: "horizontal"
@@ -31,9 +37,7 @@
     pr_bt: _pr_bt
     up_bt: _up_bt
 
-    x_data: _x_data
-    y_data: _y_data
-    z_data: _z_data
+    acc_data: _acc_data
     t_data: _t_data
 
     BoxLayout:                          #connection part
@@ -148,147 +152,91 @@
                     disabled:True
 
     BoxLayout:                          #data visualization
-        orientation: "vertical"
+        orientation:"vertical"
+        padding: 5
         BoxLayout:
-            orientation:"horizontal"
-            BoxLayout:
-                padding: 5
-                orientation: "vertical"
-                Label:
-                    text: "X axis acceleration"
-                    text_size: self.size
-                    halign: "center"
-                    valign: "center"
-                    bold:True
-                    size_hint: (1,.1)  
-                ScrollView:
-                    scrool_y:False
-                    scrool_x:True
-                    Graph:
-                        size_hint_x: 2
-                        size_hint_y:0.95
-                        padding:5
-                        id: _x_data
-                        xlabel: 'sample'
-                        ylabel: '[g]'
-                        x_grid:True
-                        y_grid:True
-                        x_ticks_major: 1
-                        y_ticks_major: 1
-                        x_grid_label: True
-                        y_grid_label: True
-                        xmin:0
-                        xmax:10
-                        ymin:-2
-                        ymax:2
-            BoxLayout:
-                orientation: "vertical"
-                padding: 5
-                Label:
-                    text:"Y axis acceleration"
-                    text_size: self.size
-                    halign: "center"
-                    valign: "center"
-                    bold:True
-                    size_hint: (1,.1)
-                ScrollView:
-                    scrool_y:False
-                    scrool_x:True
-                    Graph:
-                        size_hint_x: 2
-                        size_hint_y:0.95
-                        padding:5
-                        id: _y_data
-                        xlabel: 'sample'
-                        ylabel: '[g]'
-                        x_grid:True
-                        y_grid:True
-                        x_ticks_major: 1
-                        y_ticks_major: 1
-                        x_grid_label: True
-                        y_grid_label: True
-                        xmin:0
-                        xmax:10
-                        ymin:-2
-                        ymax:2
-        BoxLayout:
-            orientation:"horizontal"
-            BoxLayout:
-                padding: 5
-                orientation: "vertical"
-                Label:
-                    text:"Z axis acceleration"
-                    text_size: self.size
-                    halign: "center"
-                    valign: "center"
-                    bold:True
-                    size_hint: (1,.1)
-                ScrollView:
-                    scrool_y:False
-                    scrool_x:True
-                    Graph:
-                        size_hint_x: 2
-                        size_hint_y:0.95
-                        padding:5
-                        id: _z_data
-                        xlabel: 'sample'
-                        ylabel: '[g]'
-                        x_grid:True
-                        y_grid:True
-                        x_ticks_major: 1
-                        y_ticks_major: 1
-                        x_grid_label: True
-                        y_grid_label: True
-                        xmin:0
-                        xmax:10
-                        ymin:-2
-                        ymax:2
-            BoxLayout:
-                padding: 5
-                orientation: "vertical"
-                Label:
-                    text:"Temperature"
-                    text_size: self.size
-                    halign: "center"
-                    valign: "center"
-                    bold:True
-                    size_hint: (1,.1)
-                ScrollView:
-                    scrool_y:False
-                    scrool_x:True
-                    Graph:
-                        size_hint_x: 2
-                        size_hint_y:0.95
-                        padding:5
-                        id: _t_data
-                        xlabel: 'sample'
-                        ylabel: '[Celsius]'
-                        x_grid:True
-                        y_grid:True
-                        x_ticks_major: 1
-                        y_ticks_major: 10
-                        x_grid_label: True
-                        y_grid_label: True
-                        xmin:0
-                        xmax:10
-                        ymin:-10
-                        ymax:40
-        ScrollView:
             padding: 5
-            size_hint:(1,.25)
-            scrool_y:True
-            scrool_x:False
-            canvas.before:
-                Color:  
-                    rgba: 1, 1, 1, 1  
-                Rectangle:  
-                    pos: self.pos  
-                    size: self.size
+            orientation: "vertical"
+            padding: 5
             Label:
-                id: _msg
-                text: "Welcome, connect device and select port to start" 
-                color: (0,0,0,1)
-                text_size: self.width, None
-                font_size:20
-                size_hint_y: None
-                height: self.texture_size[1] 
+                text: "Accelerations"
+                text_size: self.size
+                halign: "center"
+                valign: "center"
+                bold:True
+                size_hint: (1,.1)  
+            ScrollView:
+                scrool_y:False
+                scrool_x:True
+                Graph:
+                    size_hint_x: 1.1
+                    size_hint_y:0.95
+                    padding:5
+                    id: _acc_data
+                    xlabel: 'sample'
+                    ylabel: '[g]'
+                    x_grid:True
+                    y_grid:True
+                    x_ticks_major: 1
+                    y_ticks_major: 1
+                    x_grid_label: True
+                    y_grid_label: True
+                    xmin:0
+                    xmax:10
+                    ymin:-2
+                    ymax:2
+                    background_color: 0.7, 0.7, 0.7, 1
+        BoxLayout:
+            padding: 5
+            orientation: "vertical"
+            Label:
+                text:"Temperature"
+                text_size: self.size
+                halign: "center"
+                valign: "center"
+                bold:True
+                size_hint: (1,.1)
+            ScrollView:
+                scrool_y:False
+                scrool_x:True
+                Graph:
+                    size_hint_x: 1.1
+                    size_hint_y:0.95
+                    padding:5
+                    id: _t_data
+                    xlabel: 'sample'
+                    ylabel: '[Celsius]'
+                    x_grid:True
+                    y_grid:True
+                    x_ticks_major: 1
+                    y_ticks_major: 10
+                    x_grid_label: True
+                    y_grid_label: True
+                    xmin:0
+                    xmax:10
+                    ymin:-10
+                    ymax:40
+                    background_color: 0.7, 0.7, 0.7, 1
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint:(1,.20)
+            ScrollView:
+                padding: 5
+                size_hint:(0.9,1)
+                scrool_y:True
+                scrool_x:False
+                canvas.before:
+                    Color:  
+                        rgba: 1, 1, 1, 1  
+                    Rectangle:  
+                        pos: self.pos  
+                        size: self.size
+                Label:
+                    id: _msg
+                    text: "Welcome, connect device and select port to start" 
+                    color: (0,0,0,1)
+                    text_size: self.width, None
+                    font_size:20
+                    size_hint_y: None
+                    height: self.texture_size[1] 
+            

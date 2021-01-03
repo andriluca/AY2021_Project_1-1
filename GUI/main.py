@@ -110,14 +110,12 @@ class Home (BoxLayout):
             self.conn_bt.text = "Connect"
             self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Device disconnected"
             self.ser.close()
-            self.x_data.remove_plot(self.plot_x)        #clear graphs
-            self.y_data.remove_plot(self.plot_y)
-            self.z_data.remove_plot(self.plot_z)
+            self.acc_data.remove_plot(self.plot_x)        #clear graphs
+            self.acc_data.remove_plot(self.plot_y)
+            self.acc_data.remove_plot(self.plot_z)
             self.t_data.remove_plot(self.plot_t)
-            self.x_data.size_hint_x = 2
-            self.y_data.size_hint_x = 2
-            self.z_data.size_hint_x = 2
-            self.t_data.size_hint_x = 2
+            self.acc_data.size_hint_x = 1.1
+            self.t_data.size_hint_x = 1.1
             
             self.col.cl=(1,0,0,1)
 
@@ -137,27 +135,20 @@ class Home (BoxLayout):
             self.esav.text = 'OFF'
             self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Data acquisition & Saving to EEPROM stopped"
 
-    x_data=ObjectProperty(None)
-    y_data=ObjectProperty(None)
-    z_data=ObjectProperty(None)
+    acc_data=ObjectProperty(None)
     t_data=ObjectProperty(None)
 
-    plot_x=LinePlot(line_width=2, color=[1, 1, 1, 1])           #plots initialization needed
+    plot_x=LinePlot(line_width=2, color=[1, 0, 0, 1])           #plots initialization needed
     plot_x.points = [(x, x) for x in range(5)]
 
-    plot_y=LinePlot(line_width=2, color=[1, 1, 1, 1])
+    plot_y=LinePlot(line_width=2, color=[0, 1, 0, 1])
     plot_y.points = [(x, x) for x in range(5)]
 
-    plot_z=LinePlot(line_width=2, color=[1, 1, 1, 1])
+    plot_z=LinePlot(line_width=2, color=[0, 0, 1, 1])
     plot_z.points = [(x, x) for x in range(5)]
 
     plot_t=LinePlot(line_width=2, color=[1, 1, 1, 1])
     plot_t.points = [(x, x) for x in range(5)]
-
-    def AdjustGraph(self, grafico, abs_max, ticks):
-        grafico.ymin = -abs_max-1
-        grafico.ymax = abs_max+1
-        grafico.y_ticks_major = ticks
 
     def Print(self):                                            #print data      
         acc_x = []    
@@ -179,9 +170,7 @@ class Home (BoxLayout):
 
         FSR = int(self.fsr.text.replace('+''-','').replace('g',''))
 
-        self.AdjustGraph(self.x_data,FSR,FSR//2)
-        self.AdjustGraph(self.y_data,FSR,FSR//2)
-        self.AdjustGraph(self.z_data,FSR,FSR//2)
+        self.AdjustGraph(self.acc_data,FSR,FSR//2)
 
         if FSR==2:                                
             sensitivity = 4/1000
@@ -275,13 +264,13 @@ class Home (BoxLayout):
                     temp[i] = (temp[i]*0.0076)-14
                     temp_w.writerow([str(temp[i]) +' °F']) 
 
-            self.plot_x = self.PrintData(self.x_data, acc_x, self.plot_x,sensitivity)       #accs plotted in [g]
-            self.plot_y = self.PrintData(self.y_data, acc_y, self.plot_y,sensitivity)
-            self.plot_z = self.PrintData(self.z_data, acc_z, self.plot_z, sensitivity)
+            self.plot_x = self.PrintData(self.acc_data, acc_x, self.plot_x,sensitivity,[1,0,0,1])       #accs plotted in [g]
+            self.plot_y = self.PrintData(self.acc_data, acc_y, self.plot_y,sensitivity,[0,1,0,1])
+            self.plot_z = self.PrintData(self.acc_data, acc_z, self.plot_z, sensitivity,[0.2,0.4,1,1])
             if self.tf.text == 'Celsius':
-                self.plot_t = self.PrintData(self.t_data, temp, self.plot_t,1)
+                self.plot_t = self.PrintData(self.t_data, temp, self.plot_t,1,[.98,1,0,1])
             else:
-                self.plot_t = self.PrintData(self.t_data, temp, self.plot_t, 1)     #°F = °C + 32
+                self.plot_t = self.PrintData(self.t_data, temp, self.plot_t, 1,[.98,1,0,1])     #°F = °C + 32
 
             if self.esav.text == "ON":                       #when data gets printed device gets turned OFF
                 self.esav.text = "OFF"
@@ -289,7 +278,7 @@ class Home (BoxLayout):
             if self.st_bt.text == 'Stop Device':             #same as above
                 self.st_bt.text = 'Start Device'
 
-            self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Data printed & stored, device stopped"  
+            self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Data printed (Red = X, Green = Y, Blue = Z) & stored, device stopped"  
         else:
             self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "No data available"  
             if self.esav.text == "ON":                                                                              #when data gets printed device gets turned OFF
@@ -298,13 +287,13 @@ class Home (BoxLayout):
             if self.st_bt.text == 'Stop Device':                                                                    #same as above
                 self.st_bt.text = 'Start Device'
 
-    def PrintData(self, data, obj, grafico, sens):
+    def PrintData(self, data, obj, grafico, sens, RGBA):
         data.remove_plot(grafico)
-        grafico = LinePlot(line_width=2, color=[1, 1, 1, 1])
+        grafico = LinePlot(line_width=1.5, color=RGBA)
         grafico.points = [(x, float(obj[x])*sens) for x in range(len(obj))]
         data.add_plot(grafico)
         data.xmax=len(obj)
-        data.size_hint_x = 1 + (44*len(obj)/10752)          #max lenght data = 10752, graph size adjusted
+        data.size_hint_x = 1 + (24*len(obj)/10752)          #max lenght data = 10752, graph size adjusted
         if self.sf.text == '1Hz':
             data.x_ticks_major = 1
         elif self.sf.text == '10Hz':
@@ -315,6 +304,12 @@ class Home (BoxLayout):
             data.x_ticks_major = 50
         
         return grafico
+
+    
+    def AdjustGraph(self, grafico, abs_max, ticks):
+        grafico.ymin = -abs_max
+        grafico.ymax = abs_max
+        grafico.y_ticks_major = ticks
 
     fsr=ObjectProperty()
     sf=ObjectProperty()
