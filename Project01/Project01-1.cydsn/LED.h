@@ -1,13 +1,6 @@
-/* ========================================
- *
- * Copyright YOUR COMPANY, THE YEAR
- * All Rights Reserved
- * UNPUBLISHED, LICENSED SOFTWARE.
- *
- * CONFIDENTIAL AND PROPRIETARY INFORMATION
- * WHICH IS THE PROPERTY OF your company.
- *
- * ========================================
+/* =========================================================================
+ * Project01-1, Luca Andriotto, Matteo Cavicchioli, Alessandro Pirelli
+ * =========================================================================
 */
 
 #ifndef __LED_H
@@ -19,7 +12,6 @@
     void LED_Stop();
     void LED_BlinkSlow();
     void LED_BlinkFast();
+    void LED_BlinkEEPROM();
     
 #endif
-
-/* [] END OF FILE */

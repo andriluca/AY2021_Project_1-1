@@ -1,6 +1,6 @@
-/* ========================================
- * Assignment #05, Luca Andriotto
- * ========================================
+/* =========================================================================
+ * Project01-1, Luca Andriotto, Matteo Cavicchioli, Alessandro Pirelli
+ * =========================================================================
 */
 
 #ifndef __I2C_H
@@ -79,8 +79,5 @@
     ErrorCode I2C_Peripheral_WriteRegister(uint8_t device_address,
                                     uint8_t register_address,
                                     uint8_t data);
-
-
-
 
 #endif

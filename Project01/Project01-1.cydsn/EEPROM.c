@@ -1,3 +1,8 @@
+/* =========================================================================
+ * Project01-1, Luca Andriotto, Matteo Cavicchioli, Alessandro Pirelli
+ * =========================================================================
+*/
+
 #include "EEPROM.h"
 
 ErrorCode I2C_EXT_EEPROM_WriteRegister(uint8_t device_address,
@@ -113,7 +118,7 @@ ErrorCode I2C_EXT_EEPROM_ReadRegisterMulti(uint8_t device_address,
 
     }
 
-ErrorCode I2C_EXT_EEPROM_Reset(uint8_t device_address, uint8_t pages)
+ErrorCode I2C_EXT_EEPROM_Reset(uint8_t device_address, uint16_t pages)
     {
         uint8_t in[512] = {};
 
@@ -126,7 +131,16 @@ ErrorCode I2C_EXT_EEPROM_Reset(uint8_t device_address, uint8_t pages)
                                                 in);
             CyDelay(5);
         }
-
+        
+        in[0] = '%';
+        in[1] = '!';
+        
+        I2C_EXT_EEPROM_WriteRegisterMulti(device_address,
+                                            0xFF,
+                                            0xFC,
+                                            2,
+                                            in);
+    
         return NO_ERROR;
 
     }
@@ -205,9 +219,9 @@ ErrorCode I2C_EXT_EEPROM_WriteWord(uint8_t* word){
         I2C_EXT_EEPROM_WriteRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
                                                 (eeprom_index >> 8) & 0xff,
                                                 (eeprom_index) & 0xff,
-                                                potential_bytes - (potential_bytes % BYTE_TO_READ_PER_LEVEL),
+                                                potential_bytes - (potential_bytes % BYTE_TO_READ_PER_LEVEL),   // writing last 12 bytes
                                                 word);
-        eeprom_index += potential_bytes;
+        eeprom_index += potential_bytes - (potential_bytes % BYTE_TO_READ_PER_LEVEL);
     }
 
     CyDelay(5);
@@ -218,17 +232,17 @@ ErrorCode I2C_EXT_EEPROM_WriteWord(uint8_t* word){
 uint8_t I2C_EXT_EEPROM_First_Index(uint8_t* word){
     
     uint8_t count = 0;
-    
     uint8_t i;
+    
     // Ciclo per tutta la dimensione della parola
-    for (i = 20; i > 0; i--){
-        for (uint8_t j = 0; j < BYTE_TO_TRANSFER; j++){
-            // Modificare il parametro sulla base di cosa viene restituito dall'accelerometro quando incompleto.
-            if (word[j+i*6] == 0) count ++;
-        }
+    for (i = LEVEL_TO_READ; i > 0; i--){
+        for (uint8_t j = 0; j < BYTE_TO_TRANSFER; j++)
+            if (!word[j+i*BYTE_TO_TRANSFER]) count ++;
+        
         if (count < BYTE_TO_TRANSFER) return (i + 1)*BYTE_TO_TRANSFER;
         else count = 0;
     }
+    
     return BYTE_TO_TRANSFER;
     
 }

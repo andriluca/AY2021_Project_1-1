@@ -158,6 +158,16 @@ void doStopping(uint8_t reading);
 void doSaving(uint8_t reading);
 
 /*****************************************************************************\
+ * Function:    doToggle
+ * Returns:     Void
+ * Inputs: reading: True when EEPROM reading is required
+ * Description: 
+ *     Toggling data saving and acquisition.
+\*****************************************************************************/
+
+void doToggle();
+
+/*****************************************************************************\
  * Function:    doHandshake
  * Returns:     Void
  * Description: 
@@ -310,20 +320,32 @@ void init()
 
     I2C_Peripheral_Start();
     CyDelay(5);                 // I2C Boot
+    // Checking EEPROM Status
+    uint8_t in[2];
+    I2C_EXT_EEPROM_ReadRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
+                                    0xFF,
+                                    0xFC,
+                                    2,
+                                    in);
+    
+    if(!(in[0] == '%' && in[1] == '!')) 
+        doEEPROMReset();
 
-    if((settings & ESAV_STATUS) >> 5)
-    {
+    if(settings & ESAV_STATUS){
+        
         temp = 1;
         LED_Start();
         I2C_LIS3DH_Start(settings);
         ISR_T_StartEx(TEMP_ISR);
         ISR_ACC_StartEx(WTM_ISR);
+        
     }
-    else
-    {
+    else{
+        
         temp = 0;
         ISR_ACC_Stop();
         LED_Stop();
+        
     }
 
     TIMER_RESET_Start();
@@ -334,12 +356,21 @@ void init()
 
 
     // Setup variables
-    fifo_level = 0;     //
-    outIndex = INT_EEPROM_ReadByte(INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_L) 
-                | (INT_EEPROM_ReadByte(INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_H) << 8);       //usato in writeeeprom per tenere indirizzo attuale
-    eeprom_index = 0;   // primo indirizzo eeprom disponibile
-    eeprom_reset = 0;   // per resettare la eeprom
-    pages = 1;          // da 0x00 a 0x80 è già una pagina scritta
+    fifo_level = 0;
+    uint8_t eeprom_index_arr[2];
+    I2C_EXT_EEPROM_ReadRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
+                                0xFF,
+                                0xFE,
+                                2,
+                                eeprom_index_arr);
+    CyDelay(5);
+    
+    eeprom_index = (uint16_t)(eeprom_index_arr[1] << 8) | eeprom_index_arr[0];
+//    outIndex = INT_EEPROM_ReadByte(INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_L) 
+//                | (INT_EEPROM_ReadByte(INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_H) << 8);      // usato in writeeeprom per tenere indirizzo attuale
+    // eeprom_index = 0;                                                                               // primo indirizzo eeprom disponibile
+    eeprom_reset = 0;                                                                               // per resettare la eeprom
+    pages = 1;
     full_eeprom = 0;
     comm_rec = 0;
     fifo_write = 0;
@@ -360,13 +391,11 @@ void loop(){
     for(;;)
     {
         // Controlling the received byte
-        if(onByteReceived())    
-            doByteReceived();
+        if(onByteReceived())    doByteReceived();
         
         // Controlling each case
         // 1. Stopping character received
-        if(onStopping())
-            doStopping(EXT_EEPROM_NO_RESETTING);
+        if(onStopping())        doStopping(EXT_EEPROM_NO_RESETTING);
         
         // 2. Saving character received
         if(onSaving())          doSaving(EXT_EEPROM_NO_RESETTING);
@@ -390,7 +419,7 @@ void loop(){
         if (onWriteEEPROM())    doWriteEEPROM();
         
         // Handling BUILT-IN LED blinking
-        onFullEEPROM() ? LED_BlinkFast() : LED_BlinkSlow();
+        if(onFullEEPROM())      doFullEEPROM();
 
         // Handling Button releasing
         if (onButtonReleased()) doButtonReleased();
@@ -409,60 +438,71 @@ _Bool onByteReceived(){
 
 _Bool onStopping(){
 
-    return onByteReceived() && msg == 's';
+    return onByteReceived() 
+    && msg == 's';
 
 }
 
 _Bool onSaving(){
 
-    return onByteReceived() && msg == 'b' && !full_eeprom;
+    return onByteReceived() 
+    && msg == 'b'
+    && !full_eeprom;
 
 }
 
 _Bool onHandshake(){
     
-    return onByteReceived() && msg == 'h';
+    return onByteReceived() 
+    && msg == 'h';
     
 }
 
 _Bool onChangeConfig(){
     
-    return onByteReceived() && msg == 'c';
+    return onByteReceived() 
+    && msg == 'c';
 
 }
 
 _Bool onVisualizing(){
     
-    return onByteReceived() && msg == 'v';
+    return onByteReceived() 
+    && msg == 'v';
 
 }
 
 _Bool onTemperature(){
     
-    return t_isr        // quando
-    && temp             // enable
-    // && !wtm 
+    return t_isr        // When ISR is triggered
+    && temp             // Enable control
     && !fifo_write 
-    && !fifo_read;
+    && !fifo_read
+    && !full_eeprom;
 
 }
 
 _Bool onWatermark(){
     
     return wtm 
-            && !fifo_write && !fifo_read;
+    && !fifo_write 
+    && !fifo_read
+    && !full_eeprom;
 
 }
 
 _Bool onWriteEEPROM(){
     
-    return !wtm && fifo_write && !full_eeprom;
+    return !wtm 
+    && fifo_write 
+    && !full_eeprom;
 
 }
 
 _Bool onFullEEPROM(){
     
-    return full_eeprom && !fifo_write;
+    return full_eeprom 
+    && !fifo_write;
 
 }
 
@@ -490,7 +530,8 @@ _Bool onButtonReleased(){
 void doByteReceived(){
     
     msg = UART_ReadRxData();
-
+    UART_ClearRxBuffer();
+    
 }
 
 void doStopping(uint8_t resetting){
@@ -499,8 +540,8 @@ void doStopping(uint8_t resetting){
     temp = 0;
     // Reading configuration byte
     settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
-    // Saving bit toggle
-    settings &= (0x1F);
+    // Saving toggled bit
+    settings &= ~(1 << ESAV_STATUS_LSB);
     INT_EEPROM_UpdateTemperature();
     INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
     // Disabling acceleration reading ISR.
@@ -509,6 +550,7 @@ void doStopping(uint8_t resetting){
     LED_Stop();
     // Discarding old data
     if(resetting) I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);
+    
     msg = ' ';
     comm_rec = 0;
 }
@@ -517,13 +559,39 @@ void doSaving(uint8_t resetting){
 
     // Reading configuration byte
     settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
-    // Saving bit toggle
-    settings  |= (0x20);
+    // Saving toggled bit
+    settings  |= (1 << ESAV_STATUS_LSB);
     INT_EEPROM_UpdateTemperature();
     INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
     restart();
     // Discarding old data
     if(resetting) I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);
+    
+    msg = ' ';
+    comm_rec = 0;
+}
+
+void doToggle(){
+    
+    // Reading configuration byte
+    uint8_t new_settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
+    
+    // Saving toggled bit
+    new_settings ^= (1 << ESAV_STATUS_LSB);
+    INT_EEPROM_UpdateTemperature();
+    INT_EEPROM_WriteByte(new_settings, CONFIG_REGISTER);
+    
+    // Checking if saving or stopping
+    if (new_settings & (1 << ESAV_STATUS_LSB)) restart();
+    else {
+        // Disabling temperature data saving.
+        temp = 0;
+        // Disabling acceleration reading ISR.
+        ISR_ACC_Stop();
+        wtm = WTM_LOW;
+        LED_Stop();
+    }
+    
     msg = ' ';
     comm_rec = 0;
 }
@@ -555,7 +623,7 @@ void doHandshake(){
     
     parameters[3] ? UART_PutString("ON\n") : UART_PutString("OFF\n");
 
-    msg=' ';
+    msg = ' ';
     comm_rec = 0;
 
 }
@@ -565,78 +633,22 @@ void doChangeConfig(){
     uint8_t new_settings;
     // Waiting the Configuration Byte.
     comm_rec = 0;
-    while(comm_rec == 0);
+    while(!comm_rec);
 
     // Reading settings
     new_settings = UART_ReadRxData();
-    
-    // Updating FSR Register
-    switch(new_settings & FSR)
-    {
-        case LIS3DH_FS_02_CB:
-            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-                 LIS3DH_CTRL_REG4,
-                 LIS3DH_SETUP_02_CTRL_REG4);
-            break;
-        case LIS3DH_FS_04_CB:
-            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-                 LIS3DH_CTRL_REG4,
-                 LIS3DH_SETUP_04_CTRL_REG4);
-            break;
-        case LIS3DH_FS_08_CB:
-            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-                 LIS3DH_CTRL_REG4,
-                 LIS3DH_SETUP_08_CTRL_REG4);
-            break;
-        case LIS3DH_FS_16_CB:
-            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-                 LIS3DH_CTRL_REG4,
-                 LIS3DH_SETUP_16_CTRL_REG4);
-            break;
-        default:
-            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-                 LIS3DH_CTRL_REG4,
-                 LIS3DH_SETUP_02_CTRL_REG4);
-            break;
-    }
+    UART_ClearRxBuffer();
 
-    // Updating ODR Register
-    switch((new_settings & ODR) >> 2)
-    {
-        case LIS3DH_ODR_01_CB:
-            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-                 LIS3DH_CTRL_REG1,
-                 LIS3DH_SETUP_01_CTRL_REG1);
-            break;
-        case LIS3DH_ODR_10_CB:
-            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-                 LIS3DH_CTRL_REG1,
-                 LIS3DH_SETUP_10_CTRL_REG1);
-            break;
-        case LIS3DH_ODR_25_CB:
-            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-                 LIS3DH_CTRL_REG1,
-                 LIS3DH_SETUP_25_CTRL_REG1);
-            break;
-        case LIS3DH_ODR_50_CB:
-            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-                 LIS3DH_CTRL_REG1,
-                 LIS3DH_SETUP_50_CTRL_REG1);
-            break;
-        default:
-            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-                 LIS3DH_CTRL_REG1,
-                 LIS3DH_SETUP_01_CTRL_REG1);
-            break;
-    }
+    // Initializing accelerometer with new settings
+    I2C_LIS3DH_Start(new_settings);
     
     // Updating Saving Status Bit
-    (new_settings & ESAV_STATUS) >> 5 ? doSaving(EXT_EEPROM_RESETTING) : doStopping(EXT_EEPROM_RESETTING);
+    (new_settings & ESAV_STATUS) >> ESAV_STATUS_LSB ? doSaving(EXT_EEPROM_RESETTING) : doStopping(EXT_EEPROM_RESETTING);
     
     INT_EEPROM_UpdateTemperature();
     INT_EEPROM_WriteByte(new_settings, CONFIG_REGISTER);
     
-    msg=' ';
+    msg = ' ';
     comm_rec = 0;
 }
 
@@ -645,9 +657,10 @@ void doVisualizing(){
     doStopping(EXT_EEPROM_NO_RESETTING);
     doReadEEPROM();
     doEEPROMReset();
-    // Check if memory is Full
-    if(full_eeprom) full_eeprom = 0;
-    msg=' ';
+    // Check if memory was Full
+    if(full_eeprom) full_eeprom = !full_eeprom;
+    
+    msg = ' ';
     comm_rec = 0;
     
 }
@@ -664,7 +677,7 @@ void doTemperature(){
     temperature[index_temp]     = (uint8_t)(temperature32 & 0xFF); //lsb
 
     index_temp = index_temp + 2;
-    fifo_level ++;
+    fifo_level++;
     t_isr = 0;
 
 }
@@ -676,7 +689,7 @@ void doWatermark(){
     index_temp = 0;
     offset = 0;
     fifo_write = 1;
-    wtm = 0;
+    wtm = WTM_LOW;
 
 }
 
@@ -684,20 +697,40 @@ void doWriteEEPROM(){
     
     I2C_EXT_EEPROM_WriteWord(out);
 
-    outIndex = outIndex + EXT_EEPROM_WORD_SIZE - 2;
+    // outIndex = outIndex + EXT_EEPROM_WORD_SIZE - 2;
 
-    INT_EEPROM_UpdateTemperature();
-    INT_EEPROM_WriteByte((outIndex & 0xFF),
-                        INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_L);
-    INT_EEPROM_UpdateTemperature();
-    INT_EEPROM_WriteByte(((outIndex >> 8) & 0xFF),
-                        INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_H);
     
-    if (outIndex == 110) full_eeprom = 1;
+//    INT_EEPROM_WriteByte(((outIndex >> 8) & 0xFF),
+//                        INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_H);
+    
+    uint8_t eeprom_index_arr[2] = {0,0};
+    
+    if (
+    //    outIndex == EXT_EEPROM_OVERFLOW
+        eeprom_index == 0xFFFC
+    ) {
+        I2C_EXT_EEPROM_WriteRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
+                                    0xFF,
+                                    0xFE,
+                                    2,
+                                    eeprom_index_arr);
+        full_eeprom = 1;
+        
+    }
+    else {
+        eeprom_index_arr[0] = eeprom_index & 0xff;
+        eeprom_index_arr[1] = (eeprom_index >> 8) & 0xff; 
+        I2C_EXT_EEPROM_WriteRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
+                                    0xFF,
+                                    0xFE,
+                                    2,
+                                    eeprom_index_arr);
+    }
 
+    CyDelay(5);
     fifo_level = 0;
-    temp = 1;
     fifo_write = 0;
+    temp = 1;
 
 }
 
@@ -729,8 +762,10 @@ void doReadEEPROM(){
                                         outIndex_read & 0xFF,
                                         128,
                                         outEEPROM);
-        outIndex_read = outIndex_read + 128;
-        UART_PutArray(outEEPROM, 128);
+        outIndex_read += EXT_EEPROM_WORD_SIZE;
+        
+        i == EXT_EEPROM_TOTAL_WORDS - 1 ? UART_PutArray(outEEPROM, EXT_EEPROM_WORD_SIZE - 4) 
+                                        : UART_PutArray(outEEPROM, EXT_EEPROM_WORD_SIZE);
         
     }
     UART_PutArray(tail, 2);
@@ -744,51 +779,41 @@ void doReadEEPROM(){
 
 void doEEPROMReset(){
 
+    // Starting BUILT-IN LED
+    LED_Start();
+
+    // Changing BUILT-IN LED pattern
+    LED_BlinkEEPROM();
     I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);
+    
+    // Stopping BUILT-IN LED
+    LED_Stop();
+    
+    // Resetting variables
     pages = 1;
     eeprom_index = 0;
-    outIndex = 0;
-    INT_EEPROM_UpdateTemperature();
-    INT_EEPROM_WriteByte(outIndex, INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_L);
-    INT_EEPROM_UpdateTemperature();
-    INT_EEPROM_WriteByte(outIndex >> 8, INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_H);
+//    outIndex = 0;
+    uint8_t eeprom_index_arr[2] = {0,0};
+    I2C_EXT_EEPROM_WriteRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
+                                0xFF,
+                                0xFE,
+                                2,
+                                eeprom_index_arr);
+    CyDelay(5);
+    
+//    INT_EEPROM_UpdateTemperature();
+//    INT_EEPROM_WriteByte(outIndex, INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_L);
+//    INT_EEPROM_UpdateTemperature();
+//    INT_EEPROM_WriteByte(outIndex >> 8, INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_H);
     
 }
 
 void doButtonReleased(){
 
-    if(counted_seconds <  TOGGLE_DEVICE && counted_seconds > EMPTY_EEPROM){
-        // B o S
-        // lettura della configurazione attuale
-        settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
-        // Se siamo in saving
-        if (settings & 0x20){
-            temp = 0;
-            settings &= (0x1F);
-            INT_EEPROM_UpdateTemperature();
-            INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
-            ISR_ACC_Stop();
-            wtm = WTM_LOW;
-            LED_Stop();
-        }
-        else{
-            settings |= (0x20);
-            INT_EEPROM_UpdateTemperature();
-            INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
-            restart();
-        }
-    }
-    else if(counted_seconds < EMPTY_EEPROM){
-        // reset eeprom
-        I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);
-        eeprom_index = 0;
-        outIndex = 0;
-        INT_EEPROM_UpdateTemperature();
-        INT_EEPROM_WriteByte(outIndex, INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_L);
-        INT_EEPROM_UpdateTemperature();
-        INT_EEPROM_WriteByte(outIndex >> 8, INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_H);
-        pages = 1;
-    }
+    if (counted_seconds <  TOGGLE_DEVICE 
+        && counted_seconds > EMPTY_EEPROM)      doToggle();
+
+    else if (counted_seconds < EMPTY_EEPROM)    doEEPROMReset();
 
     counted_seconds = 0;
     isButtonReleased = 0;
@@ -850,14 +875,24 @@ void restart(){
 
     LED_Start();
     I2C_LIS3DH_Start(settings);
+    LED_BlinkSlow();
     ISR_T_StartEx(TEMP_ISR);
     ISR_ACC_StartEx(WTM_ISR);
   
     t_isr = 0;                  // abilita isr timer
     fifo_level = 0;             //
     index_temp = 0;
-    outIndex = INT_EEPROM_ReadByte(INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_L) 
-                | (INT_EEPROM_ReadByte(INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_H) << 8);       //usato in writeeeprom per tenere indirizzo attuale
+    uint8_t eeprom_index_arr[2];
+    I2C_EXT_EEPROM_ReadRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
+                                0xFF,
+                                0xFE,
+                                2,
+                                eeprom_index_arr);
+    CyDelay(5);
+    
+    eeprom_index = (uint16_t)((eeprom_index_arr[1] << 8) | eeprom_index_arr[0]);
+//    outIndex = INT_EEPROM_ReadByte(INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_L) 
+//                | (INT_EEPROM_ReadByte(INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_H) << 8);       //usato in writeeeprom per tenere indirizzo attuale
     eeprom_reset = 0;           // per resettare la eeprom
     full_eeprom = 0;
     temp = 1;
@@ -890,11 +925,8 @@ void doManageData(){
         }
 
     	// Populating the buffer with acceleration values.
-    	for(uint8_t i = 0; i < LIS3DH_RESOLUTION; i++){
-            
+    	for(uint8_t i = 0; i < LIS3DH_RESOLUTION; i++)     
     	    out[i + offset] = (uint8_t)((concatenated_Data >> 8*i) & 0xFF);
-    	
-        }
 
         // Populating the buffer with temperature values
         out[4 + offset] = temperature[index_temp];

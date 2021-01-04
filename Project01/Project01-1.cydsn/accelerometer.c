@@ -48,8 +48,8 @@ ErrorCode I2C_LIS3DH_Get_Raw_Data(uint16_t* data)
 
     //Storing data in temporary array.
     I2C_Peripheral_ReadRegisterMulti(LIS3DH_DEVICE_ADDRESS,
-                                    0x28,
-                                    6,
+                                    LIS3DH_OUT_X_L,
+                                    LIS3DH_OUT_N,
                                     sensorData);
 
 
@@ -82,7 +82,7 @@ uint16_t I2C_LIS3DH_SetConfig(uint8 settings, uint8* config)
             break;
     }
 
-    switch((settings & ODR) >> 2)
+    switch((settings & ODR) >> ODR_LSB)
     {
         case LIS3DH_ODR_01_CB:
             config[1] = LIS3DH_SETUP_01_CTRL_REG1;

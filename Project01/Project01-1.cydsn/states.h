@@ -25,11 +25,11 @@
     volatile uint8_t fifo_write;
     volatile uint8_t fifo_read;
     volatile uint8_t fifo_level;
-    volatile uint16_t outIndex;
+//    volatile uint16_t outIndex;
     volatile uint8_t full_eeprom;
     volatile uint8_t eeprom_reset;
 
-    volatile uint16_t eeprom_index;
+    uint16_t eeprom_index;
 
     uint8_t offset;
     int32_t temperature32;

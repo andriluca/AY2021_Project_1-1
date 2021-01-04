@@ -12,14 +12,11 @@
     // ************************************************************************** addresses **************************************************************************
     
     #define LIS3DH_DEVICE_ADDRESS       0x18                                    // Accelerometer's slave address (SAD).
-    #define LIS3DH_CTRL_REG1            0x20                                    // Register 1 --> setup Hi Res Mode (ODRs' selection happens in interrupt).
-    #define LIS3DH_CTRL_REG3            0x22
-    #define LIS3DH_CTRL_REG4            0x23                                    // Register 4 --> setup FS[1:0] + LIS3DH_SENSITIVITY (use masks below).
-    #define LIS3DH_CTRL_REG5            0x24
-    #define LIS3DH_CTRL_REG6            0x25
-    #define LIS3DH_FIFO_CTRL_REG        0x2e
-    #define LIS3DH_FIFO_SRC_REG         0x2f
-    #define LIS3DH_STATUS_REG           0x27                                    // Status Register.
+    #define LIS3DH_CTRL_REG1            0x20                                    // Register 1       --> setup Hi Res Mode (ODRs' selection happens in interrupt).
+    #define LIS3DH_CTRL_REG3            0x22                                    // Register 3       --> setup ISR type (WTM/OVR).
+    #define LIS3DH_CTRL_REG4            0x23                                    // Register 4       --> setup FS[1:0].
+    #define LIS3DH_CTRL_REG5            0x24                                    // Register 5       --> setup FIFO Enable.
+    #define LIS3DH_FIFO_CTRL_REG        0x2e                                    // FIFO Register    --> setup FIFO Mode.
     #define LIS3DH_OUT_X_L              0x28                                    // First output register.
     #define LIS3DH_OUT_Z_H              0x2d                                    // Last output register.
     #define LIS3DH_OUT_N                (LIS3DH_OUT_Z_H - LIS3DH_OUT_X_L + 1)   // Number of output registers (6).
@@ -28,9 +25,7 @@
     // ***************************************************************************************************************************************************************
     
     // *********************************************************************** registers masks ***********************************************************************
-        // Status Register
-    #define LIS3DH_ZYXDA_STATUS_REG             0x08    // New available data incoming from the register.
-
+    
     // Control Register 1
     #define LIS3DH_ENABLE_CTRL_REG1             0x07    // Partial mask: enabling the 3 axes.
     // GUI encode ODRs in 2 bits, so it's needed to add '+ 1' to the data coming from it.
@@ -38,9 +33,6 @@
     #define LIS3DH_ODR_10                       0x02    //  10Hz
     #define LIS3DH_ODR_25                       0x03    //  25Hz
     #define LIS3DH_ODR_50                       0x04    //  50Hz
-    
-    
-    // Use these masks in order to setup Control Register 1.
 
     // Control Register 3
     #define LIS3DH_WM_CTRL_REG3                 0x04
@@ -48,8 +40,9 @@
     #define LIS3DH_I1_ZYXDA_CTRL_REG3           0x10
 
     // Control Register 4
-    #define LIS3DH_NR_CTRL_REG4                 0x00    // Partial mask: the rest is modified by the if defined.
+    #define LIS3DH_NR_CTRL_REG4                 0x00
     #define LIS3DH_BDU_CTRL_REG4                0x80
+    
     // Normal mode Full Scales
     #define LIS3DH_FS_02                        0x00    // FS = [-2, +2]g   --> So =  4
     #define LIS3DH_FS_04                        0x01    // FS = [-4, +4]g   --> So =  8
@@ -57,16 +50,13 @@
     #define LIS3DH_FS_16                        0x03    // FS = [-16, +16]g --> So = 48
         
     // Control Register 5
-    #define LIS3DH_FIFO_EN_CTRL_REG5            0x40    // Enable the FIFO register
-
-    // Control Register 6
-    #define LIS3DH_INT_POLARITY_CTRL_REG6       0x02
+    #define LIS3DH_FIFO_EN_CTRL_REG5            0x40    // Enable the FIFO register.
 
     // FIFO Control Register
 	// Modes
     #define LIS3DH_STREAM_MODE_FIFO_CTRL_REG    0x80
     #define LIS3DH_FIFO_MODE_FIFO_CTRL_REG      0x40
-    #define LIS3DH_STF_MODE_FIFO_CTRL_REG       0xc0
+    #define LIS3DH_STF_MODE_FIFO_CTRL_REG       0xC0
     #define LIS3DH_BYPASS_FIFO_CTRL_REG         0x00
 
     // Number of levels
@@ -76,6 +66,7 @@
 
     // ************************************************************************* setup masks *************************************************************************
 
+    // Use these masks on Accelerometer startup.
     #define LIS3DH_SETUP_01_CTRL_REG1	(LIS3DH_ODR_01 << 4) | LIS3DH_ENABLE_CTRL_REG1  // Setup mask varying with odr
     #define LIS3DH_SETUP_10_CTRL_REG1	(LIS3DH_ODR_10 << 4) | LIS3DH_ENABLE_CTRL_REG1
     #define LIS3DH_SETUP_25_CTRL_REG1	(LIS3DH_ODR_25 << 4) | LIS3DH_ENABLE_CTRL_REG1
@@ -177,7 +168,7 @@
     #define EXT_EEPROM_DEVICE_ADDRESS                           0x50
     #define EXT_EEPROM_WORD_SIZE                                0x80                // Number of bytes per word.
     #define EXT_EEPROM_TOTAL_WORDS                              512
-    #define EXT_EEPROM_FULL                                     65536
+    #define EXT_EEPROM_OVERFLOW                                 110
     #define EXT_EEPROM_NO_RESETTING                             0
     #define EXT_EEPROM_RESETTING                                1
     #define BYTE_TO_READ_PER_LEVEL                              6
@@ -235,7 +226,5 @@
     #define BYTE_TO_TRANSFER            (1 + LIS3DH_RESOLUTION + 1)
     
     // ===============================================================================================================================================================
-    
-
 
 #endif

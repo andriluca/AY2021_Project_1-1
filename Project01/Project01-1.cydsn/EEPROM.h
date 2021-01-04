@@ -75,7 +75,7 @@
  *     Erasing EEPROM content from first to indicated page.
 \*****************************************************************************/
 
-    ErrorCode I2C_EXT_EEPROM_Reset(uint8_t device_address, uint8_t pages);
+    ErrorCode I2C_EXT_EEPROM_Reset(uint8_t device_address, uint16_t pages);
 
 /*****************************************************************************\
  * Function:    I2C_EXT_EEPROM_WriteWord
@@ -120,7 +120,7 @@
 
     void I2C_EXT_EEPROM_PrintWord(uint16_t word);
 
-    extern volatile uint16_t eeprom_index;
+    extern uint16_t eeprom_index;
     uint16_t pages;
     
 #endif
