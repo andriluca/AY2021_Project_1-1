@@ -290,7 +290,10 @@ class Home (BoxLayout):
     def PrintData(self, data, obj, grafico, sens, RGBA):
         data.remove_plot(grafico)
         grafico = LinePlot(line_width=1.5, color=RGBA)
-        grafico.points = [(x, float(obj[x])*sens) for x in range(len(obj))]
+        if len(obj)<500:
+            grafico.points = [(x, float(obj[x])*sens) for x in range(len(obj))]
+        else:
+            grafico.points = [(x, float(obj[x])*sens) for x in range(0,len(obj), 5)]    #plot can only hold 5000 values at once, if data has more just 1 in 5 values gets plotted (all data still stored in .csv)
         data.add_plot(grafico)
         data.xmax=len(obj)
         data.size_hint_x = 1 + (24*len(obj)/10752)          #max lenght data = 10752, graph size adjusted
