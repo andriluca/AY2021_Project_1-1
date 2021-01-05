@@ -290,6 +290,15 @@ void getParam(uint8_t settings, uint8_t* parameters);
 
 void doManageData();
 
+/*****************************************************************************\
+ * Function:    retrieve_pages
+ * Returns:     pages
+ * Description: 
+ *     Calculates page in which to start to write data
+\*****************************************************************************/
+
+uint16_t retrieve_pages(uint16_t eeprom_index);
+
 // ================================= END UTILS =================================
 
 
@@ -389,7 +398,7 @@ void init()
 //                | (INT_EEPROM_ReadByte(INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_H) << 8);      // usato in writeeeprom per tenere indirizzo attuale
     // eeprom_index = 0;                                                                               // primo indirizzo eeprom disponibile
     eeprom_reset = 0;                                                                               // per resettare la eeprom
-    pages = 1;
+    pages = retrieve_pages(eeprom_index);
     full_eeprom = 0;
     comm_rec = 0;
     fifo_write = 0;
@@ -957,7 +966,7 @@ void doManageData(){
     uint32_t concatenated_Data;
     uint16_t raw_data_16bit[3];
 
-    for (uint8_t level = 0; level < LEVEL_TO_READ + 1; level++){
+    for (uint8_t level = 0; level <= LEVEL_TO_READ + 1; level++){
 
         // Receiving raw data
     	I2C_LIS3DH_Get_Raw_Data(raw_data_16bit);
@@ -982,7 +991,18 @@ void doManageData(){
 
         index_temp = index_temp + 2;
     	offset = offset + 6;
-
+        
+        //if (level == LEVEL_TO_READ){
+        //    out[4 + offset] = temperature[index_temp];
+        //    out[5 + offset] = temperature[index_temp + 1];
+        //}
     }
     
 }
+
+uint16_t retrieve_pages(uint16_t eeprom_index){
+    uint16_t pages;
+    pages = (uint16_t)((eeprom_index/EXT_EEPROM_WORD_SIZE)+1);
+    return pages;
+}
+
