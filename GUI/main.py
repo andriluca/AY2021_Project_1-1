@@ -6,22 +6,15 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.spinner import Spinner
 from kivy.clock import Clock
-from kivy.uix.switch import Switch
-from kivy.uix.popup import Popup
-from  kivy.uix.progressbar import ProgressBar
-
-import numpy as np 
-import serial
-from serial.tools.list_ports import comports
-
 from kivy_garden.graph import Graph, LinePlot
 
-import time
+from serial.tools.list_ports import comports
 
+import numpy as np
+import serial
+import time
 import csv
 
-class MyPopup(Popup):
-    pb = ObjectProperty
 
 class ColLabel(Label):
     pass
@@ -35,9 +28,10 @@ class Home (BoxLayout):
     pr_bt=ObjectProperty()
     up_bt=ObjectProperty()
 
-    device = False
+    device = False          #flag for when device is plugged in
 
-    tog = False
+    tog = False             #flag used to toggle text
+
     def ToggleText(self, *args):
         if self.tog == False:
             self.msg.text = self.msg.text + "_"
@@ -46,17 +40,16 @@ class Home (BoxLayout):
             self.msg.text = self.msg.text.replace("_","")
             self.tog = False
 
-    def update (self, *args):                           #check if device is connected and abilitate GUI
-        
+    def update (self, *args):                               #check if device is connected and abilitate GUI 
         ports = [port.device for port in comports()]
         if not ports:
             self.com.values = []
             self.com.text="Ports"
-            self.conn_bt.disabled = True
+            self.conn_bt.disabled = True                    #disabilitate connection button if device isn't plugged in
             self.conn_bt.text = "Connect"
-            if self.device == True:
+            if self.device == True:                         #if device is unplugged while working
                 self.device = False
-                self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Device not connected"
+                self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Device not connected"      
                 self.col.cl=(1,0,0,1)
         else:
             self.com.values = ports
@@ -83,15 +76,15 @@ class Home (BoxLayout):
     def Connect(self):                               #connect to serial port
         if self.conn_bt.text == "Connect":
             port_name = self.com.text
-            self.ser = serial.Serial(port = port_name, baudrate = 19200)
+            self.ser = serial.Serial(port = port_name, baudrate = 115200)
             if self.ser.is_open:
                 uart = 'h'
                 uart = bytes(uart, 'utf-8')
-                self.ser.write(uart)
+                self.ser.write(uart)                #send 'h' command to 'greet' PSoC
                 self.ser.flushInput()
                 psoc = self.ser.readline()
-                psoc = psoc.decode(errors='ignore')            #mandatory, remember errors=ignore to avoid crash
-                if psoc == "Accelerometer Hello $$$\n": 
+                psoc = psoc.decode(errors='ignore')                             #mandatory, remember errors=ignore to avoid crash
+                if psoc == "Accelerometer Hello $$$\n":                         #custom message received from PSoC
                     self.device = True
                     self.conn_bt.text = "Disconnect"
                     self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Connected to " + self.com.text
@@ -117,54 +110,45 @@ class Home (BoxLayout):
             self.conn_bt.text = "Connect"
             self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Device disconnected"
             self.ser.close()
-            self.x_data.remove_plot(self.plot_x)        #clear graphs
-            self.y_data.remove_plot(self.plot_y)
-            self.z_data.remove_plot(self.plot_z)
+            self.acc_data.remove_plot(self.plot_x)        #clear graphs
+            self.acc_data.remove_plot(self.plot_y)
+            self.acc_data.remove_plot(self.plot_z)
             self.t_data.remove_plot(self.plot_t)
-            self.x_data.size_hint_x = 2
-            self.y_data.size_hint_x = 2
-            self.z_data.size_hint_x = 2
-            self.t_data.size_hint_x = 2
+            self.acc_data.size_hint_x = 1.1
+            self.t_data.size_hint_x = 1.1
             
             self.col.cl=(1,0,0,1)
 
-    def Work(self):                             #manage data acquisition and saving
+    def Work(self):                                     #manage data acquisition and saving
         if self.st_bt.text == 'Start Device':
             uart = 'b'
-            uart = bytes(uart, 'utf-8')
-            self.ser.write(uart)
+            uart = bytes(uart, 'utf-8') 
+            self.ser.write(uart)                        #send 'b' command to start device
             self.st_bt.text = 'Stop Device'         
             self.esav.text = 'ON'
             self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Data acquisition & Saving to EEPROM started"
         else:
             uart = 's'
             uart = bytes(uart, 'utf-8')
-            self.ser.write(uart)
+            self.ser.write(uart)                        #send 's' command to stop device
             self.st_bt.text = 'Start Device'           
             self.esav.text = 'OFF'
             self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Data acquisition & Saving to EEPROM stopped"
 
-    x_data=ObjectProperty(None)
-    y_data=ObjectProperty(None)
-    z_data=ObjectProperty(None)
+    acc_data=ObjectProperty(None)
     t_data=ObjectProperty(None)
 
-    plot_x=LinePlot(line_width=2, color=[1, 1, 1, 1])           #plots initialization needed
+    plot_x=LinePlot(line_width=2, color=[1, 0, 0, 1])           #plots initialization needed
     plot_x.points = [(x, x) for x in range(5)]
 
-    plot_y=LinePlot(line_width=2, color=[1, 1, 1, 1])
+    plot_y=LinePlot(line_width=2, color=[0, 1, 0, 1])
     plot_y.points = [(x, x) for x in range(5)]
 
-    plot_z=LinePlot(line_width=2, color=[1, 1, 1, 1])
+    plot_z=LinePlot(line_width=2, color=[0, 0, 1, 1])
     plot_z.points = [(x, x) for x in range(5)]
 
     plot_t=LinePlot(line_width=2, color=[1, 1, 1, 1])
     plot_t.points = [(x, x) for x in range(5)]
-
-    def AdjustGraph(self, grafico, abs_max, ticks):
-        grafico.ymin = -abs_max-1
-        grafico.ymax = abs_max+1
-        grafico.y_ticks_major = ticks
 
     def Print(self):                                            #print data      
         acc_x = []    
@@ -173,20 +157,20 @@ class Home (BoxLayout):
         temp = []
         uart = 'v'
         uart = bytes(uart, 'utf-8')
-        self.ser.write(uart)
+        self.ser.write(uart)                                    #send 'v' command to get data to print and save
 
         if self.tf.text == "Celsius":
-                self.t_data.ymin = -40
+                self.t_data.ymin = -10
                 self.t_data.ymax = 40
+                self.t_data.ylabel = "[Celsius]"
         else:
-            self.t_data.ymin = -4
+            self.t_data.ymin = 26
             self.t_data.ymax = 76
+            self.t_data.ylabel = "[Fahrenheit]"
 
         FSR = int(self.fsr.text.replace('+''-','').replace('g',''))
 
-        self.AdjustGraph(self.x_data,FSR,FSR//2)
-        self.AdjustGraph(self.y_data,FSR,FSR//2)
-        self.AdjustGraph(self.z_data,FSR,FSR//2)
+        self.AdjustGraph(self.acc_data,FSR,FSR//2)
 
         if FSR==2:                                
             sensitivity = 4/1000
@@ -197,17 +181,15 @@ class Home (BoxLayout):
         else:
             sensitivity = 48/1000
 
-        #self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Loading" 
-
         search_header = True
         stop = 0
-        while search_header == True:
+        while search_header == True:                                #look for header
             header = int.from_bytes(self.ser.read(1), 'big')
             stop = stop + 1
             if header == 0xA0:
                 reading = True
                 search_header=False      
-            if stop == 100:
+            if stop == 100:                                         #stop after 100 tries
                 reading = False
                 search_header = False
         
@@ -217,29 +199,25 @@ class Home (BoxLayout):
         if reading == True:           
             while reading == True:            
                 flag=self.ser.read(1) 
-                #self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Loading" + "."
                 tail = int.from_bytes(flag, 'big', signed=False)
-                if tail == 0xC0:
+                if tail == 0xC0:                                    #look for tail
                     end_read = end_read + 1                  
-                    if end_read == 2:
+                    if end_read == 2:                               #only if 2 consecutive tail bytes are read 
                         reading = False
                     else:
                         data.append(tail)
                 elif tail == 0x00:
                     no_data = no_data + 1
                     data.append(tail)
+                    end_read = 0
                 else:                   
                     no_data = 0
                     end_read = 0
                     data.append(tail)
 
-        #MyPopup().open()
-        #MyPopup().pb.max = (len(data) - no_data)//6
-
         if (len(data) - no_data)>5:
-            for i in range((len(data) - no_data)//6):                                           #range = number of packages
-                #MyPopup().pb.value = MyPopup().pb.value + 1
-                pack = bytearray(data[i*6:i*6+6])                                   #reads 1 package of 6 bytes at a time
+            for i in range((len(data) - no_data)//6):                               #range = number of packages
+                pack = bytearray(data[i*6:i*6+6])                                   #unpack 1 package of 6 bytes at a time
                 z = np.uint16(pack[0] | ((pack[1] & 0x03)<<8))
                 if (z&0x200):
                     z=z|0xFC00
@@ -255,12 +233,14 @@ class Home (BoxLayout):
                     x=x|0xFC00
                 x=np.int16(x)
 
-                acc_z.append(z)                       #first 2 bytes for x acc (10 bits)           
+                t=np.int16(pack[4] | (pack[5]<<8))
+
+                acc_z.append(z)                                  
                 acc_y.append(y)     
                 acc_x.append(x)
-                temp.append(np.int16(pack[4] | (pack[5]<<8))) 
+                temp.append(t) 
                 
-            acc_x_w = csv.writer(open('acc_x.csv', 'w')) 
+            acc_x_w = csv.writer(open('acc_x.csv', 'w'))                            #saving in .csv files
             acc_x_w.writerow(['X AXIS ACCELERATION'])
             acc_y_w = csv.writer(open('acc_y.csv', 'w')) 
             acc_y_w.writerow(['Y AXIS ACCELERATION']) 
@@ -272,51 +252,64 @@ class Home (BoxLayout):
             else:
                 temp_w.writerow(['TEMPERATURE IN °F'])      
             
-            for i in range(len(acc_x)):                                             #all data arrays have the same length
+            for i in range(len(acc_x)):                                                     #all data arrays have the same length
                 acc_x_w.writerow([str((acc_x[i])*sensitivity*9.8) + ' m/s^2'])              #in .csv files acc saved in [m/s^2]
                 acc_y_w.writerow([str((acc_y[i])*sensitivity*9.8) + ' m/s^2'])
                 acc_z_w.writerow([str((acc_z[i])*sensitivity*9.8) + ' m/s^2'])
                 if self.tf.text == "Celsius":
-                    temp_w.writerow([str((temp[i]*7.62*0.00001*90)-40) +' °C'])
-                    temp[i] = (temp[i]*7.62*0.00001*90)-40
+                    temp[i] = (temp[i]*0.0076)-50
+                    temp_w.writerow([str(temp[i]) +' °C'])
+                    
                 else:
-                    temp_w.writerow([str((temp[i]*7.62*0.00001*90)-8) +' °F']) 
-                    temp[i] = (temp[i]*7.62*0.00001*90)-8
-            self.plot_x = self.PrintData(self.x_data, acc_x, self.plot_x,sensitivity)       #accs plotted in [g]
-            self.plot_y = self.PrintData(self.y_data, acc_y, self.plot_y,sensitivity)
-            self.plot_z = self.PrintData(self.z_data, acc_z, self.plot_z, sensitivity)
-            if self.tf.text == 'Celsius':
-                self.plot_t = self.PrintData(self.t_data, temp, self.plot_t,1)
-            else:
-                self.plot_t = self.PrintData(self.t_data, temp, self.plot_t, 1)     #°F = °C + 32
+                    temp[i] = (temp[i]*0.0076)-14
+                    temp_w.writerow([str(temp[i]) +' °F']) 
 
-            if self.esav.text == "ON":          #when data gets printed device gets turned OFF
+            self.plot_x = self.PrintData(self.acc_data, acc_x, self.plot_x,sensitivity,[1,0,0,1])       #accs plotted in [g]
+            self.plot_y = self.PrintData(self.acc_data, acc_y, self.plot_y,sensitivity,[0,1,0,1])
+            self.plot_z = self.PrintData(self.acc_data, acc_z, self.plot_z, sensitivity,[0.2,0.4,1,1])
+            if self.tf.text == 'Celsius':
+                self.plot_t = self.PrintData(self.t_data, temp, self.plot_t,1,[.98,1,0,1])
+            else:
+                self.plot_t = self.PrintData(self.t_data, temp, self.plot_t, 1,[.98,1,0,1])     #°F = °C + 32
+
+            if self.esav.text == "ON":                       #when data gets printed device gets turned OFF
                 self.esav.text = "OFF"
             
             if self.st_bt.text == 'Stop Device':             #same as above
                 self.st_bt.text = 'Start Device'
 
-            
-            #MyPopup().pb.value = 0
-            self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Data printed & stored, device stopped"  
-            #MyPopup().dismiss()  
+            self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Data printed (Red = X, Green = Y, Blue = Z) & stored, device stopped"  
         else:
             self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "No data available"  
-            if self.esav.text == "ON":          #when data gets printed device gets turned OFF
+            if self.esav.text == "ON":                                                                              #when data gets printed device gets turned OFF
                 self.esav.text = "OFF"
             
-            if self.st_bt.text == 'Stop Device':             #same as above
+            if self.st_bt.text == 'Stop Device':                                                                    #same as above
                 self.st_bt.text = 'Start Device'
 
-    def PrintData(self, data, obj, grafico, sens):
+    def PrintData(self, data, obj, grafico, sens, RGBA):
         data.remove_plot(grafico)
-        grafico = LinePlot(line_width=2, color=[1, 1, 1, 1])
+        grafico = LinePlot(line_width=1.5, color=RGBA)
         grafico.points = [(x, float(obj[x])*sens) for x in range(len(obj))]
         data.add_plot(grafico)
         data.xmax=len(obj)
-        data.size_hint_x = 2 + (10 * len(obj)/10752)
+        data.size_hint_x = 1 + (24*len(obj)/10752)          #max lenght data = 10752, graph size adjusted
+        if self.sf.text == '1Hz':
+            data.x_ticks_major = 1
+        elif self.sf.text == '10Hz':
+            data.x_ticks_major = 10
+        elif self.sf.text == '25Hz': 
+            data.x_ticks_major = 25
+        else:
+            data.x_ticks_major = 50
         
         return grafico
+
+    
+    def AdjustGraph(self, grafico, abs_max, ticks):
+        grafico.ymin = -abs_max
+        grafico.ymax = abs_max
+        grafico.y_ticks_major = ticks
 
     fsr=ObjectProperty()
     sf=ObjectProperty()
@@ -330,12 +323,12 @@ class Home (BoxLayout):
             self.changing = True
             self.up_bt.text = "Update"
             self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Select new settings"
-            self.fsr.disabled = self.sf.disabled = self.esav.disabled = self.tf.disabled = False            #allow settings customization
+            self.fsr.disabled = self.sf.disabled = self.esav.disabled = self.tf.disabled = False                    #allow settings customization
 
         else:
             uart = 'c'
             uart = bytes(uart, 'utf-8')
-            self.ser.write(uart)
+            self.ser.write(uart)                                #send 'c' command to change settings
             
             FSR = self.fsr.text
             SF = self.sf.text
@@ -372,12 +365,10 @@ class Home (BoxLayout):
                 SAVE=0x00
                 self.st_bt.text = 'Start Device'
 
-            conf = FSR | SF | TF | SAVE | 0x00
+            conf = FSR | SF | TF | SAVE | 0x00          #create custom byte to send to PSoC to change config. registers
             conf = bytes([conf])
-            time.sleep(1)
+            time.sleep(.1)
             self.ser.write(conf)
-            #self.ser.close()
-            #self.ser.open()
 
             self.changing = False
             self.up_bt.text = "Change Settings"
@@ -400,7 +391,7 @@ class Home (BoxLayout):
 class GUIApp (App):
     def build(self):
         home = Home()
-        Clock.schedule_interval(home.update, 0.1)  #check ports every 0.1s
+        Clock.schedule_interval(home.update, 0.1)           #checks ports every 0.1s
         Clock.schedule_interval(home.ToggleText, 0.4)
         return home
 
