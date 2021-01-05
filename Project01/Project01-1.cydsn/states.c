@@ -327,6 +327,16 @@ void init()
                                     0xFC,
                                     2,
                                     in);
+    CyDelay(5);
+//    I2C_EXT_EEPROM_ReadRegister(EXT_EEPROM_DEVICE_ADDRESS,
+//                                    0xFF,
+//                                    0xFC,
+//                                    in);
+//    CyDelay(5);
+//    I2C_EXT_EEPROM_ReadRegister(EXT_EEPROM_DEVICE_ADDRESS,
+//                                    0xFF,
+//                                    0xFC,
+//                                    in + 1);
     
     if(!(in[0] == '%' && in[1] == '!')) 
         doEEPROMReset();
@@ -358,12 +368,21 @@ void init()
     // Setup variables
     fifo_level = 0;
     uint8_t eeprom_index_arr[2];
+    
     I2C_EXT_EEPROM_ReadRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
                                 0xFF,
                                 0xFE,
                                 2,
                                 eeprom_index_arr);
-    CyDelay(5);
+//    I2C_EXT_EEPROM_ReadRegister(EXT_EEPROM_DEVICE_ADDRESS,
+//                            0xFF,
+//                            0xFE,
+//                            eeprom_index_arr);
+//    CyDelay(5);
+//    I2C_EXT_EEPROM_ReadRegister(EXT_EEPROM_DEVICE_ADDRESS,
+//                            0xFF,
+//                            0xFF,
+//                            eeprom_index_arr + 1);
     
     eeprom_index = (uint16_t)(eeprom_index_arr[1] << 8) | eeprom_index_arr[0];
 //    outIndex = INT_EEPROM_ReadByte(INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_L) 
@@ -382,7 +401,7 @@ void init()
     boot = 1;
     wtm = WTM_LOW;
     t_isr = 0;
-    trigger = 1;
+    trigger = 0;
     
 }
 
@@ -391,38 +410,49 @@ void loop(){
     for(;;)
     {
         // Controlling the received byte
-        if(onByteReceived())    doByteReceived();
+        if(onByteReceived())    
+        doByteReceived();
         
         // Controlling each case
         // 1. Stopping character received
-        if(onStopping())        doStopping(EXT_EEPROM_NO_RESETTING);
+        if(onStopping())        
+        doStopping(EXT_EEPROM_NO_RESETTING);
         
         // 2. Saving character received
-        if(onSaving())          doSaving(EXT_EEPROM_NO_RESETTING);
+        if(onSaving())          
+        doSaving(EXT_EEPROM_NO_RESETTING);
         
         // 3. Handshake character received
-        if(onHandshake())       doHandshake();
+        if(onHandshake())       
+        doHandshake();
         
         // 4. Configuration and Config Buffer characters received
-        if(onChangeConfig())    doChangeConfig();
+        if(onChangeConfig())    
+        doChangeConfig();
         
         // 5. Visualizing character received
-        if(onVisualizing())     doVisualizing();
+        if(onVisualizing())     
+        doVisualizing();
         
         // Reading the Temperature
-        if (onTemperature())    doTemperature();
+        if (onTemperature())    
+        doTemperature();
         
         // Reading the FIFO
-        if (onWatermark())      doWatermark();
+        if (onWatermark())      
+        doWatermark();
         
         // Writing the EEPROM
-        if (onWriteEEPROM())    doWriteEEPROM();
+        if (onWriteEEPROM())   
+        doWriteEEPROM();
         
         // Handling BUILT-IN LED blinking
-        if(onFullEEPROM())      doFullEEPROM();
+        if(onFullEEPROM())      
+        doFullEEPROM();
 
         // Handling Button releasing
-        if (onButtonReleased()) doButtonReleased();
+        if (onButtonReleased()) 
+        doButtonReleased();
             
     }
     
@@ -530,7 +560,7 @@ _Bool onButtonReleased(){
 void doByteReceived(){
     
     msg = UART_ReadRxData();
-    UART_ClearRxBuffer();
+    //UART_ClearRxBuffer();
     
 }
 
@@ -637,7 +667,7 @@ void doChangeConfig(){
 
     // Reading settings
     new_settings = UART_ReadRxData();
-    UART_ClearRxBuffer();
+    //UART_ClearRxBuffer();
 
     // Initializing accelerometer with new settings
     I2C_LIS3DH_Start(new_settings);
@@ -667,6 +697,7 @@ void doVisualizing(){
 
 void doTemperature(){
     
+    t_isr = 0;
     temperature32 = ADC_Temp_Read32();                      
 
     if (temperature32 > ADC_MAX) temperature32 = ADC_MAX;
@@ -678,7 +709,7 @@ void doTemperature(){
 
     index_temp = index_temp + 2;
     fifo_level++;
-    t_isr = 0;
+
 
 }
 
@@ -730,7 +761,7 @@ void doWriteEEPROM(){
     CyDelay(5);
     fifo_level = 0;
     fifo_write = 0;
-    temp = 1;
+    //temp = 1;
 
 }
 
@@ -739,7 +770,7 @@ void doFullEEPROM(){
     doStopping(EXT_EEPROM_NO_RESETTING);
     LED_Start();
     LED_BlinkFast();
-
+    full_eeprom = 0;
 }
 
 void doReadEEPROM(){
@@ -793,13 +824,18 @@ void doEEPROMReset(){
     pages = 1;
     eeprom_index = 0;
 //    outIndex = 0;
-    uint8_t eeprom_index_arr[2] = {0,0};
+    uint8_t eeprom_index_resetting[2];
+    eeprom_index_resetting[0] = 0;
+    eeprom_index_resetting[1] = 0;
+    
+    CyDelay(5);
     I2C_EXT_EEPROM_WriteRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
                                 0xFF,
                                 0xFE,
                                 2,
-                                eeprom_index_arr);
+                                eeprom_index_resetting);
     CyDelay(5);
+    
     
 //    INT_EEPROM_UpdateTemperature();
 //    INT_EEPROM_WriteByte(outIndex, INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_L);
@@ -872,9 +908,11 @@ void restart(){
     T_TIMER_CLOCK_Start();
     T_TIMER_Start();
     
+    uint8_t new_settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
+    
 
     LED_Start();
-    I2C_LIS3DH_Start(settings);
+    I2C_LIS3DH_Start(new_settings);
     LED_BlinkSlow();
     ISR_T_StartEx(TEMP_ISR);
     ISR_ACC_StartEx(WTM_ISR);
@@ -890,6 +928,16 @@ void restart(){
                                 eeprom_index_arr);
     CyDelay(5);
     
+//    I2C_EXT_EEPROM_ReadRegister(EXT_EEPROM_DEVICE_ADDRESS,
+//                            0xFF,
+//                            0xFE,
+//                            eeprom_index_arr);
+//    CyDelay(5);
+//    I2C_EXT_EEPROM_ReadRegister(EXT_EEPROM_DEVICE_ADDRESS,
+//                            0xFF,
+//                            0xFF,
+//                            eeprom_index_arr + 1);
+
     eeprom_index = (uint16_t)((eeprom_index_arr[1] << 8) | eeprom_index_arr[0]);
 //    outIndex = INT_EEPROM_ReadByte(INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_L) 
 //                | (INT_EEPROM_ReadByte(INT_EEPROM_EXT_EEPROM_FIRST_AVAILABLE_ADDRESS_H) << 8);       //usato in writeeeprom per tenere indirizzo attuale
@@ -900,7 +948,7 @@ void restart(){
     fifo_read = 0;
     boot = 1;
     wtm = WTM_LOW;
-    trigger = 1;
+    trigger = 0;
 
 }
 
@@ -909,7 +957,7 @@ void doManageData(){
     uint32_t concatenated_Data;
     uint16_t raw_data_16bit[3];
 
-    for (uint8_t level = 0; level <= LEVEL_TO_READ + 1; level++){
+    for (uint8_t level = 0; level < LEVEL_TO_READ + 1; level++){
 
         // Receiving raw data
     	I2C_LIS3DH_Get_Raw_Data(raw_data_16bit);

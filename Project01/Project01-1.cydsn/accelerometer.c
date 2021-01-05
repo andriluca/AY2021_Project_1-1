@@ -38,6 +38,7 @@ ErrorCode I2C_LIS3DH_Start(uint8 setting)
     I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                  LIS3DH_FIFO_CTRL_REG,
                                  LIS3DH_SETUP_FIFO_CTRL_REG );  // select Stream mode and set WTM to 31 level
+    T_TIMER_WriteCounter(0);
     T_TIMER_WritePeriod(period);
     return NO_ERROR;
 }
@@ -102,7 +103,7 @@ uint16_t I2C_LIS3DH_SetConfig(uint8 settings, uint8* config)
             break;
         default:
             config[1] = LIS3DH_SETUP_01_CTRL_REG1;
-            temp_timer_period = 1000;
+            temp_timer_period = 500;
             break;
     }
     return temp_timer_period;
