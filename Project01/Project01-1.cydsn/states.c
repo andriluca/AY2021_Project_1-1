@@ -540,8 +540,8 @@ _Bool onWriteEEPROM(){
 
 _Bool onFullEEPROM(){
     
-    return full_eeprom 
-    && !fifo_write;
+    return full_eeprom; 
+    //&& !fifo_write;
 
 }
 
@@ -574,7 +574,7 @@ void doByteReceived(){
 }
 
 void doStopping(uint8_t resetting){
-
+    
     // Disabling temperature data saving.
     temp = 0;
     // Reading configuration byte
@@ -588,23 +588,26 @@ void doStopping(uint8_t resetting){
     wtm = WTM_LOW;
     LED_Stop();
     // Discarding old data
-    if(resetting) I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);
+    if(resetting) doEEPROMReset();
+    //if(resetting) I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);
     
     msg = ' ';
     comm_rec = 0;
 }
 
 void doSaving(uint8_t resetting){
-
+    
     // Reading configuration byte
     settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
     // Saving toggled bit
     settings  |= (1 << ESAV_STATUS_LSB);
     INT_EEPROM_UpdateTemperature();
     INT_EEPROM_WriteByte(settings, CONFIG_REGISTER);
-    restart();
     // Discarding old data
-    if(resetting) I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);
+    if(resetting) doEEPROMReset();
+    restart();
+    
+    //    if(resetting) I2C_EXT_EEPROM_Reset(EXT_EEPROM_DEVICE_ADDRESS, pages);
     
     msg = ' ';
     comm_rec = 0;
@@ -777,6 +780,7 @@ void doWriteEEPROM(){
 void doFullEEPROM(){
 
     doStopping(EXT_EEPROM_NO_RESETTING);
+    CyDelay(5);
     LED_Start();
     LED_BlinkFast();
     full_eeprom = 0;

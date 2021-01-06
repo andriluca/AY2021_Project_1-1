@@ -253,16 +253,16 @@ class Home (BoxLayout):
                 temp_w.writerow(['TEMPERATURE IN °F'])      
             
             for i in range(len(acc_x)):                                                     #all data arrays have the same length
-                acc_x_w.writerow([str((acc_x[i])*sensitivity*9.8) + ' m/s^2'])              #in .csv files acc saved in [m/s^2]
-                acc_y_w.writerow([str((acc_y[i])*sensitivity*9.8) + ' m/s^2'])
-                acc_z_w.writerow([str((acc_z[i])*sensitivity*9.8) + ' m/s^2'])
+                acc_x_w.writerow([str(round((acc_x[i])*sensitivity*9.8,2)) + ' m/s^2'])              #in .csv files acc saved in [m/s^2]
+                acc_y_w.writerow([str(round((acc_y[i])*sensitivity*9.8,2)) + ' m/s^2'])
+                acc_z_w.writerow([str(round((acc_z[i])*sensitivity*9.8,2)) + ' m/s^2'])
                 if self.tf.text == "Celsius":
                     temp[i] = (temp[i]*0.0076)-50
-                    temp_w.writerow([str(temp[i]) +' °C'])
+                    temp_w.writerow([str(round(temp[i],2)) +' °C'])
                     
                 else:
                     temp[i] = (temp[i]*0.0076)-14
-                    temp_w.writerow([str(temp[i]) +' °F']) 
+                    temp_w.writerow([str(round(temp[i],2)) +' °F']) 
 
             self.plot_x = self.PrintData(self.acc_data, acc_x, self.plot_x,sensitivity,[1,0,0,1])       #accs plotted in [g]
             self.plot_y = self.PrintData(self.acc_data, acc_y, self.plot_y,sensitivity,[0,1,0,1])
