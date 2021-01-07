@@ -6,10 +6,10 @@
 #include "interrupt.h"
 
 CY_ISR(WTM_ISR){
-
+    
     // Rejecting the first measurements (booting time)
-    if(!boot) wtm = WTM_HIGH;
-    boot = 0;
+    if(!boot) wtm = HIGH;
+    boot = LOW;
 
 }
 
@@ -17,7 +17,7 @@ CY_ISR(TEMP_ISR){
     
     T_TIMER_ReadStatusRegister();
     // ISR at double the sampling frequency
-    if(trigger) t_isr = 1;
+    if(trigger) t_isr = HIGH;
     trigger = !trigger;
 
 }
@@ -25,7 +25,7 @@ CY_ISR(TEMP_ISR){
 CY_ISR(COMM_GUI){
 
     // Setting flag
-    comm_rec = 1;
+    comm_rec = HIGH;
     
 }
 
@@ -34,6 +34,6 @@ CY_ISR_PROTO(COUNT_SEC){
     // Reset timer counter
     counted_seconds = TIMER_RESET_ReadCapture();
     // Setting flag
-    isButtonReleased = 1;
+    isButtonReleased = HIGH;
 
 }

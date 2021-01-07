@@ -216,7 +216,7 @@ class Home (BoxLayout):
                     data.append(tail)
 
         if (len(data) - no_data)>5:
-            for i in range((len(data) - no_data)//6):                               #range = number of packages
+            for i in range(1,(len(data) - no_data)//6):                             #range = number of packages, first measurements discarded because may be uncorect due to hardware timings
                 pack = bytearray(data[i*6:i*6+6])                                   #unpack 1 package of 6 bytes at a time
                 z = np.uint16(pack[0] | ((pack[1] & 0x03)<<8))
                 if (z&0x200):
@@ -298,7 +298,7 @@ class Home (BoxLayout):
         data.xmax=len(obj)
         data.size_hint_x = 1 + (24*len(obj)/10752)          #max lenght data = 10752, graph size adjusted
         if self.sf.text == '1Hz':
-            data.x_ticks_major = 1
+            data.x_ticks_major = 5
         elif self.sf.text == '10Hz':
             data.x_ticks_major = 10
         elif self.sf.text == '25Hz': 
