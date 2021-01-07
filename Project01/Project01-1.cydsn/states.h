@@ -31,7 +31,7 @@
 
     uint8_t offset;
     int32_t temperature32;
-    uint8_t temperature[(LEVEL_TO_READ + 1) * 2];
+    uint8_t temperature[(LEVEL_TO_READ + 1) * 5];
     uint8_t index_temp;
     uint8 settings;
     char msg;

@@ -918,7 +918,7 @@ void doManageData(){
     uint32_t concatenated_Data;
     uint16_t raw_data_16bit[3];
 
-    for (uint8_t level = 0; level <= LEVEL_TO_READ + 1; level++){
+    for (uint8_t level = 0; level < LEVEL_TO_READ + 1; level++){
 
         // Receiving raw data
     	I2C_LIS3DH_Get_Raw_Data(raw_data_16bit);
