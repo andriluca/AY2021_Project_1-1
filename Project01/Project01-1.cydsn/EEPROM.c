@@ -132,52 +132,18 @@ ErrorCode I2C_EXT_EEPROM_Reset(uint8_t device_address, uint16_t pages)
             CyDelay(5);
         }
         
-        in[0] = '%';
-        in[1] = '!';
+        in[0] = EXT_EEPROM_INTEGRITY_CHAR_1;
+        in[1] = EXT_EEPROM_INTEGRITY_CHAR_2;
         
         I2C_EXT_EEPROM_WriteRegisterMulti(device_address,
-                                            0xFF,
-                                            0xFC,
+                                            EXT_EEPROM_INTEGRITY_MSB,
+                                            EXT_EEPROM_INTEGRITY_LSB,
                                             2,
                                             in);
     
         return NO_ERROR;
 
     }
-
-
-
-void I2C_EXT_EEPROM_PrintAll(){
-    UART_PutString("Memory content:\r\n");
-    for (uint16_t i = 0; i < EXT_EEPROM_TOTAL_WORDS; i++)
-        I2C_EXT_EEPROM_PrintWord(i);
-}
-
-void I2C_EXT_EEPROM_PrintWord(uint16_t word){
-    char message[10];
-    uint8_t bytes_per_row = 6;
-    uint8_t out[EXT_EEPROM_WORD_SIZE];
-
-    // Reading the word
-    UART_PutString("Word: ");
-    sprintf(message, "%d", word);
-    UART_PutString(message);
-    UART_PutString("\r\n");
-    I2C_EXT_EEPROM_ReadRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
-                                        ((word*EXT_EEPROM_WORD_SIZE) >> 8) & 0xFF,
-                                        ((word*EXT_EEPROM_WORD_SIZE)) & 0xFF,
-                                        EXT_EEPROM_WORD_SIZE,
-                                        out);
-    for (uint8_t i = 0; i < EXT_EEPROM_WORD_SIZE; i++){
-
-        sprintf(message,"%.2X", out[i]);
-        UART_PutString(message);
-        UART_PutString("  ");
-        if(!((i+1)%bytes_per_row)) UART_PutString("\n");
-    }
-    UART_PutString("\r\n");
-
-}
 
 ErrorCode I2C_EXT_EEPROM_WriteWord(uint8_t* word){
 
@@ -245,4 +211,38 @@ uint8_t I2C_EXT_EEPROM_First_Index(uint8_t* word){
     
     return BYTE_TO_TRANSFER;
     
+}
+
+// =============================== DEBUG UART ===============================
+    
+void I2C_EXT_EEPROM_PrintAll(){
+    UART_PutString("Memory content:\r\n");
+    for (uint16_t i = 0; i < EXT_EEPROM_TOTAL_WORDS; i++)
+        I2C_EXT_EEPROM_PrintWord(i);
+}
+
+void I2C_EXT_EEPROM_PrintWord(uint16_t word){
+    char message[10];
+    uint8_t bytes_per_row = 6;
+    uint8_t out[EXT_EEPROM_WORD_SIZE];
+
+    // Reading the word
+    UART_PutString("Word: ");
+    sprintf(message, "%d", word);
+    UART_PutString(message);
+    UART_PutString("\r\n");
+    I2C_EXT_EEPROM_ReadRegisterMulti(EXT_EEPROM_DEVICE_ADDRESS,
+                                        ((word*EXT_EEPROM_WORD_SIZE) >> 8) & 0xFF,
+                                        ((word*EXT_EEPROM_WORD_SIZE)) & 0xFF,
+                                        EXT_EEPROM_WORD_SIZE,
+                                        out);
+    for (uint8_t i = 0; i < EXT_EEPROM_WORD_SIZE; i++){
+
+        sprintf(message,"%.2X", out[i]);
+        UART_PutString(message);
+        UART_PutString("  ");
+        if(!((i+1)%bytes_per_row)) UART_PutString("\n");
+    }
+    UART_PutString("\r\n");
+
 }

@@ -168,6 +168,13 @@
     #define EXT_EEPROM_RESETTING                                1
     #define BYTE_TO_READ_PER_LEVEL                              6
     #define BYTE_TO_EEPROM                                      4
+    #define EXT_EEPROM_FIRST_AV_ADDRESS_LSB                     0xFE
+    #define EXT_EEPROM_FIRST_AV_ADDRESS_MSB                     0xFF
+    #define EXT_EEPROM_INTEGRITY_MSB                            0xFF
+    #define EXT_EEPROM_INTEGRITY_LSB                            0xFC
+    #define EXT_EEPROM_LAST_ADDRESS_USABLE                      0xFFFC              // Actually last address usable is 0xFFFB
+    #define EXT_EEPROM_INTEGRITY_CHAR_1                         '%'
+    #define EXT_EEPROM_INTEGRITY_CHAR_2                         '!'
     
     // ===============================================================================================================================================================
     
