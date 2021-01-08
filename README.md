@@ -43,17 +43,15 @@ If y\_label on graphs is upside-down change value (y.angle) in line 428 in graph
 	1. Temp. Format: selects the temperature measurement unit.
 	1. EEPROM\_Saving: enables/disables EXT\_EEPROM data saving.
 
-### On-Board Controls 
+### On-Board Controls
 
 1. On-Board Button: if pressed for more than 1s toggles device state between Start/Stop (same as GUI), if pressed for more than 5s reset the EXT\_EEPROM and then restore the last configuration.
 
-### Feedbacks 
+### Feedbacks
 
 1. On-Board LED: it's toggled among four states.
-	1. Period 1s	, DC 0%: device is in a Stop condition (OFF / IDLE).
-	1. Period 1s	, DC 50%: device is working and saving data in EXT\_EEPROM.
-	1. Period 0.25s	, DC 50%: device is no longer sampling because EXT\_EEPROM is full.
-	1. Period 1s	, DC 100%: EXT\_EEPROM is resetting (the pulse duration depends on the n° of pages been written).
-1. External LED: switches on when EXT\_EEPROM is being read and data are sent through UART. 
-
-
+	1. Period 1s, DC 0%: device is in a Stop condition (OFF / IDLE).
+	1. Period 1s, DC 50%: device is working and saving data in EXT\_EEPROM.
+	1. Period 0.25s, DC 50%: device is no longer sampling because EXT\_EEPROM is full.
+	1. Period 1s, DC 100%: EXT\_EEPROM is resetting (the pulse duration depends on the n° of pages been written).
+1. External LED: switches on when EXT\_EEPROM is being read and data are sent through UART.

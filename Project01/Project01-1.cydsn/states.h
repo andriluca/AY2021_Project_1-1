@@ -19,7 +19,7 @@
 
     void init();
     void loop();
-    
+
     // Flag
     volatile uint8_t temp;
     volatile uint8_t fifo_write;
@@ -31,10 +31,10 @@
 
     uint8_t offset;
     int32_t temperature32;
-    uint8_t temperature[(LEVEL_TO_READ + 1) * 5];
+    uint8_t temperature[(LEVEL_TO_READ + 1) * 3];
     uint8_t index_temp;
     uint8 settings;
     char msg;
-    
-    
+
+
 #endif
