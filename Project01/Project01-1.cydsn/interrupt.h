@@ -16,8 +16,6 @@
     volatile uint8_t wtm;                   // Used to sync Accelerations sampling.
     volatile uint8_t comm_rec;              // Used in case of a byte being received.
     volatile uint8_t isButtonReleased;      // True when button has been released.
-    volatile uint8_t boot;                  // These last 2 flags are used during the booting time.
-    volatile uint8_t trigger;               
 
     volatile uint16_t counted_seconds;      // Storing the duration of button pressing.
 

@@ -86,23 +86,23 @@ uint16_t I2C_LIS3DH_SetConfig(uint8 settings, uint8* config)
     {
         case LIS3DH_ODR_01_CB:
             config[1] = LIS3DH_SETUP_01_CTRL_REG1;
-            temp_timer_period = 500;
+            temp_timer_period = T_TIMER_PERIOD_01;
             break;
         case LIS3DH_ODR_10_CB:
             config[1] = LIS3DH_SETUP_10_CTRL_REG1;
-            temp_timer_period = 50;
+            temp_timer_period = T_TIMER_PERIOD_10;
             break;
         case LIS3DH_ODR_25_CB:
             config[1] = LIS3DH_SETUP_25_CTRL_REG1;
-            temp_timer_period = 20;
+            temp_timer_period = T_TIMER_PERIOD_25;
             break;
         case LIS3DH_ODR_50_CB:
             config[1] = LIS3DH_SETUP_50_CTRL_REG1;
-            temp_timer_period = 10;
+            temp_timer_period = T_TIMER_PERIOD_50;
             break;
         default:
             config[1] = LIS3DH_SETUP_01_CTRL_REG1;
-            temp_timer_period = 500;
+            temp_timer_period = T_TIMER_PERIOD_01;
             break;
     }
     return temp_timer_period;

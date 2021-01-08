@@ -307,6 +307,7 @@ uint16_t retrieve_pages(uint16_t eeprom_index);
 void init()
 {
     CyGlobalIntEnable;
+    for (uint8_t i = 0; i < ((LEVEL_TO_READ + 1) * 5); i ++) temperature[i] = 0;
     // Setup peripherals
     UART_Start();
     T_TIMER_CLOCK_Start();
@@ -386,13 +387,9 @@ void init()
     fifo_write = LOW;
     fifo_read = LOW;    
     isButtonReleased = LOW;    
-    boot = HIGH;
     wtm = LOW;
     t_isr = LOW;
-    trigger = LOW;
-    
-    
-    
+       
 }
 
 void loop(){
@@ -671,6 +668,7 @@ void doVisualizing(){
 void doTemperature(){
     
     t_isr = LOW;
+    //trigger = LOW;
     
     // Sample temperature
     temperature32 = ADC_Temp_Read32();                                          
@@ -684,13 +682,20 @@ void doTemperature(){
                  
     index_temp = index_temp + 2;
     
+    
 }
 
 void doWatermark(){
     
+    uint8_t test;
+    I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS, 0x2f, &test);
+    test = (test & 0x1F);
     index_temp = 0;
     doManageData();
     index_temp = 0;         // Resetted again because in doManageData() it gets incremented
+    uint8_t test_2;
+    I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS, 0x2f, &test_2);
+    test_2 = (test_2 & 0x1F);
     offset = 0;
     fifo_write = HIGH;
     wtm = LOW;
@@ -907,9 +912,7 @@ void restart(){
     temp = HIGH;
     fifo_write = LOW;
     fifo_read = LOW;
-    boot = HIGH;
     wtm = LOW;
-    trigger = LOW;
 
 }
 

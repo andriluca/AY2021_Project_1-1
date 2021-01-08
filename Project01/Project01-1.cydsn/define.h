@@ -204,6 +204,11 @@
     
     #define ADC_MAX                     65535
     #define ADC_MIN                     0
+    #define T_TIMER_PERIOD_01           1000 * T_TIMER_SCALE_FACTOR
+    #define T_TIMER_PERIOD_10           100  * T_TIMER_SCALE_FACTOR
+    #define T_TIMER_PERIOD_25           40   * T_TIMER_SCALE_FACTOR     
+    #define T_TIMER_PERIOD_50           20   * T_TIMER_SCALE_FACTOR
+    #define T_TIMER_SCALE_FACTOR        0.9
 
     // ===============================================================================================================================================================
 
