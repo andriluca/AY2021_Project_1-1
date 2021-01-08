@@ -14,6 +14,7 @@ import numpy as np
 import serial
 import time
 import csv
+import os
 
 
 class ColLabel(Label):
@@ -151,6 +152,9 @@ class Home (BoxLayout):
     plot_t.points = [(x, x) for x in range(5)]
 
     def Print(self):                                            #print data      
+        newpath = os.getcwd() + '/' + time.strftime('%F')
+        if not os.path.exists(newpath):
+            os.makedirs(newpath)
         acc_x = []    
         acc_y = []
         acc_z = []
@@ -160,13 +164,15 @@ class Home (BoxLayout):
         self.ser.write(uart)                                    #send 'v' command to get data to print and save
 
         if self.tf.text == "Celsius":
-                self.t_data.ymin = -10
-                self.t_data.ymax = 40
-                self.t_data.ylabel = "[Celsius]"
+            self.t_data.ymin = -10
+            self.t_data.ymax = 40
+            self.t_data.ylabel = "[Celsius]"
+            self.t_data.y_ticks_major = 10
         else:
-            self.t_data.ymin = 26
-            self.t_data.ymax = 76
+            self.t_data.ymin = 14
+            self.t_data.ymax = 104
             self.t_data.ylabel = "[Fahrenheit]"
+            self.t_data.y_ticks_major = 15
 
         FSR = int(self.fsr.text.replace('+''-','').replace('g',''))
 
@@ -216,7 +222,7 @@ class Home (BoxLayout):
                     data.append(tail)
 
         if (len(data) - no_data)>5:
-            for i in range(1,(len(data) - no_data)//6):                             #range = number of packages, first measurements discarded because may be uncorect due to hardware timings
+            for i in range((len(data) - no_data)//6):                               #range = number of packages
                 pack = bytearray(data[i*6:i*6+6])                                   #unpack 1 package of 6 bytes at a time
                 z = np.uint16(pack[0] | ((pack[1] & 0x03)<<8))
                 if (z&0x200):
@@ -239,38 +245,29 @@ class Home (BoxLayout):
                 acc_y.append(y)     
                 acc_x.append(x)
                 temp.append(t) 
-                
-            acc_x_w = csv.writer(open('acc_x.csv', 'w'))                            #saving in .csv files
-            acc_x_w.writerow(['X AXIS ACCELERATION'])
-            acc_y_w = csv.writer(open('acc_y.csv', 'w')) 
-            acc_y_w.writerow(['Y AXIS ACCELERATION']) 
-            acc_z_w = csv.writer(open('acc_z.csv', 'w'))
-            acc_z_w.writerow(['Z AXIS ACCELERATION'])   
-            temp_w = csv.writer(open('temp.csv', 'w')) 
+            
+            time_stamp = time.strftime('%H-%M-%S')
+            name_file = '[' + time_stamp + ']data.csv'
+            data_w = csv.writer(open(os.path.join(newpath, name_file), 'w', newline=''), delimiter=";")                            #creating .csv file to save data
             if self.tf.text == "Celsius":
-                    temp_w.writerow(['TEMPERATURE IN °C'])
+                temp_label="TEMPERATURE [°C]"
             else:
-                temp_w.writerow(['TEMPERATURE IN °F'])      
+                temp_label="TEMPERATURE [°F]"  
+
+            data_w.writerow(("X AXIS ACCELERATION [m/s^2]","Y AXIS ACCELERATION [m/s^2]","Z AXIS ACCELERATION [m/s^2]",temp_label))
             
             for i in range(len(acc_x)):                                                     #all data arrays have the same length
-                acc_x_w.writerow([str(round((acc_x[i])*sensitivity*9.8,2)) + ' m/s^2'])              #in .csv files acc saved in [m/s^2]
-                acc_y_w.writerow([str(round((acc_y[i])*sensitivity*9.8,2)) + ' m/s^2'])
-                acc_z_w.writerow([str(round((acc_z[i])*sensitivity*9.8,2)) + ' m/s^2'])
-                if self.tf.text == "Celsius":
-                    temp[i] = (temp[i]*0.0076)-50
-                    temp_w.writerow([str(round(temp[i],2)) +' °C'])
-                    
+                if self.tf.text == "Celsius":                                               #first convert temp data in correct format 
+                    temp[i] = (temp[i]*0.0076)-50                 
                 else:
-                    temp[i] = (temp[i]*0.0076)-14
-                    temp_w.writerow([str(round(temp[i],2)) +' °F']) 
+                    temp[i] = (((temp[i]*0.0076)-50)*9/5)+32
 
-            self.plot_x = self.PrintData(self.acc_data, acc_x, self.plot_x,sensitivity,[1,0,0,1])       #accs plotted in [g]
+                data_w.writerow([str(round((acc_x[i])*sensitivity*9.8,2)), str(round((acc_y[i])*sensitivity*9.8,2)), str(round((acc_z[i])*sensitivity*9.8,2)), round(temp[i],2)])              #in .csv files acc saved in [m/s^2], all data rounded at second decimal                
+
+            self.plot_x = self.PrintData(self.acc_data, acc_x, self.plot_x,sensitivity,[1,0,0,1])                #plot data on graphs, accs plotted in [g]
             self.plot_y = self.PrintData(self.acc_data, acc_y, self.plot_y,sensitivity,[0,1,0,1])
             self.plot_z = self.PrintData(self.acc_data, acc_z, self.plot_z, sensitivity,[0.2,0.4,1,1])
-            if self.tf.text == 'Celsius':
-                self.plot_t = self.PrintData(self.t_data, temp, self.plot_t,1,[.98,1,0,1])
-            else:
-                self.plot_t = self.PrintData(self.t_data, temp, self.plot_t, 1,[.98,1,0,1])     #°F = °C + 32
+            self.plot_t = self.PrintData(self.t_data, temp, self.plot_t,1,[.98,1,0,1])
 
             if self.esav.text == "ON":                       #when data gets printed device gets turned OFF
                 self.esav.text = "OFF"
@@ -278,7 +275,7 @@ class Home (BoxLayout):
             if self.st_bt.text == 'Stop Device':             #same as above
                 self.st_bt.text = 'Start Device'
 
-            self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Data printed (Red = X, Green = Y, Blue = Z) & stored, device stopped"  
+            self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "Data printed (Red = X, Green = Y, Blue = Z) & stored, device stopped & EEPROM resetted"  
         else:
             self.msg.text = self.msg.text + "\n" + "[" + time.strftime('%H:%M:%S') + "] " + "No data available"  
             if self.esav.text == "ON":                                                                              #when data gets printed device gets turned OFF
@@ -297,7 +294,8 @@ class Home (BoxLayout):
         data.add_plot(grafico)
         data.xmax=len(obj)
         data.size_hint_x = 1 + (24*len(obj)/10752)          #max lenght data = 10752, graph size adjusted
-        if self.sf.text == '1Hz':
+        
+        if self.sf.text == '1Hz':                           #set ticks on ODR, each tick = 1s
             data.x_ticks_major = 5
         elif self.sf.text == '10Hz':
             data.x_ticks_major = 10
