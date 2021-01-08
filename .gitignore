@@ -29,4 +29,7 @@
 */*/__pycache__
 GUI/*/
 
+# Markdown
+*.pdf
+
 # End of https://www.gitignore.io/api/psoccreator
