@@ -7,18 +7,14 @@
 
 CY_ISR(WTM_ISR){
     
-    // Rejecting the first measurements (booting time)
-    if(!boot) wtm = HIGH;
-    boot = LOW;
+    wtm = HIGH;
 
 }
 
 CY_ISR(TEMP_ISR){
     
     T_TIMER_ReadStatusRegister();
-    // ISR at double the sampling frequency
-    if(trigger) t_isr = HIGH;
-    trigger = !trigger;
+    t_isr = HIGH;
 
 }
 
