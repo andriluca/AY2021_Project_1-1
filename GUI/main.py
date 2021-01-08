@@ -222,7 +222,7 @@ class Home (BoxLayout):
                     data.append(tail)
 
         if (len(data) - no_data)>5:
-            for i in range((len(data) - no_data)//6):                               #range = number of packages
+            for i in range(1,(len(data) - no_data)//6):                             #range = number of packages, discard first level because may be uncorrect
                 pack = bytearray(data[i*6:i*6+6])                                   #unpack 1 package of 6 bytes at a time
                 z = np.uint16(pack[0] | ((pack[1] & 0x03)<<8))
                 if (z&0x200):
