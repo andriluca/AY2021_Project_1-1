@@ -26,7 +26,10 @@
 
 # Python
 */*/__pycache__
-GUI/*/
+venv/
 
 # Markdown previews
 *.pdf
+
+# Output clear
+*.csv

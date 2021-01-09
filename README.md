@@ -5,6 +5,7 @@
 ### Software
 1. python 3.7.9
 1. PSoC Creator 4.4
+1. python-pip 20.3.3
 
 ### Hardware
 1. PSoC 5LP
@@ -21,13 +22,47 @@
 
 ### Dependencies
 
+#### Windows users
 For a basic installation it's required to run these commands on a prompt.
-
 ```shell
-pip install -r requirements.txt
-
+# 1. Installing virtualenv
+pip install virtualenv;
+# 2. Creating empty virtual environment
+mkdir venv && virtualenv venv;
+# 3. Activating virtual environment
+.\venv\Scripts\activate;
+# 4. Managing the requirements
+pip install -r win_requirements.txt;
 garden install graph
 ```
+
+### \*nix Users
+
+Be sure python-pip is installed on your sistem and that the user is a member of the group uucp or dialout.
+Run this block if something went wrong when running the program.
+*NB*: tested on an Artix linux machine with pacman as package manager. The user is asked to check for pip availability on his/her system.
+
+```shell
+sudo pacman -Syu
+sudo pacman -S python-pip
+
+sudo usermod -a -G uucp $USER
+```
+
+
+The procedure is identical. Dependencies are slightly different.
+```shell
+# 1. Installing virtualenv
+pip install virtualenv;
+# 2. Creating empty virtual environment
+mkdir venv && virtualenv venv;
+# 3. Activating virtual environment
+source ./venv/Scripts/activate;
+# 4. Managing the requirements
+pip install -r mac_gnu_requirements.txt;
+garden install graph
+```
+
 
 If y\_label on graphs is upside-down change value (y.angle) in line 428 in Graphs' init.
 
