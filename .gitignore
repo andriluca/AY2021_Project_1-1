@@ -14,7 +14,6 @@
 */*.cydsn/Export/*
 */*/codegentemp/*
 */*/Generated_Source/*
-*/*_datasheet.pdf
 */*.cydsn/*_timing.html
 */*.cydsn/*.cycdx
 */*.cydsn/*.cyfit
