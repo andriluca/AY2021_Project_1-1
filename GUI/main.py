@@ -152,7 +152,10 @@ class Home (BoxLayout):
     plot_t.points = [(x, x) for x in range(5)]
 
     def Print(self):                                            #print data      
-        newpath = os.getcwd() + '/' + time.strftime('%F')
+        path = os.getcwd() + '/' + 'DATA'
+        if not os.path.exists(path):
+            os.makedirs(path)
+        newpath = path + '/' + time.strftime('%F')
         if not os.path.exists(newpath):
             os.makedirs(newpath)
         acc_x = []    
