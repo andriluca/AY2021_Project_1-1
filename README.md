@@ -41,8 +41,8 @@ If y\_label on graphs is upside-down change value (y.angle) in line 428 in Graph
 | --- 	| ---                       | ---                                                                                                                                                                                                                 |
 | 1 	| **Ports**              | Selects the COM port to which the device is connected.                                                                                                                                                              |
 | 2 	| **Conn./Disconnect**   | Toggles the PSoC-GUI communication.                                                                                                                                                                                 |
-| 3 	| **Start/Stop Device**  | Toggles data acquisition (N.B if Stop Device is pressed, the EEPROM\_index is maintained).                                                                                                                          |
-| 4 	| **Print Data**         | Returns the stored data in graphical format and automatically saves the session into a [\%H-\%M-\%S]data.csv. Data are stored in directories named as \%F. Once done device is turned off and EXT\_EEPROM is reset. |
+| 3 	| **Start/Stop Device**  | Toggles data acquisition (N.B if Stop Device is pressed, the previous acquisitions are still maintained).                                                                                                                          |
+| 4 	| **Print Data**         | Returns the stored data in graphical format and automatically saves the session into a *[\%H-\%M-\%S]data.csv*. Data are stored in directories named as *\%F/*. Once done device is turned off and EXT\_EEPROM is reset. |
 | 5 	| **Change Settings**    | Allows to select different configurations according to user request, afterwards resets EXT\_EEPROM to avoid data inconsistencies.                                                                                   |
 | 6 	| **FSR**                | Full scale range that goes from ±2g to ±16g.                                                                                                                                                                        |
 | 7 	| **ODR**                | Output data rate that can be selected as 1Hz, 10Hz, 25Hz, 50Hz.                                                                                                                                                     |
@@ -61,3 +61,16 @@ If y\_label on graphs is upside-down change value (y.angle) in line 428 in Graph
 	1. *Period 0.25s, DC 50%*: device is no longer sampling because EXT\_EEPROM is full.
 	1. *Period 1s, DC 100%*: EXT\_EEPROM is resetting (the pulse duration depends on the n° of pages been written).
 1. **External LED**: switches on when EXT\_EEPROM is being read and data are sent through UART.
+
+
+## For more technical info
+
+### Datasheets
+- ![Datasheet TMP36](./Refs/TMP_DATASHEET.pdf)
+- ![Datasheet LIS3DH](./Refs/LIS3DH_DATASHEET.pdf)
+- ![Datasheet EEPROM](./Refs/EEPROM_DATASHEET.pdf)
+
+
+### Application Notes
+- ![Application Notes LIS3DH](./Refs/LIS3DH_APPLICATION_NOTES.pdf)
+- ![Application Notes EEPROM](./Refs/EEPROM_APPLICATION_NOTES.pdf)
