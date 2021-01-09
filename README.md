@@ -66,11 +66,11 @@ If y\_label on graphs is upside-down change value (y.angle) in line 428 in Graph
 ## For more technical info
 
 ### Datasheets
-- ![Datasheet TMP36](./Refs/TMP_DATASHEET.pdf)
-- ![Datasheet LIS3DH](./Refs/LIS3DH_DATASHEET.pdf)
-- ![Datasheet EEPROM](./Refs/EEPROM_DATASHEET.pdf)
+- [Datasheet TMP36](https://www.analog.com/media/en/technical-documentation/data-sheets/TMP35_36_37.pdf)
+- [Datasheet LIS3DH](https://www.st.com/resource/en/datasheet/lis3dh.pdf)
+- [Datasheet EEPROM](https://ww1.microchip.com/downloads/en/DeviceDoc/21754M.pdf)
 
 
 ### Application Notes
-- ![Application Notes LIS3DH](./Refs/LIS3DH_APPLICATION_NOTES.pdf)
-- ![Application Notes EEPROM](./Refs/EEPROM_APPLICATION_NOTES.pdf)
+- [Application Notes LIS3DH](https://www.st.com/resource/en/application_note/cd00290365-lis3dh-mems-digital-output-motion-sensor-ultralowpower-highperformance-3axis-nano-accelerometer-stmicroelectronics.pdf)
+- [Application Notes EEPROM](http://ww1.microchip.com/downloads/en/AppNotes/01028B.pdf)
