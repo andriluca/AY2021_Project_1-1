@@ -36,11 +36,12 @@ pip install -r win_requirements.txt;
 garden install graph
 ```
 
-### \*nix Users
+### \*nix users
 
 Be sure python-pip is installed on your sistem and that the user is a member of the group uucp or dialout.
 Run this block if something went wrong when running the program.
-*NB*: tested on an Artix linux machine with pacman as package manager. The user is asked to check for pip availability on his/her system.
+
+*NB*: tested on an Artix linux machine with pacman as package manager and an iMac running macOS Big Sur. The user is kindly asked to check for pip availability on his/her system.
 
 ```shell
 sudo pacman -Syu
@@ -61,6 +62,12 @@ source ./venv/Scripts/activate;
 # 4. Managing the requirements
 pip install -r mac_gnu_requirements.txt;
 garden install graph
+```
+
+For both the kind of system it's necessary to run the following command in order to run the GUI program.
+
+```shell
+python GUI/main.py
 ```
 
 
@@ -101,11 +108,11 @@ If y\_label on graphs is upside-down change value (y.angle) in line 428 in Graph
 ## For more technical info
 
 ### Datasheets
-- [Datasheet TMP36](https://www.analog.com/media/en/technical-documentation/data-sheets/TMP35_36_37.pdf)
-- [Datasheet LIS3DH](https://www.st.com/resource/en/datasheet/lis3dh.pdf)
-- [Datasheet EEPROM](https://ww1.microchip.com/downloads/en/DeviceDoc/21754M.pdf)
+- [TMP36](https://www.analog.com/media/en/technical-documentation/data-sheets/TMP35_36_37.pdf)
+- [LIS3DH](https://www.st.com/resource/en/datasheet/lis3dh.pdf)
+- [EEPROM](https://ww1.microchip.com/downloads/en/DeviceDoc/21754M.pdf)
 
 
 ### Application Notes
-- [Application Notes LIS3DH](https://www.st.com/resource/en/application_note/cd00290365-lis3dh-mems-digital-output-motion-sensor-ultralowpower-highperformance-3axis-nano-accelerometer-stmicroelectronics.pdf)
-- [Application Notes EEPROM](http://ww1.microchip.com/downloads/en/AppNotes/01028B.pdf)
+- [LIS3DH](https://www.st.com/resource/en/application_note/cd00290365-lis3dh-mems-digital-output-motion-sensor-ultralowpower-highperformance-3axis-nano-accelerometer-stmicroelectronics.pdf)
+- [EEPROM](http://ww1.microchip.com/downloads/en/AppNotes/01028B.pdf)
