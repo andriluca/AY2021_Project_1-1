@@ -15,6 +15,10 @@
 
 ## Installation
 
+### Circuit
+
+![Electrical Schematic](./Images/Schematico.png)
+
 ### Dependencies
 
 For a basic installation it's required to run these commands on a prompt.
