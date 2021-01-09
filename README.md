@@ -15,6 +15,8 @@
 
 ## Installation
 
+### Dependencies
+
 For a basic installation it's required to run these commands on a prompt.
 
 ```shell
@@ -23,7 +25,7 @@ pip install -r requirements.txt
 garden install graph
 ```
 
-If y\_label on graphs is upside-down change value (y.angle) in line 428 in graphs'init.
+If y\_label on graphs is upside-down change value (y.angle) in line 428 in Graphs' init.
 
 ## Users Guide
 
@@ -31,17 +33,17 @@ If y\_label on graphs is upside-down change value (y.angle) in line 428 in graph
 
 ![GUI Screenshot](./Images/GUI_Screenshot.png)
 
-| Command                    | Description                                                                                                                                                                                                           |
-| ---                        | ---                                                                                                                                                                                                                   |
-| **1 Ports**                | Selects the COM port connected to the device.                                                                                                                                                                         |
-| **2 Connect/Disconnect**   | Toggles the PSoC-GUI communication.                                                                                                                                                                                   |
-| **3 Start/Stop Device**    | Toggles data acquisition (N.B if Stop Device is pressed, the eeprom\_index is maintained).                                                                                                                            |
-| **4 Print Data**           | Returns the stored data in a graphical format and automatically saves the session into a [\%H-\%M-\%S]data.csv. Data are stored in directories named as \%F. Once done device is turned off and EXT\_EEPROM is reset. |
-| **5 Change Settings**      | Allows to select different configurations according to user request, afterwards resets EXT\_EEPROM to avoid data inconsistencies.                                                                                     |
-| **6 FSR**                  | Full scale range that goes from ±2g to ±16g.                                                                                                                                                                          |
-| **7 ODR**                  | Output data rate that can be selected as 1Hz, 10Hz, 25Hz, 50Hz.                                                                                                                                                       |
-| **8 Temp. Format**         | Selects the temperature measurement unit.                                                                                                                                                                             |
-| **9 EEPROM\_Saving**       | Enables/disables EXT\_EEPROM data saving.                                                                                                                                                                             |
+| Command                   | Description                                                                                                                                                                                                         |
+| ---                       | ---                                                                                                                                                                                                                 |
+| **1. Ports**              | Selects the COM port to which the device is connected.                                                                                                                                                              |
+| **2. Conn./Disconnect**   | Toggles the PSoC-GUI communication.                                                                                                                                                                                 |
+| **3. Start/Stop Device**  | Toggles data acquisition (N.B if Stop Device is pressed, the EEPROM\_index is maintained).                                                                                                                          |
+| **4. Print Data**         | Returns the stored data in graphical format and automatically saves the session into a [\%H-\%M-\%S]data.csv. Data are stored in directories named as \%F. Once done device is turned off and EXT\_EEPROM is reset. |
+| **5. Change Settings**    | Allows to select different configurations according to user request, afterwards resets EXT\_EEPROM to avoid data inconsistencies.                                                                                   |
+| **6. FSR**                | Full scale range that goes from ±2g to ±16g.                                                                                                                                                                        |
+| **7. ODR**                | Output data rate that can be selected as 1Hz, 10Hz, 25Hz, 50Hz.                                                                                                                                                     |
+| **8. Temp. Format**       | Selects the temperature measurement unit.                                                                                                                                                                           |
+| **9. EEPROM\_Saving**     | Enables/disables EXT\_EEPROM data saving.                                                                                                                                                                           |
 
 ### On-Board Controls
 
