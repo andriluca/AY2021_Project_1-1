@@ -120,6 +120,18 @@
 
     void I2C_EXT_EEPROM_PrintWord(uint16_t word);
 
+// =========================================== BETA FUNCTION ===========================================
+
+/*****************************************************************************\
+ * Function:    doRetrieveIncompleteFIFO
+ * Returns:     void
+ * Description: 
+ *     This function sends through UART the partial FIFO writing during a print 
+ * event
+\*****************************************************************************/
+
+    void doRetrieveIncompleteFIFO();
+    
     extern uint16_t eeprom_index;
     uint16_t pages;
     

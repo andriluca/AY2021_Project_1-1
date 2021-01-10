@@ -43,16 +43,17 @@ Run this block if something went wrong when running the program.
 
 *NB*: tested on an Artix linux machine with pacman as package manager and an iMac running macOS Big Sur. The user is kindly asked to check for pip availability on his/her system.
 
-```shell
+```bash
+# 1. Installing python-pip
 sudo pacman -Syu
 sudo pacman -S python-pip
-
+# 2. Appending $USER to the group uucp
 sudo usermod -a -G uucp $USER
 ```
 
 
 The procedure is identical. Dependencies are slightly different.
-```shell
+```bash
 # 1. Installing virtualenv
 pip install virtualenv;
 # 2. Creating empty virtual environment
@@ -72,6 +73,12 @@ For both the kind of system it's necessary to run the following command in order
 python GUI/main.py
 ```
 
+*NB*: Color legend is reported in the status bar at the bottom of the interface.
+- **Acceleration**
+	- Red: Acceleration along x\_axis.
+	- Green: Acceleration along the y\_axis.
+	- Blue: Acceleration along the z\_axis.
+- **Temperature**: Yellow
 
 *NB*: If y\_label on graphs is upside-down change value (y.angle) in line 428 in Graphs' init.
 
@@ -106,6 +113,9 @@ python GUI/main.py
 	1. *Period 1s, DC 100%*: EXT\_EEPROM is resetting (the pulse duration depends on the n° of pages been written).
 1. **External LED**: switches on when EXT\_EEPROM is being read and data are sent through UART.
 
+## Beta
+
+It's also available a beta version that includes the partial reading of the FIFO registers when a print event occurs before Watermark. To test this version it's possible to remove the *// BETA VERSION* comments in main branch or, without further efforts, by compiling the code in the last commit of the branch "Partial\_reading".
 
 ## For more technical info
 

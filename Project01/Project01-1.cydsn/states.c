@@ -553,6 +553,10 @@ void doStopping(uint8_t resetting){
     
     // Disabling temperature data saving.
     temp = LOW;
+    // BETA VERSION
+//    I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+//                                 LIS3DH_CTRL_REG5,
+//                                 LIS3DH_FIFO_DIS_CTRL_REG5);       // FIFO disable
     // Reading configuration byte
     settings = INT_EEPROM_ReadByte(CONFIG_REGISTER);
     // Saving toggled bit
@@ -657,6 +661,8 @@ void doChangeConfig(){
 void doVisualizing(){
     
     doStopping(EXT_EEPROM_NO_RESETTING);
+    // BETA VERSION
+//  doRetrieveIncompleteFIFO();
     doReadEEPROM();
     doEEPROMReset();
     
@@ -727,6 +733,9 @@ void doWriteEEPROM(){
 
     CyDelay(5);
     fifo_write = LOW;
+    // BETA VERSION
+//    for(uint8_t i = 0; i<126; i++) out[i] = 0;
+//    for(uint8_t i = 0; i<(LEVEL_TO_READ + 1) * 3; i++) temperature[i] = 0;
 
 }
 
@@ -954,3 +963,71 @@ uint16_t retrieve_pages(uint16_t eeprom_index){
     
 }
 
+
+/*
+=========================================== BETA FUNTION ===========================================
+*/
+void doRetrieveIncompleteFIFO(){
+
+ 
+
+    uint32_t concatenated_Data;
+    uint16_t raw_data_16bit[3];
+    uint8_t last_level;
+    I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS, 0x2f, &last_level);
+    last_level = (last_level & 0x1F);
+    index_temp = 0;
+    
+    if (last_level && !full_eeprom ){
+
+ 
+
+        for (uint8_t level = 0; level < last_level; level++){
+
+ 
+
+            // Receiving raw data
+            I2C_LIS3DH_Get_Raw_Data(raw_data_16bit);
+            concatenated_Data = 0;
+            
+            // Packing data into a 32 bit unsigned int
+            uint8_t count = LIS3DH_OUT_AXES - 1;
+                for(uint8_t i = 0; i < LIS3DH_OUT_AXES; i++){
+                    
+                    concatenated_Data |= (uint32_t)((raw_data_16bit[i] & 0x3FF) << 10*count);
+                    count--;
+                
+                }
+
+ 
+
+                // Populating the buffer with acceleration values.
+                for(uint8_t i = 0; i < LIS3DH_RESOLUTION; i++)     
+                    out[i + offset] = (uint8_t)((concatenated_Data >> 8*i) & 0xFF);
+
+ 
+
+            // Populating the buffer with temperature values
+            out[4 + offset] = temperature[index_temp];
+            out[5 + offset] = temperature[index_temp + 1];
+
+ 
+
+            index_temp = index_temp + 2;
+            offset = offset + 6;
+        
+        }
+        
+        index_temp = 0;
+        offset = 0;
+        
+        CyDelay(5);
+        doWriteEEPROM();
+        
+        for(uint8_t i = 0; i<126; i++) out[i] = 0;
+        for(uint8_t i = 0; i<(LEVEL_TO_READ + 1) * 3; i++) temperature[i] = 0;
+    
+    }
+    
+}
+ 
