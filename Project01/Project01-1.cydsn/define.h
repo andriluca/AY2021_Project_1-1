@@ -51,6 +51,7 @@
         
     // Control Register 5
     #define LIS3DH_FIFO_EN_CTRL_REG5            0x40    // Enable the FIFO register.
+    #define LIS3DH_FIFO_DIS_CTRL_REG5           0x00
 
     // FIFO Control Register
 	// Modes
