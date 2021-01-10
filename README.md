@@ -3,9 +3,9 @@
 ## Requirements
 
 ### Software
-1. python 3.7.9
-1. PSoC Creator 4.4
-1. python-pip 20.3.3
+1. Python >= 3.7.9
+1. PSoC Creator >= 4.4
+1. python-pip >= 20.3.3
 
 ### Hardware
 1. PSoC 5LP
@@ -20,11 +20,11 @@
 
 ![Electrical Schematic](./Images/Schematico.png)
 
-### Dependencies
+### Software dependencies management
 
 #### Windows users
 For a basic installation it's required to run these commands on a prompt.
-```shell
+```powershell
 # 1. Installing virtualenv
 pip install virtualenv;
 # 2. Creating empty virtual environment
@@ -64,6 +64,8 @@ pip install -r mac_gnu_requirements.txt;
 garden install graph
 ```
 
+### Running the program
+
 For both the kind of system it's necessary to run the following command in order to run the GUI program.
 
 ```shell
@@ -71,7 +73,7 @@ python GUI/main.py
 ```
 
 
-If y\_label on graphs is upside-down change value (y.angle) in line 428 in Graphs' init.
+*NB*: If y\_label on graphs is upside-down change value (y.angle) in line 428 in Graphs' init.
 
 ## Users Guide
 
@@ -79,8 +81,8 @@ If y\_label on graphs is upside-down change value (y.angle) in line 428 in Graph
 
 ![GUI Screenshot](./Images/GUI_Screenshot.png)
 
-| 	| Command                   | Description                                                                                                                                                                                                         |
-| --- 	| ---                       | ---                                                                                                                                                                                                                 |
+| 	| Command                | Description                                                                                                                                                                                                         |
+| --- 	| ---                    | ---                                                                                                                                                                                                                 |
 | 1 	| **Ports**              | Selects the COM port to which the device is connected.                                                                                                                                                              |
 | 2 	| **Conn./Disconnect**   | Toggles the PSoC-GUI communication.                                                                                                                                                                                 |
 | 3 	| **Start/Stop Device**  | Toggles data acquisition (N.B if Stop Device is pressed, the previous acquisitions are still maintained).                                                                                                                          |

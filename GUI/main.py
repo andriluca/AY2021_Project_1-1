@@ -250,7 +250,7 @@ class Home (BoxLayout):
                 temp.append(t) 
             
             time_stamp = time.strftime('%H-%M-%S')
-            name_file = '[' + time_stamp + ']data.csv'
+            name_file = '[' + time_stamp + '].csv'
             data_w = csv.writer(open(os.path.join(newpath, name_file), 'w', newline=''), delimiter=";")                            #creating .csv file to save data
             if self.tf.text == "Celsius":
                 temp_label="TEMPERATURE [°C]"
