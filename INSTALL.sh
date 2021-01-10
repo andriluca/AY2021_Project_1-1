@@ -6,19 +6,18 @@ pipinstall(){
 	# Checking the installation of pip
 	! [ -x /usr/bin/pip ] || ! [ -x /usr/bin/pip3 ] && \
 	# User OS selection
-	echo -e "\nRequested SU privileges to install python-pip\nWhat system are you using?
-		\n(1) Arch based\n(2) Debian based\n(3) RHEL/Fedora\n(4) Gentoo based\n(5) macOS (brew package manager is prompted)" && \
+	echo -e "\nRequested SU privileges to install python-pip\nSelect the number of the operative system currently in use.
+		\n(1) Arch based\n(2) Debian based\n(3) RHEL/Fedora\n(4) Gentoo based\n(5) macOS" && \
 	read input
 	case $input in
 		1)echo "Using pacman..."; sudo pacman -Syu; sudo pacman -S python-pip; checkmembership;;
 		2)echo "Using apt..."; sudo apt update; sudo apt install python3-pip; checkmembership;;
 		3)echo "Using dnf..."; sudo dnf install python-pip; checkmembership;;
 		4)echo "Using emerge..."; emerge --ask dev-python/pip checkmembership;;
-		5)echo "Asking for brew installation";
-			echo "Wanna install brew package manager? (Y/n)" && read choice;
-			([ -z $choice  ] || [ $choice == 'y' ] || [ $choice == 'Y' ] && echo "installazione") && \
-			sh -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-		;;
+		5) curl	-o get-pip.py https://bootstrap.pypa.io/get-pip.py;
+			chmod +x get-pip.py
+			python3 get-pip.py
+			rm get-pip.py;;
 		*)echo "Skipping the python-pip installation!";;
 	esac
 	# If no virtual environment is present, manage a new install.
