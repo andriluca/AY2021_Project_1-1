@@ -4,7 +4,7 @@
 
 ### Software
 1. Python >= 3.7.9
-1. PSoC Creator >= 4.4
+1. PSoC Creator == 4.4
 1. python-pip >= 20.3.3
 
 ### Hardware
@@ -12,7 +12,6 @@
 1. LIS3DH
 1. TMP36 (Temperature sensor)
 1. 24LC512 (Ext. EEPROM)
-
 
 ## Installation
 
@@ -24,6 +23,7 @@
 
 #### Windows users
 For a basic installation it's required to run these commands on a prompt.
+
 ```powershell
 # 1. Installing virtualenv
 pip install virtualenv;
@@ -37,9 +37,9 @@ garden install graph
 ```
 
 ### \*nix users
+Be sure python-pip is installed on your sistem and that the user is a member of uucp or dialout group.
 
-Be sure python-pip is installed on your sistem and that the user is a member of the group uucp or dialout.
-Run this block if something went wrong when running the program.
+#### Through shell script
 There are two sh scripts that automate installation and run process.
 The first one is requiring SU privileges in order to install python-pip.
 
@@ -50,18 +50,18 @@ chmod +x RUN.sh INSTALL.sh
 ./INSTALL.sh
 ```
 
-
 *NB*: tested on an Artix linux machine with pacman as package manager and an iMac running macOS Big Sur. The user is kindly asked to check for pip availability on his/her system.
 
+#### Manual
+Run this block if something went wrong during installation through shell script.
+
 ```bash
-# 1. Installing python-pip
+# 1. Installing python-pip (Arch based distribution. change package manager if required)
 sudo pacman -Syu
 sudo pacman -S python-pip
 # 2. Appending $USER to the group uucp
 sudo usermod -a -G uucp $USER
 ```
-
-
 The procedure is identical. Dependencies are slightly different.
 ```bash
 # 1. Installing virtualenv
@@ -74,7 +74,6 @@ source ./venv/Scripts/activate;
 pip install -r mac_gnu_requirements.txt;
 garden install graph
 ```
-
 ### Running the program
 
 For both the kind of system it's necessary to run the following command in order to run the GUI program.
@@ -133,7 +132,6 @@ It's also available a beta version that includes the partial reading of the FIFO
 - [TMP36](https://www.analog.com/media/en/technical-documentation/data-sheets/TMP35_36_37.pdf)
 - [LIS3DH](https://www.st.com/resource/en/datasheet/lis3dh.pdf)
 - [EEPROM](https://ww1.microchip.com/downloads/en/DeviceDoc/21754M.pdf)
-
 
 ### Application Notes
 - [LIS3DH](https://www.st.com/resource/en/application_note/cd00290365-lis3dh-mems-digital-output-motion-sensor-ultralowpower-highperformance-3axis-nano-accelerometer-stmicroelectronics.pdf)
