@@ -40,6 +40,16 @@ garden install graph
 
 Be sure python-pip is installed on your sistem and that the user is a member of the group uucp or dialout.
 Run this block if something went wrong when running the program.
+There are two sh scripts that automate installation and run process.
+The first one is requiring SU privileges in order to install python-pip.
+
+```bash
+# Allowing the scripts to be executable.
+chmod +x RUN.sh INSTALL.sh
+# Running installation script. Application will start after this command.
+./INSTALL.sh
+```
+
 
 *NB*: tested on an Artix linux machine with pacman as package manager and an iMac running macOS Big Sur. The user is kindly asked to check for pip availability on his/her system.
 
