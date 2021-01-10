@@ -257,7 +257,7 @@ class Home (BoxLayout):
             else:
                 temp_label="TEMPERATURE [°F]"  
 
-            data_w.writerow(("X AXIS ACCELERATION [m/s^2]","Y AXIS ACCELERATION [m/s^2]","Z AXIS ACCELERATION [m/s^2]",temp_label))
+            data_w.writerow(("X AXIS ACCELERATION [m/s^2]","Y AXIS ACCELERATION [m/s^2]","Z AXIS ACCELERATION [m/s^2]",temp_label, "FSR: "+ self.fsr.text, "ODR :"+ self.sf.text))
             
             for i in range(len(acc_x)):                                                     #all data arrays have the same length
                 if self.tf.text == "Celsius":                                               #first convert temp data in correct format 
@@ -299,7 +299,7 @@ class Home (BoxLayout):
         data.size_hint_x = 1 + (24*len(obj)/10752)          #max lenght data = 10752, graph size adjusted
         
         if self.sf.text == '1Hz':                           #set ticks on ODR, each tick = 1s
-            data.x_ticks_major = 5
+            data.x_ticks_major = 1
         elif self.sf.text == '10Hz':
             data.x_ticks_major = 10
         elif self.sf.text == '25Hz': 
