@@ -1,3 +1,3 @@
 #!/bin/sh
 
-python GUI/main.py
+python3 GUI/main.py

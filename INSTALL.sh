@@ -34,10 +34,10 @@ checkmembership(){
 }
 newvirtualenv(){
 
-	pip install virtualenv
+	pip3 install virtualenv
 	mkdir venv && virtualenv venv
 	source venv/bin/activate
-	pip install -r mac_gnu_requirements.txt
+	pip3 install -r mac_gnu_requirements.txt
 	garden install graph
 
 }
