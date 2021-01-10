@@ -662,6 +662,7 @@ void doVisualizing(){
     
     msg = ' ';
     comm_rec = LOW;
+
     
 }
 
@@ -687,15 +688,9 @@ void doTemperature(){
 
 void doWatermark(){
     
-    uint8_t test;
-    I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS, 0x2f, &test);
-    test = (test & 0x1F);
     index_temp = 0;
     doManageData();
     index_temp = 0;         // Resetted again because in doManageData() it gets incremented
-    uint8_t test_2;
-    I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS, 0x2f, &test_2);
-    test_2 = (test_2 & 0x1F);
     offset = 0;
     fifo_write = HIGH;
     wtm = LOW;

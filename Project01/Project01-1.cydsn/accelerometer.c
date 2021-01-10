@@ -12,7 +12,7 @@ extern uint8_t index_temp;
 ErrorCode I2C_LIS3DH_Start(uint8 setting)
 {
     uint8 config[2];
-    uint8_t period = I2C_LIS3DH_SetConfig(setting, config);
+    uint16_t period = I2C_LIS3DH_SetConfig(setting, config);
     // Setup control register 1
     I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                  LIS3DH_CTRL_REG1,
